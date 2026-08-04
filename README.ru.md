@@ -138,17 +138,34 @@ FourEyes ставится **копированием внутрь**: файлы 
 оставляет команды без префикса, а правила — always-on;
 [плагины не умеют ни того, ни другого](#distribution-model)).
 
-**Скопируйте кит, затем адаптируйте:**
+**Скопируйте кит, затем адаптируйте.** Замените `<project>` на путь к вашему проекту и запускайте
+откуда угодно, **кроме** самого проекта: клон — временные леса, а не то, что вы оставляете себе.
+
 ```bash
-git clone https://github.com/mik2win/foureyes.git foureyes
-[ -e <project>/.claude ] && cp -r <project>/.claude <project>/.claude.bak   # сначала бэкап
+# 1. Склонируйте кит во временное место — НЕ внутрь проекта
+git clone https://github.com/mik2win/foureyes.git /tmp/foureyes
+
+# 2. Забэкапьте всё, что кит и /bootstrap могут перезаписать
+[ -e <project>/.claude ]   && cp -r <project>/.claude <project>/.claude.bak
+[ -f <project>/CLAUDE.md ] && cp <project>/CLAUDE.md <project>/CLAUDE.md.bak
+
+# 3. Скопируйте кит в .claude/ проекта (инфраструктура репозитория остаётся снаружи)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
   --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
-  foureyes/ <project>/.claude/
+  /tmp/foureyes/ <project>/.claude/
+
+# 4. Удалите клон — кит теперь живёт в вашем проекте
+rm -rf /tmp/foureyes
 ```
+
 Затем откройте проект в Claude Code и запустите **`/bootstrap`**. Полный разбор:
 [Интеграция в новый проект](#integrate).
+
+Две вещи, которые стоит знать заранее: существующий `.claude/settings.local.json` **уцелеет**
+(копирование добавляет файлы, ваши оно не удаляет), а если под ваш стек пака правил в библиотеке
+нет — `/bootstrap` скажет об этом и предложит продолжить только с generic-правилами, он не
+угадывает.
 
 Копирование внутрь — **единственный** путь установки, и это осознанно: почему плагин не может
 нести этот кит, см. [Модель распространения](#distribution-model).
@@ -388,18 +405,31 @@ flowchart LR
 > копируйте руками — используйте **`/update-kit`** (см. [Обновление кита](#update-kit)); он
 > сохраняет ваши адаптации.
 
+Шаги 1–4 запускайте откуда угодно, **кроме** каталога `<project>`, заменив `<project>` на путь к
+вашему проекту. Клон репозитория уже есть? Укажите его путь в шаге 3 и пропустите шаги 1 и 4.
+
 ```bash
-# 1. (существующий проект) забэкапьте всё, что кит может перезаписать, чтобы полностью восстановиться потом
-[ -e <project>/.claude ] && cp -r <project>/.claude <project>/.claude.bak
+# 1. Склонируйте кит во временное место — НЕ внутрь проекта
+git clone https://github.com/mik2win/foureyes.git /tmp/foureyes
+
+# 2. (существующий проект) забэкапьте всё, что кит может перезаписать, чтобы полностью восстановиться потом
+[ -e <project>/.claude ]   && cp -r <project>/.claude <project>/.claude.bak
 [ -f <project>/CLAUDE.md ] && cp <project>/CLAUDE.md <project>/CLAUDE.md.bak
 
-# 2. Скопируйте содержимое кита в .claude/ проекта (пропустив git и инфраструктуру репозитория)
+# 3. Скопируйте содержимое кита в .claude/ проекта (пропустив git и инфраструктуру репозитория)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
   --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
-  foureyes/ <project>/.claude/
+  /tmp/foureyes/ <project>/.claude/
+
+# 4. Удалите клон — кит теперь живёт в вашем проекте
+rm -rf /tmp/foureyes
 ```
-3. Откройте проект в Claude Code и запустите **`/bootstrap`**. Он:
+
+Откатить всё до этого момента: `rm -rf <project>/.claude && mv <project>/.claude.bak
+<project>/.claude`, плюс `mv <project>/CLAUDE.md.bak <project>/CLAUDE.md`, если бэкапили.
+
+5. Откройте проект в Claude Code и запустите **`/bootstrap`**. Он:
    - забэкапит файлы, которые собирается менять, затем определит пустой это проект или существующий и просканирует стек;
    - составит черновик `.claude/PROJECT.md` (спросив у вас домен и всё неоднозначное);
    - выберет паки правил из `_kit/rules-library/`, подходящие стеку;
@@ -407,8 +437,10 @@ rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='to
      спросит, как разрешать расхождения (принять / ослабить / пропустить);
    - сгенерирует `.claude/rules/`, `settings.json`, git-команды и подключит `CLAUDE.md`;
    - спросит **оставить или откатить**, затем **приберёт** `_kit/` и `*.template.*`.
-4. Дымовой тест: запустите `/analyst` (он интервьюирует исходя из домена в профиле) и команду
-   `test` из профиля.
+6. Дымовой тест: запустите `/analyst` (он интервьюирует исходя из домена в профиле) и команду
+   `test` из профиля. На существующем проекте посмотрите ещё `git diff` по `CLAUDE.md` и
+   `.gitignore` — `/bootstrap` вливает в них блок, а не переписывает файл, и именно это слияние
+   стоит прочитать своими глазами.
 
 ## Паки правил
 
@@ -442,11 +474,17 @@ rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='to
 **`/update-kit`** вместо повторного копирования:
 
 ```bash
-# Положите новую версию кита в staging-папку внутри проекта (пропустив git и инфраструктуру репозитория)
+# 1. Склонируйте новую версию во временное место
+git clone https://github.com/mik2win/foureyes.git /tmp/foureyes
+
+# 2. Положите её в staging-папку внутри проекта (пропустив git и инфраструктуру репозитория)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
   --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
-  foureyes/ <project>/.claude/.kit-incoming/
+  /tmp/foureyes/ <project>/.claude/.kit-incoming/
+
+# 3. Удалите клон
+rm -rf /tmp/foureyes
 ```
 Затем откройте проект в Claude Code и запустите **`/update-kit`** (или `/update-kit <путь-к-новому-киту>`,
 и он сам подготовит staging). За один проход он:
