@@ -20,7 +20,8 @@ Steps:
 5. Create the merge request. Prefer the GitLab MCP server when connected; otherwise use
    `glab mr create` with the target branch, title, and a description.
 6. Write the description with a short summary, a bullet list of notable changes, and a
-   test plan. Keep it factual.
+   test plan. Keep it factual, and never hard-wrap the prose — one paragraph is one line,
+   the web UI wraps it.
 7. Report the MR URL.
 
 Do not merge. Do not force-push. Stop and ask if anything is ambiguous.

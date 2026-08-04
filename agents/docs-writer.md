@@ -116,6 +116,10 @@ The coordinator (user) runs lint + tests at each wave boundary and makes one com
 - Never remove existing content without stating why.
 - No debug code references in docs.
 - Keep documents under ~500 lines — split large specs into parts.
+- **Never hard-wrap prose.** One paragraph is one line — no wrapping at 80/100 columns.
+  The renderer wraps; a re-wrapped paragraph makes a one-word edit diff every line after
+  it. Keep breaks only where they mean something: list items, table rows, code blocks,
+  frontmatter.
 - Acceptance criteria must be testable.
 
 ## Memory

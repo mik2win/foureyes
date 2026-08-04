@@ -18,7 +18,8 @@ Steps:
 4. Derive the title from the commits (honor any ticket-prefix convention from
    `PROJECT.md`), then a concise summary.
 5. Create the PR with `gh pr create` (or the GitHub MCP server if connected). Body:
-   **Summary**, a bullet list of notable **Changes**, and a **Test plan**. Keep it factual.
+   **Summary**, a bullet list of notable **Changes**, and a **Test plan**. Keep it factual,
+   and never hard-wrap the prose — one paragraph is one line, the web UI wraps it.
 6. Report the PR URL.
 
 Do not merge. Do not force-push. Stop and ask if anything is ambiguous.

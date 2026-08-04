@@ -43,6 +43,10 @@ These are the kit's own rules applied to the kit. A PR that breaks one will be a
 
 `README.md` and `README.ru.md` are kept in structural parity — same sections, same tables, same code blocks. If you change one and cannot write the other, say so in the PR and it will be translated; an out-of-sync pair is worse than an untranslated note. Code identifiers, paths, commands, config keys, and established domain terms stay in English inside the Russian text.
 
+### Prose is not hard-wrapped
+
+In markdown that a human reads rendered — both READMEs, `CHANGELOG.md`, `docs/*.md`, the root policy files, and PR descriptions — one paragraph is **one line**. No wrapping at 80 or 100 columns; the renderer wraps, and a re-wrapped paragraph turns a one-word fix into a diff over every following line. Line breaks stay where they carry meaning: list items, table rows, code blocks, frontmatter. Commit messages are exempt — wrap those as usual.
+
 ## Commits and pull requests
 
 Commit messages follow Conventional Commits with the touched area as scope:
