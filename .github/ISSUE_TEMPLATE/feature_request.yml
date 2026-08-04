@@ -1,0 +1,71 @@
+name: New skill, rule, or capability
+description: Propose something the kit should do and currently doesn't.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The kit already ships 49 skills, 16 agents, and 14 generic rule files. The bar for an
+        addition is not "this would be useful" — it is that **no existing part covers the case**
+        and that the addition earns the context it costs. Lead with the situation, not the
+        solution.
+
+  - type: textarea
+    id: situation
+    attributes:
+      label: The situation this serves
+      description: >
+        Describe a concrete moment in real work where you reached for the kit and found nothing
+        that fit. What were you trying to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: What you do today instead
+      description: >
+        Which existing skill did you try, and how did it fall short? If `/which-skill` routed you
+        somewhere, say where.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: shape
+    attributes:
+      label: What shape should this take
+      description: See CONTRIBUTING.md — project-specific facts belong in PROJECT.md or a rule pack, not in a skill.
+      options:
+        - A new skill
+        - A change to an existing skill
+        - A new agent
+        - A generic rule
+        - A stack rule pack
+        - A hook
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Rough proposal
+      description: What it would do, and what it would deliberately NOT do.
+
+  - type: textarea
+    id: cost
+    attributes:
+      label: What it costs
+      description: >
+        Would it need always-on context? A model-invocable description (which is spent on every
+        request)? A blocking hook? Be honest — additions that only ever load on demand are much
+        easier to accept.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked `/which-skill`'s catalog and the README's "What's in it" table
+          required: true

@@ -1,0 +1,29 @@
+name: react-ts
+description: React + TypeScript conventions, Feature-Sliced Design, testing, and Inertia (React side). Lean, Claude-only.
+detect:
+  any_of:
+    - file: "package.json"
+      contains: "react"
+    - glob: "**/*.tsx"
+depends_on: []
+installs:
+  - react-conventions.md
+  - fsd.md
+  - react-testing.md
+  - rule: inertia-react.md
+    when: "project uses Inertia.js"
+    probe: "grep -Eq '@inertiajs|inertia' package.json 2>/dev/null"
+    on_absent: skip
+also_install:
+  - CLAUDE.md
+assumptions:
+  - id: fsd-layout
+    rule_file: fsd.md
+    expects: "Frontend organised in Feature-Sliced Design layers (app/pages/widgets/features/entities/shared)."
+    probe: "Check the frontend root for FSD layer folders vs a flat component tree."
+    on_divergence: ask
+  - id: state-lib
+    rule_file: react-conventions.md
+    expects: "Global state in a shared lib (e.g. Zustand/Context), data injected via hooks."
+    probe: "Look for a shared state lib and hook-based data access vs deep prop-drilling."
+    on_divergence: ask

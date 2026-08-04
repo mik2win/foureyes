@@ -1,0 +1,32 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: kit structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Frontmatter, the skill-listing budget, dead links (markdown *and* backticked
+      # kit paths), hook syntax + executable bit, JSON, machine-local paths.
+      # Stdlib only — nothing to install.
+      - name: Validate kit
+        run: python3 tools/validate-kit.py --stats
+
+      # The validator parses hooks; this runs a real linter over them. Advisory:
+      # a style opinion from shellcheck should not block a documentation PR.
+      - name: Lint hooks
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -S warning hooks/*.sh

@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question about using the kit
+    url: https://github.com/mik2win/foureyes/discussions
+    about: How do I do X, which skill fits my situation, is this the intended behaviour.
+  - name: Claude Code itself is misbehaving
+    url: https://github.com/anthropics/claude-code/issues
+    about: Harness bugs — hooks not firing, plugins, permissions, MCP. Not kit issues.
+  - name: How to install
+    url: https://github.com/mik2win/foureyes#install
+    about: FourEyes installs by copying into your project's .claude/, then running /bootstrap.

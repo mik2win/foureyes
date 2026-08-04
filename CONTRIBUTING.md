@@ -1,0 +1,93 @@
+# Contributing to FourEyes
+
+Thanks for looking. FourEyes is a `.claude/` bundle, not an application — so "contributing" mostly
+means writing prompts, rules, and hooks that survive contact with a weaker model than the one you
+tested on. This document covers the local checks, the conventions the kit holds itself to, and the
+few rules that are non-negotiable.
+
+## Quick start
+
+```bash
+git clone https://github.com/mik2win/foureyes.git && cd foureyes
+python3 tools/validate-kit.py --stats     # stdlib only, nothing to install
+```
+
+The validator checks skill/agent frontmatter, the skill-listing budget, dead links (both markdown
+links and backticked kit paths), hook syntax and executable bits, JSON validity, and machine-local
+paths that leaked into committed files. CI runs exactly this, plus an advisory `shellcheck` pass
+over `hooks/`. **Run it before you open a PR** — a green local run is the whole gate.
+
+To actually exercise a change, copy the kit into a throwaway project's `.claude/` and run it.
+Reading a skill is not testing a skill.
+
+## The rules the kit holds itself to
+
+These are the kit's own rules applied to the kit. A PR that breaks one will be asked to change.
+
+**Warn, don't block.** A hook warns and exits 0. Blocking — `exit 2` or
+`permissionDecision: "deny"` — is allowed only on an *irreversible* action, and the kit ships
+exactly one such case (`guard-bash.sh`). Everywhere else a false positive costs more than the miss
+it prevents. If a proposed hook can only work by blocking, that is a reason to reject the hook.
+
+**Evidence over assertion.** Claims in skills, rules, and the README are expected to be checkable.
+"Should work" is not a smoke test. If you measured something, say what you measured and on what; if
+you didn't, don't imply you did. The README deliberately publishes results that argue *against* the
+kit — keep that habit.
+
+**Skills carry invariant logic only.** Every project-specific fact (stack, paths, commands, layers,
+domain) belongs in `PROJECT.md`, which `/bootstrap` writes. If your change makes a skill know
+something about a particular stack, it probably belongs in a rule pack under
+`_kit/rules-library/` instead.
+
+**Mind the always-on budget.** Only `rules/_generic/core.md` loads unconditionally, and three A/B
+rounds found that a *larger* always-on tier bought cost, not quality. Adding always-on text needs a
+reason beyond "it seems useful". Prefer a `paths:`-scoped rule, or a doc the rule points at.
+
+**Respect the listing budget.** Every model-invocable skill's `description` is spent on every
+request. `validate-kit.py --stats` prints the per-skill budget; the cap is 1536 characters and the
+validator warns within 10% of it. Most skills should carry `disable-model-invocation: true`
+(42 of 49 do) — the kit is manual-first on purpose.
+
+**Never publish code on the user's behalf.** The kit denies `git add`/`commit`/`merge`/`push` and
+blocks them in `guard-bash.sh`. Do not add a code path that stages, commits, or pushes; suggest the
+command as text and let the user run it.
+
+## Working on specific parts
+
+| You're changing | Read first | Also update |
+|---|---|---|
+| a skill | [`skills/writing-skills/SKILL.md`](skills/writing-skills/SKILL.md) | the README "What's in it" table, the Layout tree, `/which-skill`'s catalog, and any prose count (`N of the kit's M skills`) |
+| an agent | [`rules/_generic/delegation.md`](rules/_generic/delegation.md) | check the harness doesn't strip tools you declared |
+| a rule | [`_kit/rules-library/PACKS.md`](_kit/rules-library/PACKS.md) | the rule's `description:` frontmatter records what it absorbed — keep provenance greppable |
+| a hook | the warn-not-block contract above | `settings.template.json`, or a `settings.*.example.json` if it's opt-in |
+| the README | — | **both** `README.md` and `README.ru.md` |
+
+### Both READMEs, always
+
+`README.md` and `README.ru.md` are kept in structural parity — same sections, same tables, same
+code blocks. If you change one and cannot write the other, say so in the PR and it will be
+translated; an out-of-sync pair is worse than an untranslated note. Code identifiers, paths,
+commands, config keys, and established domain terms stay in English inside the Russian text.
+
+## Commits and pull requests
+
+Commit messages follow Conventional Commits with the touched area as scope:
+
+```
+feat(kit): …    fix(rules): …    docs(readme): …    refactor(skills): …
+```
+
+In the PR description, state what you changed, how you verified it, and what you did *not* verify.
+An honest "I ran the validator but did not exercise this in a real project" is more useful than
+silence.
+
+## Reporting bugs and proposing skills
+
+Use the [issue templates](.github/ISSUE_TEMPLATE). For a bug, the single most valuable thing is the
+Claude Code version plus what the agent actually did versus what you expected. For a new skill,
+lead with the situation it serves — the kit already has 49 skills, and the bar for a fiftieth is
+that no existing one covers the case and `/which-skill` would genuinely mis-route without it.
+
+## License
+
+By contributing you agree that your contributions are licensed under the [MIT License](LICENSE).

@@ -1,0 +1,56 @@
+---
+description: Code-work baseline — greppability, comments, boundary validation, security. Loaded on src file work (merged from greppability, comments, boundary-validation, security — 2026-08-01 tier cut).
+paths:
+  - "**/*"
+---
+
+# Code baseline (src-scoped)
+
+## Greppability
+
+- The next maintainer is an agent navigating by exact-name search: **one symbol = one
+  greppable definition site**; call sites use the literal name. Never construct identifiers
+  at runtime (`getattr(obj, name + "_hook")`, string-assembled imports/routes) — each one is
+  invisible to every future inventory. Boilerplate is not a reason; prefer a deep module or
+  **generated-and-committed** code over runtime magic.
+- Sanctioned metaprogramming (ORM, routing, DSL) lives in one narrow declared layer, and
+  every generated name is enumerable from a static registry next to the generator.
+
+## Comments
+
+- Default: none. A comment earns its place only for a non-obvious **why** — decision,
+  trade-off, invariant, external quirk. Never restate what code does, never commented-out
+  code or journal entries (git remembers), no TODOs without an owner.
+- Read as human-written: no decorative glyphs, banners, or filler ("Note that", "simply");
+  terse coworker's note, not documentation prose.
+- **No internal planning labels** — spec/session/wave/finding IDs (`US-2`, `B-2`, `BUG-17`) and
+  plan-file paths mean nothing to a future reader: say the *why* in domain terms. Holds for
+  identifiers, string literals, test names, and anything generated for a user (reports, logs).
+
+## Boundary validation
+
+- Validate external data **once, at ingress**; everything past the boundary trusts its
+  inputs. **Parse, don't validate**: turn raw input into a typed value that can't be
+  invalid; make illegal states unrepresentable (enum over free string).
+- Fail fast and loud: invalid required input raises with what's wrong, where, the actual
+  value and the expected range — never a silent None/empty the caller can't diagnose.
+- Data with a cadence gets a staleness check (threshold derived from cadence, error carries
+  last-seen age); computations get minimum-size checks. Config validates at load, not first
+  use. State loaded from storage and network responses are sanity-checked before use, not
+  indexed blind.
+
+## Security
+
+- Everything crossing a boundary — request, file, env, queue, third-party response — is
+  untrusted until validated. Normalize before checking; **allowlist**, don't blocklist.
+- Authorization at the layer that owns the resource, deny by default; scope every query to
+  the caller's tenant/owner — never trust a request id to be in scope.
+- No secrets in code, fixtures, VCS, or logs; redact at the source. On a leak: rotate
+  first, then scrub history.
+- **Parameterize** queries and commands — never concatenate untrusted input into SQL,
+  shell, or eval. Outbound requests from user input: allowlist host/scheme/port, forbid
+  redirects to internal addresses (SSRF), re-check after redirects. File paths: resolve to
+  a real path and confirm it stays under the intended base.
+- Safe defaults: least privilege, TLS on, auth required, debug off in prod; a security
+  decision **fails closed**. Dependencies: pinned lockfile, maintained packages, audits
+  acted on, upgrades via expand → test → contract.

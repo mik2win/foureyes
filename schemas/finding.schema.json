@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "feature-flow-kit/finding.schema.json",
+  "title": "Finding Contract",
+  "description": "One finding from a finder/reviewer agent, as JSON. The machine-checkable form of the kit's Finding Contract: path:line citation, severity, effort, and a concrete harm scenario. Orchestrating skills pass this schema when fanning out finders so N agents' findings merge mechanically; a single object or an array under `findings` both validate.",
+  "type": "object",
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "scope": {
+      "type": "string",
+      "description": "What was searched/reviewed — the bound on any 'none found' claim."
+    },
+    "searched_but_absent": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Negative results: things looked for and NOT found (evidence of absence, with the search that was run)."
+    }
+  },
+  "required": ["findings", "scope"],
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "properties": {
+        "claim": {
+          "type": "string",
+          "description": "One-sentence statement of the issue — the claim alone, no rationale."
+        },
+        "path": {
+          "type": "string",
+          "description": "Repo-relative file path, from a file the agent actually opened."
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-indexed line the finding anchors to, as the code exists NOW."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "warning", "suggestion"]
+        },
+        "effort": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Estimated fix effort."
+        },
+        "harm": {
+          "type": "object",
+          "description": "The concrete harm scenario — a finding with none of these is an observation, not a finding.",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": ["failure", "newcomer", "extension"],
+              "description": "failure: input/state → wrong outcome; newcomer: what concretely confuses a new developer; extension: how many files must change to add a variant, and why."
+            },
+            "scenario": {
+              "type": "string",
+              "description": "The scenario itself: concrete input/state → wrong output, or the confusion/extension cost spelled out."
+            }
+          },
+          "required": ["kind", "scenario"]
+        },
+        "source_rule": {
+          "type": "string",
+          "description": "The rule/invariant the finding traces to (rule file, PROJECT.md section, ADR), if any."
+        },
+        "proposed_fix": {
+          "type": "string",
+          "description": "Concrete fix shape, if the agent was asked to propose one."
+        },
+        "verdict": {
+          "type": "string",
+          "enum": ["CONFIRMED", "REFUTED", "STALE", "UNVERIFIED"],
+          "description": "Set only after a finding-verifier pass; absent on raw finder output."
+        }
+      },
+      "required": ["claim", "path", "line", "severity", "harm"]
+    }
+  }
+}

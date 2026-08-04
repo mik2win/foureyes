@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="FourEyes">
+  <title>FourEyes</title>
+
+  <!-- Punches a clean gap wherever the front pair crosses the back pair. -->
+  <mask id="behind">
+    <rect width="512" height="512" fill="#fff"/>
+    <g fill="#000">
+      <circle cx="239" cy="312" r="97"/>
+      <circle cx="385" cy="312" r="97"/>
+      <rect x="307" y="285" width="10" height="54" rx="5"/>
+    </g>
+  </mask>
+
+  <rect width="512" height="512" rx="112" fill="#0f1420"/>
+
+  <!-- back pair — the eyes that wrote it -->
+  <g mask="url(#behind)" fill="none" stroke="#59637a" stroke-width="26" stroke-linecap="round">
+    <circle cx="127" cy="200" r="68"/>
+    <circle cx="273" cy="200" r="68"/>
+    <path d="M195 200 h10"/>
+    <path d="M59 178 l-14 -22"/>
+  </g>
+
+  <!-- front pair — the second pair of eyes -->
+  <g fill="none" stroke="#f2b230" stroke-width="26" stroke-linecap="round">
+    <circle cx="239" cy="312" r="68"/>
+    <circle cx="385" cy="312" r="68"/>
+    <path d="M307 312 h10"/>
+    <path d="M453 290 l14 -22"/>
+  </g>
+</svg>

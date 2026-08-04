@@ -1,0 +1,26 @@
+name: postgres
+description: PostgreSQL best practices — universal (types, indexes, EXPLAIN, transactions, VACUUM, security, backup) + Rails-specific (pooling, multi-db, JSONB, partitioning, RLS).
+detect:
+  any_of:
+    - file: "Gemfile"
+      contains: "pg"
+    - glob: "db/migrate/**"
+    - path_exists: "config/database.yml"
+depends_on: []
+installs:
+  - postgresql-universal.md
+  - rule: postgresql-rails.md
+    when: "Rails project on PostgreSQL"
+    probe: "grep -q 'rails' Gemfile 2>/dev/null"
+    on_absent: skip
+also_install:
+  - CLAUDE.md
+  - claude/skills/
+assumptions:
+  - id: is-postgres
+    rule_file: postgresql-universal.md
+    expects: "Primary datastore is PostgreSQL."
+    probe: "Confirm PostgreSQL via Gemfile (pg), database.yml adapter, or docker-compose."
+    on_divergence: skip
+notes: |
+  Add to any project alongside its language pack (e.g. ruby + postgres, python + postgres).

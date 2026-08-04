@@ -1,0 +1,38 @@
+name: python
+description: Python language, design, async/concurrency, data, and testing conventions (lean, Claude-only).
+detect:
+  any_of:
+    - file: "pyproject.toml"
+    - file: "setup.py"
+    - file: "requirements.txt"
+    - glob: "**/*.py"
+depends_on: []
+installs:
+  - python-style.md
+  - python-design.md
+  - python-testing.md
+  - rule: python-async-concurrency.md
+    when: "project uses asyncio"
+    probe: "grep -rlq --include='*.py' 'async def\\|import asyncio' . 2>/dev/null"
+    on_absent: skip
+  - rule: python-data.md
+    when: "project uses pandas/numpy"
+    probe: "grep -Eq 'pandas|numpy' pyproject.toml setup.py requirements*.txt 2>/dev/null"
+    on_absent: skip
+  - rule: python-observability.md
+    when: "project does logging or runs as a service/app (not a throwaway script)"
+    probe: "grep -rlq --include='*.py' 'import logging\\|getLogger\\|structlog\\|loguru' . 2>/dev/null || grep -Eq 'structlog|loguru|fastapi|flask|django|uvicorn|gunicorn|celery' pyproject.toml setup.py requirements*.txt 2>/dev/null"
+    on_absent: skip
+also_install:
+  - CLAUDE.md
+assumptions:
+  - id: layering
+    rule_file: python-design.md
+    expects: "Pure-core/domain separated from I/O edges; no I/O in the domain layer."
+    probe: "Inspect package layout: is there a core/domain layer distinct from I/O modules (cli/http/db)?"
+    on_divergence: ask
+  - id: dataclasses-types
+    rule_file: python-style.md
+    expects: "Type hints on public functions; dataclasses for data containers."
+    probe: "Sample a few modules for type annotations and @dataclass usage."
+    on_divergence: ask

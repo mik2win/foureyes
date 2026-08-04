@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes
+
+# Editors / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs / temp
+*.log
+*.tmp
+
+# Secrets
+.env
+.env.*
+!.env.example
+.claude
+
+_incoming_rules/

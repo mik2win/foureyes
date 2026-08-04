@@ -1,0 +1,84 @@
+name: Bug report
+description: A skill, agent, rule, or hook did something other than what it says it does.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. The most useful bug reports say what the agent **actually did**,
+        not only that it went wrong.
+
+  - type: input
+    id: version
+    attributes:
+      label: Claude Code version
+      description: "Run `claude --version`."
+      placeholder: "2.1.xxx"
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Which part of the kit
+      description: The skill, agent, rule, or hook involved.
+      placeholder: "/implement, or hooks/skill-hint.sh, or rules/_generic/core.md"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: When did it happen
+      options:
+        - During /bootstrap
+        - During /update-kit
+        - During /teardown
+        - Normal use, after a successful bootstrap
+        - Before bootstrapping (raw copy-in)
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+      description: >
+        Paste the relevant transcript, hook output, or error. Redact anything private —
+        transcripts often contain source code and paths.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Ideally the prompt or command you ran, and roughly what the project looks like.
+      placeholder: |
+        1. Copy the kit into a fresh Python project's .claude/
+        2. Run /bootstrap and accept the defaults
+        3. Run /implement on a plan with ...
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: OS, project stack, and whether you customized the kit after bootstrapping.
+      placeholder: "macOS 15, Python 3.12 + FastAPI, kit unmodified since /bootstrap"
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I ran `python3 tools/validate-kit.py` and it did not already flag this
+          required: false
+        - label: I removed anything private from the pasted output
+          required: true

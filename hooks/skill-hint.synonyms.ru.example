@@ -1,0 +1,129 @@
+# skill-hint synonym map — RU → EN
+#
+# Each line: <lowercase stem>  <english terms the skill descriptions actually use…>
+# A stem found anywhere in the prompt appends its terms to the text the hook tokenizes.
+# Stems are raw substrings, so write the shortest unambiguous root: "эпик" catches
+# "эпика"/"эпику"/"эпиком". Lines starting with # and lines with <2 fields are ignored.
+# **Separate the stem from its terms with 2+ spaces.** That run of spaces is the delimiter, so a
+# stem may contain single spaces ("не публик"); one space between stem and terms still works for
+# single-token stems, but a multi-word stem written that way truncates to its first token.
+#
+# Rule of thumb when adding: the right-hand terms must appear in some SKILL.md `name:`,
+# `description:` or `when_to_use:` — the hook scores against those three, nothing else.
+# Terms shorter than 4 chars are dropped by the tokenizer, so write "docs" not "doc".
+
+# --- epics, plans, backlog ------------------------------------------------
+эпик        epic backlog
+закрыт      close closing epic terminal
+закрой      close closing epic
+карточк     card backlog plan
+бэклог      backlog epic
+план        plan planning prepare decompose
+подготов    prepare analysis plan
+декомпоз    decompose subtask atomic parallel
+разб        decompose subtask breakdown parallel
+статус      status dashboard progress
+сводк       status dashboard summary
+волн        wave backlog
+реализ      implement implementation subtask
+# закрытие эпика: «реализовал X, проверь всё ли сделано, можно в realised?» — самый частый
+# неуправляемый шаблон в корпусе (7 из 17 ложных срабатываний /triage). Всё это /close-epic.
+реализовал  implemented done verify closing terminal
+реализовали implemented done verify closing terminal
+завершил    done closing terminal realised verify
+выполнен    done closing terminal verify
+перенест    realised closing terminal done
+перенос     realised closing terminal done
+готово      done closing terminal verify
+внедр       implement implementation
+
+# --- analysis, requirements, ideas ----------------------------------------
+анализ      analysis analyse analyst
+проанализ   analysis analyse analyst
+требован    requirements clarify analyst
+уточн       clarify requirements analyst questions
+неясн       clarify ambiguous requirements analyst
+идея        idea brainstorm card
+предлож     idea proposal brainstorm
+исслед      discover research spike
+изуч        discover research onboard
+
+# --- review, audit, quality -----------------------------------------------
+ревью       review reviewing quality
+просмотр    review reviewing
+изменен     changes review
+правк       changes review
+аудит       audit quality security
+качеств     quality review
+безопасн    security secrets vulnerability threat
+уязвим      security vulnerability secrets threat
+архитектур  architecture structure
+структур    architecture structure
+дубл        duplication reuse refactor
+рефактор    refactor refactoring cleanup
+
+# --- debugging, incidents, production -------------------------------------
+диагност    diagnose debug investigate
+сломал      diagnose debug broken failure
+почему      diagnose debug
+ошибк       diagnose debug error failure
+падает      diagnose debug incident failure
+упал        incident diagnose failure outage
+инцидент    incident outage postmortem
+авари       incident outage failure
+логах       logs diagnose debug
+# симптом в домене вместо слова «диагностируй» — 3 молчания на ad-hoc корпусе
+уведомлен   notification diagnose incident debug
+не публик   diagnose incident debug failure
+не отправ   diagnose incident debug failure
+не сработ   diagnose incident debug failure
+не пришл    diagnose incident debug failure
+stall       diagnose incident debug latency
+# The four `не …` stems above are MULTI-WORD, which works only because skill-hint.sh splits the
+# stem from its terms on a run of **2+ spaces** — align them with at least two spaces or the
+# stem silently truncates to `не` and injects "diagnose incident debug failure" into any negated
+# Russian prompt (measured 2026-08-03, before the parser was fixed).
+логов       logs diagnose debug
+продакш     production live deploy
+проде       production live deploy
+боев        production live trading
+торгов      trading live production strategy
+позиц       trading position live
+бирж        exchange trading live
+
+# --- performance, deps, tests ---------------------------------------------
+медлен      performance perf slow latency
+тормоз      performance perf slow
+производит  performance perf throughput latency
+оптимиз     optimize performance perf strategy
+зависим     dependencies deps packages
+пакет       dependencies deps packages
+тест        test tests testing spec coverage
+покрыт      coverage test tests
+
+# --- shipping, docs, handoff ----------------------------------------------
+деплой      deploy rollout release production
+выкат       deploy rollout release
+релиз       release rollout deploy preflight
+готовност   preflight readiness release
+документ    docs documentation distill
+описан      docs documentation describe
+хэндофф     handoff continue session
+передач     handoff continue session
+онбординг   onboard onboarding codebase
+введен      onboard onboarding
+
+# --- strategies / this project's domain -----------------------------------
+стратег     strategy strategies trading
+бэктест     backtest strategy optimize
+индикатор   indicator strategy signal
+сигнал      signal strategy indicator
+график      chart web dashboard
+дашборд     dashboard chart web
+модул       module structure
+
+# --- meta: prompts, skills, agents ----------------------------------------
+промпт      prompt prompts brief writing
+скилл       skill skills
+агент       agent agents subagent delegation
+правил      rules rule conventions

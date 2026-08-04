@@ -1,0 +1,48 @@
+name: ruby
+description: Ruby + Rails universal rules (style, OOP, stdlib, models, queries, DB, controllers, business logic, jobs, caching, security, testing) + Inertia/multi-tenancy gap-fills.
+detect:
+  any_of:
+    - file: "Gemfile"
+    - glob: "**/*.rb"
+depends_on: []
+installs:
+  - ruby-style.md
+  - ruby-oop.md
+  - llm-agent-practices.md
+  - rspec-testing.md
+  - rails-models.md
+  - rails-activerecord-queries.md
+  - rails-database.md
+  - rails-controllers-routing.md
+  - rails-business-logic.md
+  - rails-background-jobs.md
+  - rails-caching-storage.md
+  - rails-security.md
+  - rule: rails-inertia.md
+    when: "project uses Inertia (not Hotwire)"
+    probe: "grep -q 'inertia_rails' Gemfile 2>/dev/null"
+    on_absent: skip
+  - rule: rails-multitenancy.md
+    when: "project is multi-tenant"
+    probe: "grep -Eq 'acts_as_tenant|multitenant' Gemfile 2>/dev/null || grep -rlq 'tenant_id' app/models 2>/dev/null"
+    on_absent: ask
+  - rule: ruby-observability.md
+    when: "Rails app or a service that logs (lograge/semantic_logger or Rails.logger usage)"
+    probe: "grep -Eq 'rails|lograge|semantic_logger' Gemfile 2>/dev/null || test -f config/application.rb"
+    on_absent: skip
+also_install:
+  - CLAUDE.md
+  - claude/skills/          # action skills + ruby-idioms (on-demand stdlib reference)
+templates:
+  - project-overview.md
+assumptions:
+  - id: solid-stack
+    rule_file: rails-background-jobs.md
+    expects: "Rails 8 Solid stack (Solid Queue/Cache/Cable) or compatible ActiveJob backend."
+    probe: "Check Gemfile/config for solid_queue, solid_cache, or the job backend in use."
+    on_divergence: ask
+  - id: service-layer
+    rule_file: rails-business-logic.md
+    expects: "Business logic in app/services (and forms/policies/queries/values), thin controllers."
+    probe: "Check for app/services and whether controllers stay thin."
+    on_divergence: ask

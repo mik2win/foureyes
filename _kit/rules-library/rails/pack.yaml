@@ -1,0 +1,30 @@
+name: rails
+description: Condensed Rails profile (combined Ruby+Rails conventions, RSpec, UI/UX, code-review) — lighter alternative to the full `ruby` pack.
+detect:
+  any_of:
+    - file: "Gemfile"
+      contains: "rails"
+    - path_exists: "config/application.rb"
+depends_on: []
+installs:
+  - ruby-rails-conventions.md
+  - rspec-testing.md
+  - ui-ux.md
+  - rule: observability.md
+    when: "Rails app emitting request/app logs"
+    probe: "test -f config/application.rb || grep -q 'rails' Gemfile 2>/dev/null"
+    on_absent: skip
+also_install:
+  - CLAUDE.md
+  - claude/skills/          # code-review, write-tests, rails-conventions-reference, rspec-reference, ui-ux-reference
+templates:
+  - project-overview.md
+assumptions:
+  - id: view-layer
+    rule_file: ui-ux.md
+    expects: "Server-rendered views (Hotwire/Stimulus/ViewComponent); examples use Slim."
+    probe: "Check app/views template engine and whether Hotwire/Stimulus is used (vs an SPA/Inertia front end)."
+    on_divergence: ask
+notes: |
+  Pick EITHER `rails` (condensed) OR `ruby` (comprehensive) — not both; they overlap.
+  For an Inertia + React front end, use `ruby` + `react-ts` instead of this pack's `ui-ux`.

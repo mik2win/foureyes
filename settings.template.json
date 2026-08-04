@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(git blame*)",
+      "Bash(ls*)",
+      "Bash(cat*)",
+      "Bash(head*)",
+      "Bash(tail*)",
+      "Bash(wc*)",
+      "Bash(grep*)",
+      "Bash(rg*)",
+      "Bash(find*)",
+      "Bash(tree*)",
+      "Skill(idea)",
+      "Skill(discover)",
+      "Skill(analyst)",
+      "Skill(prepare)",
+      "Skill(spike)",
+      "Skill(prototype)",
+      "Skill(select-tech)",
+      "Skill(onboard)",
+      "Skill(api-design)",
+      "Skill(threat-model)",
+      "Skill(perf)",
+      "Skill(implement)",
+      "Skill(scaffold)",
+      "Skill(code-review)",
+      "Skill(audit-quality)",
+      "Skill(refactor)",
+      "Skill(diagnose)",
+      "Skill(test)",
+      "Skill(tdd)",
+      "Skill(test-spec)",
+      "Skill(arch-health)",
+      "Skill(decompose)",
+      "Skill(revisit)",
+      "Skill(distill)",
+      "Skill(clean-mvp)",
+      "Skill(sweep)",
+      "Skill(audit-security)",
+      "Skill(deps)",
+      "Skill(rollout)",
+      "Skill(deploy)",
+      "Skill(preflight)",
+      "Skill(incident)",
+      "Skill(retro)",
+      "Skill(grill)",
+      "Skill(grill-with-docs)",
+      "Skill(domain-model)",
+      "Skill(codebase-design)",
+      "Skill(to-prd)",
+      "Skill(to-issues)",
+      "Skill(triage)",
+      "Skill(epic-status)",
+      "Skill(close-epic)",
+      "Skill(prompt-master)",
+      "Skill(which-skill)",
+      "Skill(writing-skills)",
+      "Skill(handoff)",
+      "Skill(bootstrap)",
+      "Skill(teardown)",
+      "Skill(update-kit)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/*.pem)",
+      "Read(./**/credentials*)",
+      "Bash(rm -rf /*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git merge*)",
+      "Bash(git push*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/sessionstart.sh" }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Bash", "hooks": [{ "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.sh" }] },
+      { "matcher": "Write|Edit", "hooks": [{ "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-secrets.sh" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Write|Edit", "hooks": [{ "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format-file.sh", "statusMessage": "Formatting edited file..." }] }
+    ],
+    "SubagentStop": [
+      { "hooks": [{ "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/subagent-stop.sh" }] }
+    ],
+    "PreCompact": [
+      { "hooks": [{ "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/precompact.sh" }] }
+    ]
+  }
+}
