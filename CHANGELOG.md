@@ -9,7 +9,7 @@ copying files into a project's `.claude/`, "version" means *the kit source you c
 
 ## [Unreleased]
 
-## [0.1.0] — unreleased
+## [0.1.0] — 2026-08-04
 
 First public release. Everything below is the initial contents rather than a diff.
 

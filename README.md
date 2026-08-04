@@ -135,6 +135,7 @@ git clone https://github.com/mik2win/foureyes.git foureyes
 [ -e <project>/.claude ] && cp -r <project>/.claude <project>/.claude.bak   # back up first
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
+  --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
   foureyes/ <project>/.claude/
 ```
 Then open the project in Claude Code and run **`/bootstrap`**. Full walkthrough:
@@ -374,6 +375,7 @@ as committed shared knowledge, but you decide per category; `/bootstrap` writes 
 # 2. Copy the kit's contents into the project's .claude/ (skip git and repo infrastructure)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
+  --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
   foureyes/ <project>/.claude/
 ```
 3. Open the project in Claude Code and run **`/bootstrap`**. It will:
@@ -419,6 +421,7 @@ without losing skills you adapted, your `PROJECT.md`, `CONTEXT.md`, ADRs, or bac
 # Drop the new kit version into a staging folder inside the project (skip git + repo infrastructure)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
+  --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
   foureyes/ <project>/.claude/.kit-incoming/
 ```
 Then open the project in Claude Code and run **`/update-kit`** (or `/update-kit <path-to-new-kit>`
@@ -470,7 +473,7 @@ foureyes/                     → its contents become <project>/.claude/
 ├── .github/                #   dead links (markdown + backticked kit paths), hooks, JSON
 │   ├── workflows/ci.yml
 │   └── ISSUE_TEMPLATE/
-├── CONTRIBUTING.md  CHANGELOG.md
+├── CONTRIBUTING.md  CHANGELOG.md  CODE_OF_CONDUCT.md  SECURITY.md
 └── LICENSE                 # MIT
 ```
 

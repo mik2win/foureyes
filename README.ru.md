@@ -144,6 +144,7 @@ git clone https://github.com/mik2win/foureyes.git foureyes
 [ -e <project>/.claude ] && cp -r <project>/.claude <project>/.claude.bak   # сначала бэкап
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
+  --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
   foureyes/ <project>/.claude/
 ```
 Затем откройте проект в Claude Code и запустите **`/bootstrap`**. Полный разбор:
@@ -395,6 +396,7 @@ flowchart LR
 # 2. Скопируйте содержимое кита в .claude/ проекта (пропустив git и инфраструктуру репозитория)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
+  --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
   foureyes/ <project>/.claude/
 ```
 3. Откройте проект в Claude Code и запустите **`/bootstrap`**. Он:
@@ -443,6 +445,7 @@ rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='to
 # Положите новую версию кита в staging-папку внутри проекта (пропустив git и инфраструктуру репозитория)
 rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='tools' \
   --exclude='.github' --exclude='LICENSE' --exclude='CONTRIBUTING.md' --exclude='CHANGELOG.md' \
+  --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='.gitignore' \
   foureyes/ <project>/.claude/.kit-incoming/
 ```
 Затем откройте проект в Claude Code и запустите **`/update-kit`** (или `/update-kit <путь-к-новому-киту>`,
@@ -495,7 +498,7 @@ foureyes/                     → его содержимое становитс
 ├── .github/                #   мёртвые ссылки (markdown + пути кита в бэктиках), хуки, JSON
 │   ├── workflows/ci.yml
 │   └── ISSUE_TEMPLATE/
-├── CONTRIBUTING.md  CHANGELOG.md
+├── CONTRIBUTING.md  CHANGELOG.md  CODE_OF_CONDUCT.md  SECURITY.md
 └── LICENSE                 # MIT
 ```
 
