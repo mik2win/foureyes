@@ -4,26 +4,15 @@
 
 # FourEyes 🤓
 
-> A self-contained `.claude/` that turns any repo into a disciplined feature factory — one
-> adaptive pipeline from discovery to shipped code, backed by a fleet of subagents that report
-> signal, not noise.
+> A self-contained `.claude/` that turns any repo into a disciplined feature factory — one adaptive pipeline from discovery to shipped code, backed by a fleet of subagents that report signal, not noise.
 
-*Two meanings, both meant. **Four-eyes** is the kid in glasses who actually read the manual. The
-**four-eyes principle** is the rule that no consequential work is accepted on one pair of eyes.
-This kit automates the second one so you can afford to be the first.*
+*Two meanings, both meant. **Four-eyes** is the kid in glasses who actually read the manual. The **four-eyes principle** is the rule that no consequential work is accepted on one pair of eyes. This kit automates the second one so you can afford to be the first.*
 
-A portable, **stack-adaptive** feature pipeline (`/discover → /analyst → /prepare → /implement`)
-plus quality, alignment, and backlog skills, 16 subagents, generic + stack rule packs, hooks, and a
-`/bootstrap` adapter that tailors the whole thing to any project. Drop it into a project's
-`.claude/`, run `/bootstrap`, and you get the full workflow + project-specific rules — no per-project
-skill rewrites.
+A portable, **stack-adaptive** feature pipeline (`/discover → /analyst → /prepare → /implement`) plus quality, alignment, and backlog skills, 16 subagents, generic + stack rule packs, hooks, and a `/bootstrap` adapter that tailors the whole thing to any project. Drop it into a project's `.claude/`, run `/bootstrap`, and you get the full workflow + project-specific rules — no per-project skill rewrites.
 
 ## What was measured — including the results that argue against the kit
 
-Most kits ship claims. This one was put on a blind A/B bench first: two arms of the same real
-repository differing by exactly one thing, a sealed mixing map, a 5-axis rubric (correctness ·
-edge/unhappy-path · verification · report honesty · process fit), and a written noise-limits
-section. Four rounds. Everything it returned is below, negatives included.
+Most kits ship claims. This one was put on a blind A/B bench first: two arms of the same real repository differing by exactly one thing, a sealed mixing map, a 5-axis rubric (correctness · edge/unhappy-path · verification · report honesty · process fit), and a written noise-limits section. Four rounds. Everything it returned is below, negatives included.
 
 | Question the bench was asked | What came back |
 |---|---|
@@ -32,87 +21,34 @@ section. Four rounds. Everything it returned is below, negatives included.
 | Do skills fire by themselves when a prompt matches one? | **No. Zero invocations across all 16 runs.** ~10k of always-on skill descriptions never matched anything. That is the finding behind [manual-by-default and its three escape hatches](#skills-are-manual-by-default--and-the-three-escape-hatches). |
 | Does *this particular rule* pay for its context? | **The bench cannot answer that** — isolating one rule and keeping a run valid turned out to be mutually exclusive conditions. Saying so was more useful than a number; the candidate queue was closed with transcript counters instead. |
 
-**Limits, stated plainly.** One production Python repo plus neutral arms, n=2 per cell, and the
-judge is a model. The stack packs (ruby / rails / react-ts / postgres) were never in an arm — they
-are contributed templates, not measured ones. Read the table as directional, not as a benchmark.
+**Limits, stated plainly.** One production Python repo plus neutral arms, n=2 per cell, and the judge is a model. The stack packs (ruby / rails / react-ts / postgres) were never in an arm — they are contributed templates, not measured ones. Read the table as directional, not as a benchmark.
 
-The reason to publish the negatives is that they are the expensive part. Anyone can write a rule
-file; knowing that a tier of them buys cost and not quality took four rounds and ~40 judged
-sessions, and it changed the kit's shape.
+The reason to publish the negatives is that they are the expensive part. Anyone can write a rule file; knowing that a tier of them buys cost and not quality took four rounds and ~40 judged sessions, and it changed the kit's shape.
 
 ### The discipline layer — what you won't find in another kit
 
-Most kits give you *workflow*. The pipeline shape (`discover → ship`, one-question interviews,
-living glossaries) is real but not rare — it's shared methodology, and FourEyes
-[credits its lineage](#why-foureyes-not-another-agent-collection). What sets FourEyes apart is the **discipline layer underneath the
-workflow**: an explicit model of *how agents fail* and countermeasures wired into structure, not
-hope. If you take one thing, take this.
+Most kits give you *workflow*. The pipeline shape (`discover → ship`, one-question interviews, living glossaries) is real but not rare — it's shared methodology, and FourEyes [credits its lineage](#why-foureyes-not-another-agent-collection). What sets FourEyes apart is the **discipline layer underneath the workflow**: an explicit model of *how agents fail* and countermeasures wired into structure, not hope. If you take one thing, take this.
 
-- **A field catalog of 22 agent failure modes** — [`docs/agent-failure-modes.md`](docs/agent-failure-modes.md).
-  Each entry is *symptom → mechanism (why it happens) → countermeasure → where the kit already wires
-  it*. `/retro` classifies recurring problems against it; `/writing-skills` designs new skills
-  *against* it. Most kits ship "best practices"; this ships a theory of the defects and the fix for
-  each.
-- **Generation-from-the-inside rules** — [`docs/self-knowledge.md`](docs/self-knowledge.md) + the
-  distilled [`self-knowledge`](rules/_generic/core.md), [`diligence`](rules/_generic/core.md),
-  and [`decision-craft`](rules/_generic/core.md) rules. These target the defaults a strong
-  model *won't* self-correct: recalled facts are stale-by-default (verify against the lockfile, not
-  memory); evidence is derived before the verdict (a verdict written first anchors the analysis under
-  it); you can't fairly review what you just wrote (real review goes to a fresh context); rewrites
-  regress to the training mean (surprising code is load-bearing until proven decorative); effort is
-  *allocation, not motivation* (done is an external list, the hard part goes first, homework isn't
-  handed back). This is behavioral override, not encouragement.
-- **Greppability as an architectural contract** — [`rules/_generic/code.md`](rules/_generic/code.md).
-  Premise: *the next maintainer is an agent that navigates by exact-name search*, so every future
-  inventory (a `/sweep`, a dead-code proof, an audit) is only as complete as what search can see.
-  One symbol = one greppable definition site; no runtime-constructed names outside a declared,
-  enumerable seam. Boilerplate is not an excuse — the human motive for metaprogramming (typing
-  fatigue) doesn't apply to an agent, while its costs hit agents harder.
-- **Adversarial, lens-diverse verification** — the **Finding Contract** across
-  the whole fleet, plus `finding-verifier`'s **panel mode**: N clones briefed identically share blind
-  spots (their agreement is an echo), so CRITICAL findings get one *distinct lens* per instance
-  (correctness / security / does-it-reproduce), default-REFUTED, majority vote. Independence is bought
-  with framing, not head-count.
+- **A field catalog of 22 agent failure modes** — [`docs/agent-failure-modes.md`](docs/agent-failure-modes.md). Each entry is *symptom → mechanism (why it happens) → countermeasure → where the kit already wires it*. `/retro` classifies recurring problems against it; `/writing-skills` designs new skills *against* it. Most kits ship "best practices"; this ships a theory of the defects and the fix for each.
+- **Generation-from-the-inside rules** — [`docs/self-knowledge.md`](docs/self-knowledge.md) + the distilled [`self-knowledge`](rules/_generic/core.md), [`diligence`](rules/_generic/core.md), and [`decision-craft`](rules/_generic/core.md) rules. These target the defaults a strong model *won't* self-correct: recalled facts are stale-by-default (verify against the lockfile, not memory); evidence is derived before the verdict (a verdict written first anchors the analysis under it); you can't fairly review what you just wrote (real review goes to a fresh context); rewrites regress to the training mean (surprising code is load-bearing until proven decorative); effort is *allocation, not motivation* (done is an external list, the hard part goes first, homework isn't handed back). This is behavioral override, not encouragement.
+- **Greppability as an architectural contract** — [`rules/_generic/code.md`](rules/_generic/code.md). Premise: *the next maintainer is an agent that navigates by exact-name search*, so every future inventory (a `/sweep`, a dead-code proof, an audit) is only as complete as what search can see. One symbol = one greppable definition site; no runtime-constructed names outside a declared, enumerable seam. Boilerplate is not an excuse — the human motive for metaprogramming (typing fatigue) doesn't apply to an agent, while its costs hit agents harder.
+- **Adversarial, lens-diverse verification** — the **Finding Contract** across the whole fleet, plus `finding-verifier`'s **panel mode**: N clones briefed identically share blind spots (their agreement is an echo), so CRITICAL findings get one *distinct lens* per instance (correctness / security / does-it-reproduce), default-REFUTED, majority vote. Independence is bought with framing, not head-count.
 
-The workflow is the part you'll recognize from other kits. The discipline layer is the part that
-makes a 10-agent review return signal instead of confident noise.
+The workflow is the part you'll recognize from other kits. The discipline layer is the part that makes a 10-agent review return signal instead of confident noise.
 
 ### Why FourEyes, not another agent collection
 
-Most Claude Code repos are *catalogs* — a pile of independent agents you wire together yourself.
-FourEyes is the opposite: **one opinionated path with quality gates**, engineered so it stays generic.
+Most Claude Code repos are *catalogs* — a pile of independent agents you wire together yourself. FourEyes is the opposite: **one opinionated path with quality gates**, engineered so it stays generic.
 
-- **A pipeline, not a pile.** `discover → spec → plan → build → review` as a single self-propelling
-  flow, not 200 à-la-carte agents.
-- **Subagents that respect your context window.** Every finder honors one **Finding Contract** —
-  bounded, structured findings (`path:line` + severity + effort + concrete harm) — so a 10-agent
-  review returns signal, not an 8k-token dump. This discipline, applied across the whole fleet, is
-  the part you won't find elsewhere.
-- **Drop-in and stack-adaptive.** `/bootstrap` reads your repo into `PROJECT.md`; skills stay
-  generic and adapt at runtime. Porting = copy + bootstrap, never editing skills. The design is
-  stack-neutral by construction — no skill names a language — but it has been *exercised* on
-  Python; the ruby / rails / react-ts / postgres packs ship untested by the bench.
-- **Survives long work.** The plan is the single source of truth across compaction and sessions
-  (the *Artifact-Continuity Contract*) — resume mid-feature without re-explaining. Stage gates
-  make the pipeline mechanical: each stage checks the previous artifact on entry and returns a
-  weak one with reasons, instead of silently compensating downstream.
-- **A learning loop, not a static pack.** Every `/implement` writes a Deviation Report; `/retro`
-  mines them (plus handoffs and diagnose logs) for recurring, evidence-verified patterns and
-  folds the lessons back into your rules and profile — the kit adapts to your project over time.
+- **A pipeline, not a pile.** `discover → spec → plan → build → review` as a single self-propelling flow, not 200 à-la-carte agents.
+- **Subagents that respect your context window.** Every finder honors one **Finding Contract** — bounded, structured findings (`path:line` + severity + effort + concrete harm) — so a 10-agent review returns signal, not an 8k-token dump. This discipline, applied across the whole fleet, is the part you won't find elsewhere.
+- **Drop-in and stack-adaptive.** `/bootstrap` reads your repo into `PROJECT.md`; skills stay generic and adapt at runtime. Porting = copy + bootstrap, never editing skills. The design is stack-neutral by construction — no skill names a language — but it has been *exercised* on Python; the ruby / rails / react-ts / postgres packs ship untested by the bench.
+- **Survives long work.** The plan is the single source of truth across compaction and sessions (the *Artifact-Continuity Contract*) — resume mid-feature without re-explaining. Stage gates make the pipeline mechanical: each stage checks the previous artifact on entry and returns a weak one with reasons, instead of silently compensating downstream.
+- **A learning loop, not a static pack.** Every `/implement` writes a Deviation Report; `/retro` mines them (plus handoffs and diagnose logs) for recurring, evidence-verified patterns and folds the lessons back into your rules and profile — the kit adapts to your project over time.
 
-**Lineage — honest about its roots.** FourEyes builds on ideas popularized by
-[Matt Pocock's skills](https://github.com/mattpocock/skills) and
-[obra/superpowers](https://github.com/obra/superpowers) (the relentless one-question interview,
-living ubiquitous-language + ADRs, deep-module design, a discover→ship methodology — with nods to
-Eric Evans's DDD and John Ousterhout's *A Philosophy of Software Design*). What FourEyes adds is a
-**disciplined multi-agent layer** (the Finding Contract) and a **portable, stack-adaptive
-distribution** (`PROJECT.md` + `/bootstrap` + stack rule packs) so the whole methodology drops into
-any repo and stays generic.
+**Lineage — honest about its roots.** FourEyes builds on ideas popularized by [Matt Pocock's skills](https://github.com/mattpocock/skills) and [obra/superpowers](https://github.com/obra/superpowers) (the relentless one-question interview, living ubiquitous-language + ADRs, deep-module design, a discover→ship methodology — with nods to Eric Evans's DDD and John Ousterhout's *A Philosophy of Software Design*). What FourEyes adds is a **disciplined multi-agent layer** (the Finding Contract) and a **portable, stack-adaptive distribution** (`PROJECT.md` + `/bootstrap` + stack rule packs) so the whole methodology drops into any repo and stays generic.
 
-What is borrowed is *method*, not text — no file here is a copy of theirs, and the two kits'
-skills differ in structure, phases, and output format. Both upstreams are MIT, as is FourEyes
-([LICENSE](LICENSE)); the credit above is owed to the ideas regardless of what the license
-requires.
+What is borrowed is *method*, not text — no file here is a copy of theirs, and the two kits' skills differ in structure, phases, and output format. Both upstreams are MIT, as is FourEyes ([LICENSE](LICENSE)); the credit above is owed to the ideas regardless of what the license requires.
 
 ### FourEyes vs the two common archetypes
 
@@ -126,12 +62,9 @@ requires.
 
 ## Install
 
-FourEyes is **copy-in**: the files live in your project's `.claude/` (that's what keeps commands
-unprefixed and rules always-on — [plugins can't do either](#distribution-model)).
+FourEyes is **copy-in**: the files live in your project's `.claude/` (that's what keeps commands unprefixed and rules always-on — [plugins can't do either](#distribution-model)).
 
-**Copy the kit in, then adapt it.** Replace `<project>` with the path to your project, and run
-this from anywhere *except* inside that project — the clone is temporary scaffolding, not
-something you keep:
+**Copy the kit in, then adapt it.** Replace `<project>` with the path to your project, and run this from anywhere *except* inside that project — the clone is temporary scaffolding, not something you keep:
 
 ```bash
 # 1. Clone the kit to a temporary location — NOT inside your project
@@ -151,15 +84,11 @@ rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='to
 rm -rf /tmp/foureyes
 ```
 
-Then open the project in Claude Code and run **`/bootstrap`**. Full walkthrough:
-[Integrate into a new project](#integrate-into-a-new-project).
+Then open the project in Claude Code and run **`/bootstrap`**. Full walkthrough: [Integrate into a new project](#integrate-into-a-new-project).
 
-Two things worth knowing before you run it: an existing `.claude/settings.local.json` **survives**
-(the copy adds files, it never deletes yours), and if your stack has no rule pack in the library,
-`/bootstrap` says so and offers to proceed with the generic rules only — it doesn't guess.
+Two things worth knowing before you run it: an existing `.claude/settings.local.json` **survives** (the copy adds files, it never deletes yours), and if your stack has no rule pack in the library, `/bootstrap` says so and offers to proceed with the generic rules only — it doesn't guess.
 
-Copy-in is the **only** install path, by design — see [Distribution model](#distribution-model)
-for why a plugin can't carry this kit.
+Copy-in is the **only** install path, by design — see [Distribution model](#distribution-model) for why a plugin can't carry this kit.
 
 ## What's in it
 
@@ -187,13 +116,11 @@ for why a plugin can't carry this kit.
 
 ## Using the kit — recommended flows
 
-The skills are **composable**: reach for one directly, or chain them. Unsure which fits? Ask
-**`/which-skill "<your situation>"`** — it routes any situation to the right skill or chain.
+The skills are **composable**: reach for one directly, or chain them. Unsure which fits? Ask **`/which-skill "<your situation>"`** — it routes any situation to the right skill or chain.
 
 ### Three tiers — pick the right entry point
 
-Work arrives at three sizes, and each has its own entry point. Sending a whole surface to
-`/prepare` is the common mistake this table exists to prevent.
+Work arrives at three sizes, and each has its own entry point. Sending a whole surface to `/prepare` is the common mistake this table exists to prevent.
 
 | Tier | What you're holding | Entry point | What comes out |
 |------|---------------------|-------------|----------------|
@@ -201,9 +128,7 @@ Work arrives at three sizes, and each has its own entry point. Sending a whole s
 | **2 · Epic** | one card, or one coherent change | `/prepare` | `00-overview.md` + `NN-<subtask>.md` decomposed into file-disjoint waves |
 | **3 · Session** | one prepared subtask | `/implement` | code + implementation log + deviation report |
 
-A tier-1 pass **stops at cards** — it never writes plans and never implements; each card is
-then one `/prepare` input. Tier 2's wave machinery is what makes tier 3 sessions safe to run
-in parallel; `/epic-status` reports on it and `/close-epic` settles it.
+A tier-1 pass **stops at cards** — it never writes plans and never implements; each card is then one `/prepare` input. Tier 2's wave machinery is what makes tier 3 sessions safe to run in parallel; `/epic-status` reports on it and `/close-epic` settles it.
 
 ```text
   ask  /which-skill "<situation>"   →   it routes you to a step or the whole chain below
@@ -275,43 +200,28 @@ flowchart LR
 Common flows by activity:
 
 ### Build a feature (the main pipeline)
-`/discover` (prior art & reuse) → `/analyst` (spec via interview) → `/prepare` (design, impact,
-decomposition) → `/implement` (build + architecture audit + tests, plus a behavior check that
-drives *this* slice and names the epic's outstanding rows by number) → `/code-review` + `/test`.
-Run `/domain-model` alongside to capture terms/decisions into `CONTEXT.md` as they surface.
-- **Small, known change?** Skip ahead — `/prepare` then `/implement` (or `/implement` directly);
-  finish with `/code-review`.
-- **Still fuzzy?** Start at `/discover`, or `/grill-with-docs` to align *and* build the shared
-  language in one session.
+`/discover` (prior art & reuse) → `/analyst` (spec via interview) → `/prepare` (design, impact, decomposition) → `/implement` (build + architecture audit + tests, plus a behavior check that drives *this* slice and names the epic's outstanding rows by number) → `/code-review` + `/test`. Run `/domain-model` alongside to capture terms/decisions into `CONTEXT.md` as they surface.
+- **Small, known change?** Skip ahead — `/prepare` then `/implement` (or `/implement` directly); finish with `/code-review`.
+- **Still fuzzy?** Start at `/discover`, or `/grill-with-docs` to align *and* build the shared language in one session.
 
 ### Plan & analytics (requirements → work items)
-`/grill` or `/grill-with-docs` (pressure-test the idea, one question at a time) → `/analyst`
-(WHAT/WHY spec) → `/to-prd` (write up the discussion) → `/to-issues` (break into vertical-slice
-issues) → `/triage` (sort the local backlog, pick what's next). `/domain-model` keeps the
-ubiquitous language (`CONTEXT.md` + ADRs) sharp throughout. For a wave-structured epic from
-`/prepare`, `/epic-status` reports progress, the next safe wave, and session collisions.
+`/grill` or `/grill-with-docs` (pressure-test the idea, one question at a time) → `/analyst` (WHAT/WHY spec) → `/to-prd` (write up the discussion) → `/to-issues` (break into vertical-slice issues) → `/triage` (sort the local backlog, pick what's next). `/domain-model` keeps the ubiquitous language (`CONTEXT.md` + ADRs) sharp throughout. For a wave-structured epic from `/prepare`, `/epic-status` reports progress, the next safe wave, and session collisions.
 
 ### Test
-- **New code, test-first:** `/tdd` — red → green → refactor in vertical slices (`/implement` can
-  delegate a slice to it).
+- **New code, test-first:** `/tdd` — red → green → refactor in vertical slices (`/implement` can delegate a slice to it).
 - **Cover or clean existing tests:** `/test` — gap analysis, AAA/mocking discipline, refactor.
 - **Lock a bug fix:** reproduce with a failing test first (see *Debug*).
 
 ### Debug
-`/diagnose` (reproduce → isolate → root-cause → fix → verify) → `/tdd` or `/test` to lock the fix
-with a regression test.
+`/diagnose` (reproduce → isolate → root-cause → fix → verify) → `/tdd` or `/test` to lock the fix with a regression test.
 
 ### Refactor & architecture health
 - **Clean changed code (same behaviour):** `/code-review` (find) → `/refactor` (apply + format + test).
-- **Whole-codebase health, every few days:** `/arch-health` (rank shallow-module / ball-of-mud
-  opportunities) → `/refactor` (small) or `/prepare` → `/implement` (large). `/codebase-design` is
-  the shared deep-module vocabulary both lean on.
-- **Sweep the cruft (MVP stage):** `/clean-mvp` — whole-tree dead-code/legacy-shim removal with a
-  proof-of-deadness evidence gate and batched confirmations before anything is deleted.
+- **Whole-codebase health, every few days:** `/arch-health` (rank shallow-module / ball-of-mud opportunities) → `/refactor` (small) or `/prepare` → `/implement` (large). `/codebase-design` is the shared deep-module vocabulary both lean on.
+- **Sweep the cruft (MVP stage):** `/clean-mvp` — whole-tree dead-code/legacy-shim removal with a proof-of-deadness evidence gate and batched confirmations before anything is deleted.
 
 ### Explore / de-risk before committing
-- **One yes/no risk:** `/spike` (throwaway, time-boxed). **A design space (logic or UI options):**
-  `/prototype` (several variations to compare).
+- **One yes/no risk:** `/spike` (throwaway, time-boxed). **A design space (logic or UI options):** `/prototype` (several variations to compare).
 
 ### Maintain
 - **Dependencies & vulnerabilities:** `/deps` + the `security-reviewer` agent.
@@ -320,26 +230,13 @@ with a regression test.
 
 ### Skills are manual by default — and the three escape hatches
 
-**42 of the kit's 49 skills carry `disable-model-invocation: true`.** They run when *you* type
-`/prepare`, and never because the model decided a prompt looked like planning. That is the
-deliberate default, and it is worth being explicit about both sides of it.
+**42 of the kit's 49 skills carry `disable-model-invocation: true`.** They run when *you* type `/prepare`, and never because the model decided a prompt looked like planning. That is the deliberate default, and it is worth being explicit about both sides of it.
 
-**What it buys.** No surprise activation. A skill is a long, opinionated procedure — `/close-epic`
-alone spawns verifier agents, runs a battery, and edits two files. Auto-firing one on a
-half-formed request costs a rewind, not a turn, and the *silent* variant is worse: work done under
-a procedure you never chose and can't see in the transcript. Manual invocation also keeps the
-skill index out of the model's decision loop on every prompt.
+**What it buys.** No surprise activation. A skill is a long, opinionated procedure — `/close-epic` alone spawns verifier agents, runs a battery, and edits two files. Auto-firing one on a half-formed request costs a rewind, not a turn, and the *silent* variant is worse: work done under a procedure you never chose and can't see in the transcript. Manual invocation also keeps the skill index out of the model's decision loop on every prompt.
 
-**What it costs, measured.** A concrete task request with a perfect skill match **silently runs
-bare**. Three sessions asked "check if epic is done? `backlog/<name>`, run the verification steps
-from the overview" and reconstructed `/close-epic`'s checklist by hand: 70–92 Bash calls each,
-**zero** verifier agents spawned, the plan-status tool never run, and one session executed a
-`git mv` the skill's DO-NOT list forbids. The output was still good — the loss is the verification
-that never happened and roughly a quarter of each session spent rediscovering facts the skill
-already knows.
+**What it costs, measured.** A concrete task request with a perfect skill match **silently runs bare**. Three sessions asked "check if epic is done? `backlog/<name>`, run the verification steps from the overview" and reconstructed `/close-epic`'s checklist by hand: 70–92 Bash calls each, **zero** verifier agents spawned, the plan-status tool never run, and one session executed a `git mv` the skill's DO-NOT list forbids. The output was still good — the loss is the verification that never happened and roughly a quarter of each session spent rediscovering facts the skill already knows.
 
-The escape hatches exist because that failure is invisible from inside: nothing tells you a skill
-*would* have fired. There are three, in increasing order of how much they change:
+The escape hatches exist because that failure is invisible from inside: nothing tells you a skill *would* have fired. There are three, in increasing order of how much they change:
 
 | # | Hatch | What it does | Cost |
 |---|-------|--------------|------|
@@ -347,45 +244,23 @@ The escape hatches exist because that failure is invisible from inside: nothing 
 | 2 | **`/which-skill`'s silent match** | the router also fires on a concrete task that matches an installed skill's domain *without* naming it. One obvious match → one line naming the skill, then it runs (on your yes, or when the task is plainly that skill's own job); two candidates → one `AskUserQuestion`; no match → it says nothing about routing and the work happens bare | a router that answers loudly on every task would just add a turn; the brevity rule is what makes this affordable |
 | 3 | **`hooks/skill-hint.sh`** — opt-in, **OFF by default** | a `UserPromptSubmit` hook that scores the prompt against every installed skill's frontmatter and injects the top 1–2 names as advisory context. It never blocks, never rewrites the prompt, and stays silent when nothing scores or when the prompt already names a skill. ~29 ms/prompt, measured at 46 skills | not wired by the kit — merge the `UserPromptSubmit` block from `settings.skill-hint.example.json` into `.claude/settings.json` (or accept `/bootstrap`'s offer). `SKILL_HINT_DISABLE=1` turns it off without unwiring. **Matching is English-token based**, so a non-English prompt scores 0 and the hook stays silent — a missed hint, never a wrong one |
 
-A hint is not an invocation: hatches 2 and 3 put the skill's *name* in front of the session and
-stop there. The decision to run it stays yours, which is the property manual-by-default was
-protecting in the first place.
+A hint is not an invocation: hatches 2 and 3 put the skill's *name* in front of the session and stop there. The decision to run it stays yours, which is the property manual-by-default was protecting in the first place.
 
 ## Design principle
 
-Skills carry **only invariant workflow logic**. Every project fact (stack, commands,
-paths, layers, domain, integrations) lives in one place — **`.claude/PROJECT.md`** — which
-skills read at runtime. So porting = copy the kit + run `/bootstrap`, not editing skills.
+Skills carry **only invariant workflow logic**. Every project fact (stack, commands, paths, layers, domain, integrations) lives in one place — **`.claude/PROJECT.md`** — which skills read at runtime. So porting = copy the kit + run `/bootstrap`, not editing skills.
 
-A second, **living** document is the project's **`CONTEXT.md`** — the ubiquitous-language glossary
-(plus ADRs in `docs/adr/`) that `/domain-model` builds as you work. `PROJECT.md` holds static
-facts; `CONTEXT.md` holds the shared vocabulary, so the agent stays terse and names code
-consistently. Skills read it when present and speak its language.
+A second, **living** document is the project's **`CONTEXT.md`** — the ubiquitous-language glossary (plus ADRs in `docs/adr/`) that `/domain-model` builds as you work. `PROJECT.md` holds static facts; `CONTEXT.md` holds the shared vocabulary, so the agent stays terse and names code consistently. Skills read it when present and speak its language.
 
-**Artifact-Continuity Contract.** Because a fresh session reads only the plan file — not the
-chat — `rules/_generic/planning-artifacts.md` (on-demand, scoped to plan/spec/backlog files and
-read by every planning skill on entry) makes the planning artifact the
-single source of truth: every plan-touching skill and agent persists decisions (including test
-scope) into the affected plan the turn they're made, cross-links each spike/review/grill report
-from the plan header, sweeps sibling plans + the epic overview after a decision ripples, and
-marks load-bearing framework behaviour as an assumption to validate via `/spike`. It's the
-"Finding Contract" idea applied to plans, so context stops leaking between stages and sessions.
+**Artifact-Continuity Contract.** Because a fresh session reads only the plan file — not the chat — `rules/_generic/planning-artifacts.md` (on-demand, scoped to plan/spec/backlog files and read by every planning skill on entry) makes the planning artifact the single source of truth: every plan-touching skill and agent persists decisions (including test scope) into the affected plan the turn they're made, cross-links each spike/review/grill report from the plan header, sweeps sibling plans + the epic overview after a decision ripples, and marks load-bearing framework behaviour as an assumption to validate via `/spike`. It's the "Finding Contract" idea applied to plans, so context stops leaking between stages and sessions.
 
-**Artifact git policy.** The agent's working artifacts (briefs, specs, plans, PRDs, issues,
-handoff notes) and the shared model (`CONTEXT.md` + ADRs) each have a git policy you
-choose **interactively at `/bootstrap`** — keep a category **local** (gitignored, never pushed) or
-**commit** it (shared). The default offers working backlog as local scratch and `CONTEXT.md`/ADRs
-as committed shared knowledge, but you decide per category; `/bootstrap` writes the choice to
-`PROJECT.md` and adds the local paths to `.gitignore`. The agent never commits anything itself.
+**Artifact git policy.** The agent's working artifacts (briefs, specs, plans, PRDs, issues, handoff notes) and the shared model (`CONTEXT.md` + ADRs) each have a git policy you choose **interactively at `/bootstrap`** — keep a category **local** (gitignored, never pushed) or **commit** it (shared). The default offers working backlog as local scratch and `CONTEXT.md`/ADRs as committed shared knowledge, but you decide per category; `/bootstrap` writes the choice to `PROJECT.md` and adds the local paths to `.gitignore`. The agent never commits anything itself.
 
 ## Integrate into a new project
 
-> **First install only.** The raw copy below is for a project that has **not** been bootstrapped
-> yet. To pull a *newer* kit version into a project you already bootstrapped, do **not** re-copy by
-> hand — use **`/update-kit`** (see [Update the kit](#update-the-kit)); it preserves your adaptations.
+> **First install only.** The raw copy below is for a project that has **not** been bootstrapped yet. To pull a *newer* kit version into a project you already bootstrapped, do **not** re-copy by hand — use **`/update-kit`** (see [Update the kit](#update-the-kit)); it preserves your adaptations.
 
-Run steps 1–4 from anywhere *except* inside `<project>`, replacing `<project>` with your project's
-path. Already have a clone of this repo? Use its path in step 3 and skip steps 1 and 4.
+Run steps 1–4 from anywhere *except* inside `<project>`, replacing `<project>` with your project's path. Already have a clone of this repo? Use its path in step 3 and skip steps 1 and 4.
 
 ```bash
 # 1. Clone the kit to a temporary location — NOT inside your project
@@ -412,42 +287,24 @@ To undo everything up to this point: `rm -rf <project>/.claude && mv <project>/.
    - back up the files it's about to change, then detect empty vs existing and scan the stack;
    - draft `.claude/PROJECT.md` (asking you for domain + anything ambiguous);
    - select rule packs from `_kit/rules-library/` matching the stack;
-   - on an existing codebase, **reconcile** each pack's assumptions vs the real code and
-     ask how to resolve divergences (adopt / relax / skip);
+   - on an existing codebase, **reconcile** each pack's assumptions vs the real code and ask how to resolve divergences (adopt / relax / skip);
    - generate `.claude/rules/`, `settings.json`, git commands, and wire `CLAUDE.md`;
    - ask **keep or roll back**, then **clean up** `_kit/` and `*.template.*`.
-6. Smoke-test: run `/analyst` (it interviews from the profile's domain) and the profile's
-   `test` command. On an existing project, also check `git diff` on `CLAUDE.md` and `.gitignore` —
-   `/bootstrap` merges a block into each rather than replacing them, and that merge is the one
-   thing worth reading with your own eyes.
+6. Smoke-test: run `/analyst` (it interviews from the profile's domain) and the profile's `test` command. On an existing project, also check `git diff` on `CLAUDE.md` and `.gitignore` — `/bootstrap` merges a block into each rather than replacing them, and that merge is the one thing worth reading with your own eyes.
 
 ## Rule packs
 
-> **Maturity, honestly.** The packs are the least-proven part of the kit. Their *shape* — the
-> path-scoped rule / on-demand reference split below — comes straight from what the bench
-> measured about always-on context. Their *content* does not: only the generic rules were ever
-> in an arm, and every pack here was written for a project, not validated by a run. Use them as
-> a starting skeleton for your stack, expect to rewrite half, and PRs correcting them are the
-> single most useful contribution to this repo.
+> **Maturity, honestly.** The packs are the least-proven part of the kit. Their *shape* — the path-scoped rule / on-demand reference split below — comes straight from what the bench measured about always-on context. Their *content* does not: only the generic rules were ever in an arm, and every pack here was written for a project, not validated by a run. Use them as a starting skeleton for your stack, expect to rewrite half, and PRs correcting them are the single most useful contribution to this repo.
 
-Stack rules live in `_kit/rules-library/<stack>/` — edit them there. Each pack has a
-`pack.yaml` (`detect` / `installs` / `assumptions`); the format is in
-`_kit/rules-library/PACKS.md`. Kit manifest / internals: `_kit/KIT.md`.
+Stack rules live in `_kit/rules-library/<stack>/` — edit them there. Each pack has a `pack.yaml` (`detect` / `installs` / `assumptions`); the format is in `_kit/rules-library/PACKS.md`. Kit manifest / internals: `_kit/KIT.md`.
 
 Each pack ships two layers (the `rule` vs `skill` triage is spelled out in `PACKS.md`):
-- **Path-scoped rules** (`claude/rules/*.md`) — lean, imperative conventions scoped to the
-  tightest `paths:` for the layer they govern; they load in full whenever a matching file is read.
-  (Kit judgment rules omit `paths:` on purpose so they load at launch — see the Generic-rules row.)
-- **On-demand reference skills** (`claude/skills/*-reference/`) — worked GOOD/BAD examples,
-  API tours, and checklists that load only when invoked, so always-on context stays lean. The
-  `ruby` / `rails` / `postgres` packs split their heavy convention rules this way
-  (e.g. `/ruby-idioms`, `/rails-reference`, `/postgres-reference`).
+- **Path-scoped rules** (`claude/rules/*.md`) — lean, imperative conventions scoped to the tightest `paths:` for the layer they govern; they load in full whenever a matching file is read. (Kit judgment rules omit `paths:` on purpose so they load at launch — see the Generic-rules row.)
+- **On-demand reference skills** (`claude/skills/*-reference/`) — worked GOOD/BAD examples, API tours, and checklists that load only when invoked, so always-on context stays lean. The `ruby` / `rails` / `postgres` packs split their heavy convention rules this way (e.g. `/ruby-idioms`, `/rails-reference`, `/postgres-reference`).
 
 ## Update the kit
 
-When the kit gets a newer version and you want it in a project you **already bootstrapped** —
-without losing skills you adapted, your `PROJECT.md`, `CONTEXT.md`, ADRs, or backlog — use
-**`/update-kit`** instead of re-copying:
+When the kit gets a newer version and you want it in a project you **already bootstrapped** — without losing skills you adapted, your `PROJECT.md`, `CONTEXT.md`, ADRs, or backlog — use **`/update-kit`** instead of re-copying:
 
 ```bash
 # 1. Clone the new version to a temporary location
@@ -462,31 +319,21 @@ rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='to
 # 3. Drop the clone
 rm -rf /tmp/foureyes
 ```
-Then open the project in Claude Code and run **`/update-kit`** (or `/update-kit <path-to-new-kit>`
-and it stages for you). In one pass it:
-- reads `.claude/.kit-manifest.json` (the install baseline) and does a **3-way merge** —
-  BASE (what the kit shipped) vs MINE (your file) vs THEIRS (the new version) — so untouched files
-  update silently and you're asked **only on real conflicts** (take-new / keep-mine / merge);
-- **never touches** project-owned files (`PROJECT.md`, `CONTEXT.md`, `docs/adr/`, the backlog, or
-  skills you created) — they aren't in the kit source, so the merge can't reach them;
-- **re-adapts inline** (no separate `/bootstrap`): regenerates `settings.json`, `guard-bash.sh`,
-  the `CLAUDE.md`/`.gitignore` blocks, and re-reconciles rule packs against the new version;
+Then open the project in Claude Code and run **`/update-kit`** (or `/update-kit <path-to-new-kit>` and it stages for you). In one pass it:
+- reads `.claude/.kit-manifest.json` (the install baseline) and does a **3-way merge** — BASE (what the kit shipped) vs MINE (your file) vs THEIRS (the new version) — so untouched files update silently and you're asked **only on real conflicts** (take-new / keep-mine / merge);
+- **never touches** project-owned files (`PROJECT.md`, `CONTEXT.md`, `docs/adr/`, the backlog, or skills you created) — they aren't in the kit source, so the merge can't reach them;
+- **re-adapts inline** (no separate `/bootstrap`): regenerates `settings.json`, `guard-bash.sh`, the `CLAUDE.md`/`.gitignore` blocks, and re-reconciles rule packs against the new version;
 - backs up first and asks **keep or roll back**, then writes a fresh manifest.
 
-Detection is hash-based, so it works even when `.claude/` is in `.gitignore` (git is not used).
-A *legacy* project with no manifest yet falls back to a noisier 2-way diff once, then writes a
-manifest so future updates are quiet.
+Detection is hash-based, so it works even when `.claude/` is in `.gitignore` (git is not used). A *legacy* project with no manifest yet falls back to a noisier 2-way diff once, then writes a manifest so future updates are quiet.
 
 ## Remove the kit
 
 Run **`/teardown`** and pick a scope:
-- **Clean up leftovers** — delete build-time material (`_kit/`, `*.template.*`,
-  `CLAUDE.snippet.md`, old `.bootstrap-backup/` snapshots), keep the working config.
-- **Uninstall** — restore the project to its pre-kit state from the `.claude.bak/` /
-  `CLAUDE.md.bak` backup (or, under git, `git checkout -- .claude CLAUDE.md && git clean -fd .claude`).
+- **Clean up leftovers** — delete build-time material (`_kit/`, `*.template.*`, `CLAUDE.snippet.md`, old `.bootstrap-backup/` snapshots), keep the working config.
+- **Uninstall** — restore the project to its pre-kit state from the `.claude.bak/` / `CLAUDE.md.bak` backup (or, under git, `git checkout -- .claude CLAUDE.md && git clean -fd .claude`).
 
-Bootstrap is reversible on its own too: it backs up before writing and asks **keep or roll
-back** at the end, so a rejected run leaves no trace.
+Bootstrap is reversible on its own too: it backs up before writing and asks **keep or roll back** at the end, so a rejected run leaves no trace.
 
 ## Layout
 
@@ -515,8 +362,7 @@ foureyes/                     → its contents become <project>/.claude/
 └── LICENSE                 # MIT
 ```
 
-Everything from `tools/` down is repo infrastructure and is excluded from the copy-in — it
-validates the kit, it is not part of it. Run it before opening a PR:
+Everything from `tools/` down is repo infrastructure and is excluded from the copy-in — it validates the kit, it is not part of it. Run it before opening a PR:
 
 ```bash
 python3 tools/validate-kit.py --stats
@@ -524,23 +370,12 @@ python3 tools/validate-kit.py --stats
 
 ## Distribution model
 
-FourEyes ships **copy-in**, not as a pure plugin — deliberately. As of 2026 the Claude Code plugin
-model can't carry three things FourEyes depends on:
+FourEyes ships **copy-in**, not as a pure plugin — deliberately. As of 2026 the Claude Code plugin model can't carry three things FourEyes depends on:
 
-- **always-on `paths:`-scoped rules** — there's no `rules/` plugin component, and a plugin-root
-  `CLAUDE.md` isn't loaded as context;
-- **unprefixed commands** — plugin commands are mandatorily namespaced (`/foureyes:discover`), so
-  `/discover` is only possible from files in the project's own `.claude/`;
+- **always-on `paths:`-scoped rules** — there's no `rules/` plugin component, and a plugin-root `CLAUDE.md` isn't loaded as context;
+- **unprefixed commands** — plugin commands are mandatorily namespaced (`/foureyes:discover`), so `/discover` is only possible from files in the project's own `.claude/`;
 - **an interactive `/bootstrap`** on install — there are no install-time lifecycle hooks.
 
-So the product is the copy-in bundle + `/bootstrap`, and the lifecycle is three skills rather than
-a package manager: **`/bootstrap`** installs and adapts, **`/update-kit`** upgrades in place
-(3-way merge, keeps your adaptations), **`/teardown`** removes and restores.
+So the product is the copy-in bundle + `/bootstrap`, and the lifecycle is three skills rather than a package manager: **`/bootstrap`** installs and adapts, **`/update-kit`** upgrades in place (3-way merge, keeps your adaptations), **`/teardown`** removes and restores.
 
-A thin *installer* plugin — a marketplace wrapper whose one command clones the kit into your real
-`.claude/` and then hands off to `/bootstrap` — would add discoverability without giving up either
-property, and is the most likely future addition. It is deliberately **not shipped yet**: a
-`.claude-plugin/marketplace.json` in a public repo root is not a draft, it is a live marketplace
-anyone can add, and advertising an install path that has not been run end to end against a
-throwaway project is the exact thing [`rules/_generic/core.md`](rules/_generic/core.md) calls a
-guess dressed as done.
+A thin *installer* plugin — a marketplace wrapper whose one command clones the kit into your real `.claude/` and then hands off to `/bootstrap` — would add discoverability without giving up either property, and is the most likely future addition. It is deliberately **not shipped yet**: a `.claude-plugin/marketplace.json` in a public repo root is not a draft, it is a live marketplace anyone can add, and advertising an install path that has not been run end to end against a throwaway project is the exact thing [`rules/_generic/core.md`](rules/_generic/core.md) calls a guess dressed as done.
