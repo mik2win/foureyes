@@ -6,8 +6,9 @@ paths:
 
 # External API integration (generic)
 
-When integrating an external system (payment provider, exchange, messaging platform,
-third-party service), verify the implementation against official documentation — never guess.
+When integrating an external system (payment provider, messaging platform, storage or
+analytics service, any third-party API), verify the implementation against official
+documentation — never guess.
 
 ## Docs first
 
@@ -15,15 +16,15 @@ third-party service), verify the implementation against official documentation �
   verification date next to the integration (`PROJECT.md` → Integrations, or a comment at the
   client boundary).
 - Extract the exact message/response schema: field names, types, nesting. APIs often
-  abbreviate keys (`s` = symbol, `T` = timestamp) — copy them from the docs, don't invent.
-- Verify enum/semantic conventions per provider (side/direction/status vocabularies differ
+  abbreviate keys (`amt` = amount, `ts` = timestamp) — copy them from the docs, don't invent.
+- Verify enum/semantic conventions per provider (status/type/state vocabularies differ
   between services); document the mapping explicitly at the boundary.
 - Check the provider's error codes and rate limits; map them into your retry policy
   (transient vs permanent — see `rules/_generic/exception-patterns.md`).
 
 ## Never
 
-- Guess a field name (`data["price"]` when the docs say `p`) or assume a flat structure —
+- Guess a field name (`data["amount"]` when the docs say `amt`) or assume a flat structure —
   payloads nest.
 - Copy an integration from old code without re-verifying — APIs change.
 
@@ -42,6 +43,6 @@ instead of errors. Verifying up front is cheaper than that debugging session.
 
 - [ ] Official docs fetched and read; URL recorded
 - [ ] Field names/types verified against the official schema
-- [ ] Enum/direction semantics mapped and documented
+- [ ] Enum/status semantics mapped and documented
 - [ ] Error codes and rate limits understood
 - [ ] Sandbox tested (if available)
