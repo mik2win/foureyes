@@ -178,7 +178,7 @@ foureyes/                     → its contents become <project>/.claude/
 │   ├── KIT.md
 │   ├── rules-library/{python,react-ts,ruby,rails,postgres}/ + PACKS.md
 │   └── templates/commands/{commit,pr,mr}.md
-├── assets/logo.svg
+├── assets/{logo.svg,social-preview.svg,social-preview.png}   # icon + the README banner / GitHub social preview
 ├── guide/{en,ru}/{reference,install,evidence,why}.md   # this documentation, NOT copied in
 ├── tools/validate-kit.py   # repo infrastructure, NOT copied in — frontmatter, listing budget,
 ├── .github/                #   dead links (markdown + backticked kit paths), hooks, JSON

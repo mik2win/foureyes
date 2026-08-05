@@ -1,6 +1,6 @@
-**English** · [Русский](README.ru.md)
+![FourEyes — a disciplined feature pipeline for Claude Code. 49 skills, 16 subagents, rule packs, hooks, MIT.](assets/social-preview.png)
 
-<img src="assets/logo.svg" alt="" width="88" align="right">
+**English** · [Русский](README.ru.md)
 
 # FourEyes 🤓
 

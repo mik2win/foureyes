@@ -178,7 +178,7 @@ foureyes/                     → его содержимое становитс
 │   ├── KIT.md
 │   ├── rules-library/{python,react-ts,ruby,rails,postgres}/ + PACKS.md
 │   └── templates/commands/{commit,pr,mr}.md
-├── assets/logo.svg
+├── assets/{logo.svg,social-preview.svg,social-preview.png}   # icon + the README banner / GitHub social preview
 ├── guide/{en,ru}/{reference,install,evidence,why}.md   # эта документация, НЕ копируется внутрь
 ├── tools/validate-kit.py   # инфраструктура репозитория, НЕ копируется внутрь — frontmatter, бюджет листинга,
 ├── .github/                #   мёртвые ссылки (markdown + пути кита в бэктиках), хуки, JSON
