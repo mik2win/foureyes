@@ -10,6 +10,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - **The README is now a landing page, not a manual.** It opens with the copy-in block and `/bootstrap`, a "where do I start?" table, and a compact pipeline map — roughly a quarter of its former length. The long form moved to `guide/en/` and `guide/ru/`: `reference.md` (every skill, agent, rule, hook, the recommended flows, the layout), `install.md` (full walkthrough, `/update-kit`, `/teardown`), `evidence.md` (what the A/B bench measured), `why.md` (discipline layer, comparisons, distribution model). `guide/` is repo documentation and is excluded from the copy-in — the rsync command in every install snippet now carries `--exclude='guide'`.
 
+### Fixed
+
+- **Catalog drift.** `/audit-quality`, `/deploy`, the `idea-skeptic` agent, and `docs/audience-altitude.md` shipped in 0.1.0 but were missing from the README's "What's in it" table and Layout tree (they were listed in `/which-skill` and `_kit/KIT.md` all along). All four are now in `guide/{en,ru}/reference.md`, and the 0.1.0 entry below names them too.
+
 ## [0.1.0] — 2026-08-04
 
 First public release. Everything below is the initial contents rather than a diff.
@@ -17,8 +21,8 @@ First public release. Everything below is the initial contents rather than a dif
 ### Added
 
 - **The pipeline** — `/discover → /analyst → /prepare → /implement`, plus `/idea` as a plain-language front door and `/scaffold` for "add another one like the existing one".
-- **49 skills** across the pipeline, orientation (`/onboard`), explore-first (`/spike`, `/prototype`, `/select-tech`), alignment and design (`/grill`, `/domain-model`, `/codebase-design`, `/api-design`), quality (`/code-review`, `/refactor`, `/diagnose`, `/test`, `/tdd`, `/test-spec`, `/arch-health`, `/clean-mvp`, `/sweep`, `/perf`), architecture evolution (`/decompose`, `/revisit`, `/distill`), ship-and-learn (`/rollout`, `/preflight`, `/incident`, `/retro`), security (`/threat-model`, `/audit-security`, `/deps`), a local backlog tracker (`/to-prd`, `/to-issues`, `/triage`, `/epic-status`, `/close-epic`), and meta skills (`/which-skill`, `/prompt-master`, `/writing-skills`).
-- **16 subagents** — reviewers, the adversarial verification pair `finding-verifier` + `completeness-critic`, `plan-challenger`, analysis agents, writers, and `backlog-researcher`. All share one **Finding Contract**, also shipped as `schemas/finding.schema.json`.
+- **49 skills** across the pipeline, orientation (`/onboard`), explore-first (`/spike`, `/prototype`, `/select-tech`), alignment and design (`/grill`, `/domain-model`, `/codebase-design`, `/api-design`), quality (`/code-review`, `/audit-quality`, `/refactor`, `/diagnose`, `/test`, `/tdd`, `/test-spec`, `/arch-health`, `/clean-mvp`, `/sweep`, `/perf`), architecture evolution (`/decompose`, `/revisit`, `/distill`), ship-and-learn (`/rollout`, `/deploy`, `/preflight`, `/incident`, `/retro`), security (`/threat-model`, `/audit-security`, `/deps`), a local backlog tracker (`/to-prd`, `/to-issues`, `/triage`, `/epic-status`, `/close-epic`), and meta skills (`/which-skill`, `/prompt-master`, `/writing-skills`).
+- **16 subagents** — reviewers, the adversarial verification pair `finding-verifier` + `completeness-critic`, `plan-challenger` and `idea-skeptic`, analysis agents, writers, and `backlog-researcher`. All share one **Finding Contract**, also shipped as `schemas/finding.schema.json`.
 - **14 generic rule files** in three load tiers: `core.md` alone is always-on (~950 tokens), code rules are `paths: "**/*"`-scoped, and authoring/planning rules are scoped to where they fire.
 - **5 stack rule packs** — `python`, `react-ts`, `ruby`, `rails`, `postgres`.
 - **8 hooks** — `guard-bash`, `guard-secrets`, `format-file`, `sessionstart`, `precompact`, `subagent-stop`, plus the opt-in, off-by-default `verify-stop` and `skill-hint`. Every hook but `guard-bash` follows the **warn-not-block** contract.
@@ -30,7 +34,7 @@ First public release. Everything below is the initial contents rather than a dif
 
 ### Notes
 
-- **The always-on tier is deliberately one file.** Three A/B rounds measured no quality gain from a larger always-on rule tier and a ~13% cost increase, so it was cut to `core.md` alone. The honest claim is *the same result for less money*, not *it works better* — the README publishes the results that argue against the kit alongside the ones that don't.
+- **The always-on tier is deliberately one file.** Three A/B rounds measured no quality gain from a larger always-on rule tier and a ~13% cost increase, so it was cut to `core.md` alone. The honest claim is *the same result for less money*, not *it works better* — the kit publishes the results that argue against it alongside the ones that don't ([guide/en/evidence.md](guide/en/evidence.md)).
 - **Copy-in is the only install path.** The Claude Code plugin model carries no `rules/` component and mandatorily namespaces commands, so a plugin cannot deliver either the always-on rules or an unprefixed `/discover`. An installer plugin is the likely future addition and ships only after an end-to-end smoke test. See [Distribution model](guide/en/why.md#distribution-model).
 
 [Unreleased]: https://github.com/mik2win/foureyes/compare/v0.1.0...HEAD

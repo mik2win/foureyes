@@ -19,7 +19,7 @@ These are the kit's own rules applied to the kit. A PR that breaks one will be a
 
 **Warn, don't block.** A hook warns and exits 0. Blocking — `exit 2` or `permissionDecision: "deny"` — is allowed only on an *irreversible* action, and the kit ships exactly one such case (`guard-bash.sh`). Everywhere else a false positive costs more than the miss it prevents. If a proposed hook can only work by blocking, that is a reason to reject the hook.
 
-**Evidence over assertion.** Claims in skills, rules, and the README are expected to be checkable. "Should work" is not a smoke test. If you measured something, say what you measured and on what; if you didn't, don't imply you did. The README deliberately publishes results that argue *against* the kit — keep that habit.
+**Evidence over assertion.** Claims in skills, rules, and the README are expected to be checkable. "Should work" is not a smoke test. If you measured something, say what you measured and on what; if you didn't, don't imply you did. The kit deliberately publishes results that argue *against* it (`guide/en/evidence.md`) — keep that habit.
 
 **Skills carry invariant logic only.** Every project-specific fact (stack, paths, commands, layers, domain) belongs in `PROJECT.md`, which `/bootstrap` writes. If your change makes a skill know something about a particular stack, it probably belongs in a rule pack under `_kit/rules-library/` instead.
 

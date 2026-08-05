@@ -84,7 +84,7 @@ Everything else falls out naturally and is **not** file-merged:
      ```bash
      mkdir -p .claude/.kit-incoming
      rsync -a --delete --exclude='.git' --exclude='.claude' --exclude='.claude copy' \
-       --exclude='_backlog' "$ARGUMENTS"/ .claude/.kit-incoming/
+       --exclude='_backlog' --exclude='guide' "$ARGUMENTS"/ .claude/.kit-incoming/
      ```
    - Else if `.claude/.kit-incoming/` already exists (the user dropped it there manually), use it.
    - Else STOP and tell the user: drop the new kit version into `.claude/.kit-incoming/` (or pass
