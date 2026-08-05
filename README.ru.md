@@ -1,4 +1,4 @@
-![FourEyes — дисциплинированный конвейер фич для Claude Code. 49 навыков, 16 субагентов, паки правил, хуки, MIT.](assets/social-preview.png)
+![FourEyes — дисциплинированный конвейер фич для Claude Code. 49 навыков, 16 субагентов, паки правил, хуки, MIT.](assets/banner.png)
 
 [English](README.md) · **Русский**
 

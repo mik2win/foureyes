@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 150 1280 450" width="1280" height="450">
+  <mask id="behind">
+    <rect width="1280" height="640" fill="#fff"/>
+    <g fill="#000" transform="translate(96,148) scale(0.68)">
+      <circle cx="239" cy="312" r="97"/>
+      <circle cx="385" cy="312" r="97"/>
+      <rect x="307" y="285" width="10" height="54" rx="5"/>
+    </g>
+  </mask>
+
+  <rect width="1280" height="640" fill="#0f1420"/>
+
+  <g transform="translate(96,148) scale(0.68)">
+    <g mask="url(#behind)" fill="none" stroke="#59637a" stroke-width="26" stroke-linecap="round">
+      <circle cx="127" cy="200" r="68"/>
+      <circle cx="273" cy="200" r="68"/>
+      <path d="M195 200 h10"/>
+      <path d="M59 178 l-14 -22"/>
+    </g>
+    <g fill="none" stroke="#f2b230" stroke-width="26" stroke-linecap="round">
+      <circle cx="239" cy="312" r="68"/>
+      <circle cx="385" cy="312" r="68"/>
+      <path d="M307 312 h10"/>
+      <path d="M453 290 l14 -22"/>
+    </g>
+  </g>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="480" y="272" fill="#f5f7fa" font-size="94" font-weight="700" letter-spacing="-2">FourEyes</text>
+    <text x="483" y="336" fill="#f2b230" font-size="30" font-weight="600" letter-spacing="0.5">A disciplined feature pipeline for Claude Code</text>
+    <text x="483" y="398" fill="#98a2b3" font-size="27">Drop it into any repo's .claude/, run /bootstrap, and get</text>
+    <text x="483" y="438" fill="#98a2b3" font-size="27">discovery → spec → plan → code, reviewed by a fleet that</text>
+    <text x="483" y="478" fill="#98a2b3" font-size="27">reports signal, not noise.</text>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="23" fill="#5b6577">
+    <text x="483" y="546">49 skills · 16 subagents · rule packs · hooks · MIT</text>
+  </g>
+</svg>
