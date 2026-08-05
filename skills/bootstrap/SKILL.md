@@ -64,7 +64,7 @@ done
   commands, `PROJECT.md` if it didn't exist) to `$BK/created.txt`, one per line.
 - On a **re-run**, add a new snapshot — never delete earlier ones.
 - This snapshot reverses **bootstrap's own writes**. Restoring the project to its *pre-kit*
-  state also needs the pre-copy backup taken before the kit was copied in (README "Integrate"
+  state also needs the pre-copy backup taken before the kit was copied in (README "Quick start"
   step); `/teardown` uses whichever backup is present.
 
 ## Phase 1 — Detect the project

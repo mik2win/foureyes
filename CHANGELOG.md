@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- **The README is now a landing page, not a manual.** It opens with the copy-in block and `/bootstrap`, a "where do I start?" table, and a compact pipeline map — roughly a quarter of its former length. The long form moved to `guide/en/` and `guide/ru/`: `reference.md` (every skill, agent, rule, hook, the recommended flows, the layout), `install.md` (full walkthrough, `/update-kit`, `/teardown`), `evidence.md` (what the A/B bench measured), `why.md` (discipline layer, comparisons, distribution model). `guide/` is repo documentation and is excluded from the copy-in — the rsync command in every install snippet now carries `--exclude='guide'`.
+
 ## [0.1.0] — 2026-08-04
 
 First public release. Everything below is the initial contents rather than a diff.
@@ -27,7 +31,7 @@ First public release. Everything below is the initial contents rather than a dif
 ### Notes
 
 - **The always-on tier is deliberately one file.** Three A/B rounds measured no quality gain from a larger always-on rule tier and a ~13% cost increase, so it was cut to `core.md` alone. The honest claim is *the same result for less money*, not *it works better* — the README publishes the results that argue against the kit alongside the ones that don't.
-- **Copy-in is the only install path.** The Claude Code plugin model carries no `rules/` component and mandatorily namespaces commands, so a plugin cannot deliver either the always-on rules or an unprefixed `/discover`. An installer plugin is the likely future addition and ships only after an end-to-end smoke test. See [Distribution model](README.md#distribution-model).
+- **Copy-in is the only install path.** The Claude Code plugin model carries no `rules/` component and mandatorily namespaces commands, so a plugin cannot deliver either the always-on rules or an unprefixed `/discover`. An installer plugin is the likely future addition and ships only after an end-to-end smoke test. See [Distribution model](guide/en/why.md#distribution-model).
 
 [Unreleased]: https://github.com/mik2win/foureyes/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/mik2win/foureyes/releases/tag/v0.1.0

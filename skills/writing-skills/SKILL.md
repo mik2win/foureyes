@@ -154,7 +154,7 @@ run keeps its state in the plan artifact rather than in the skill body
 
 ## Rule vs skill — the altitude call
 
-The kit splits always-on context from on-demand reference (see the README and `_kit/rules-library/PACKS.md`):
+The kit splits always-on context from on-demand reference (see `guide/en/reference.md` and `_kit/rules-library/PACKS.md`):
 
 - **Rule** (`rules/**.md`) — **always-on**, lean, imperative, path-scoped. Loads in full whenever a
   matching file is read. Use for invariants that must apply *every* time (function size, boundary
@@ -217,11 +217,11 @@ them**, not the strongest.
 - [ ] Phase-0 profile load + `TEMPLATE` guard (or an explicit "optional" note).
 - [ ] No hardcoded commands/paths/frameworks — all via `PROJECT.md`/rules/`CONTEXT.md`.
 - [ ] Cross-references resolve to skills that exist; neighbours' DO-NOT-TRIGGER blocks point back.
-- [ ] If you added a skill: update `README.md`'s "What's in it" table **and** its Layout tree
-      **and** `/which-skill`'s catalog (parity).
+- [ ] If you added a skill: update the "What's in it" table **and** the Layout tree in
+      `guide/en/reference.md` + `guide/ru/reference.md` **and** `/which-skill`'s catalog (parity).
 - [ ] If you renamed or deleted one: `grep -rn '<old-name>'` across `skills/ agents/ rules/ docs/
-      README.md settings.template.json _kit/` and fix every hit — a stale route is worse than a
-      missing one, and counts in prose (`README.md`'s "N of the kit's M skills") drift too.
+      guide/ README.md settings.template.json _kit/` and fix every hit — a stale route is worse
+      than a missing one, and counts in prose ("N of the kit's M skills") drift too.
 - [ ] Heavy reference lives in companions, not the main file, and each companion opens with its
       gate: consumer phase/mode named + the skip condition (`assets/*` exempt).
 - [ ] The workflow's likely failure modes (per `docs/agent-failure-modes.md`) have a
@@ -237,5 +237,5 @@ them**, not the strongest.
 
 - [GLOSSARY.md](GLOSSARY.md) — the authoring vocabulary (skill, trigger, invocation, altitude).
 - **`/which-skill`** — the router whose catalog you update when adding a skill.
-- `README.md` · `_kit/rules-library/PACKS.md` — kit layout and the rule-vs-skill triage at the
-  pack level.
+- `guide/en/reference.md` · `_kit/rules-library/PACKS.md` — kit layout and the rule-vs-skill
+  triage at the pack level.

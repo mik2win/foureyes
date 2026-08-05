@@ -33,19 +33,19 @@ These are the kit's own rules applied to the kit. A PR that breaks one will be a
 
 | You're changing | Read first | Also update |
 |---|---|---|
-| a skill | [`skills/writing-skills/SKILL.md`](skills/writing-skills/SKILL.md) | the README "What's in it" table, the Layout tree, `/which-skill`'s catalog, and any prose count (`N of the kit's M skills`) |
+| a skill | [`skills/writing-skills/SKILL.md`](skills/writing-skills/SKILL.md) | the "What's in it" table and Layout tree in [`guide/en/reference.md`](guide/en/reference.md), `/which-skill`'s catalog, and any prose count (`N of the kit's M skills`) |
 | an agent | [`rules/_generic/delegation.md`](rules/_generic/delegation.md) | check the harness doesn't strip tools you declared |
 | a rule | [`_kit/rules-library/PACKS.md`](_kit/rules-library/PACKS.md) | the rule's `description:` frontmatter records what it absorbed — keep provenance greppable |
 | a hook | the warn-not-block contract above | `settings.template.json`, or a `settings.*.example.json` if it's opt-in |
-| the README | — | **both** `README.md` and `README.ru.md` |
+| the README or the guide | — | **both** languages: `README.md` + `README.ru.md`, `guide/en/*.md` + the matching `guide/ru/*.md` |
 
-### Both READMEs, always
+### Both languages, always
 
-`README.md` and `README.ru.md` are kept in structural parity — same sections, same tables, same code blocks. If you change one and cannot write the other, say so in the PR and it will be translated; an out-of-sync pair is worse than an untranslated note. Code identifiers, paths, commands, config keys, and established domain terms stay in English inside the Russian text.
+The README is the landing page — install first, everything else linked. Its long form lives in `guide/en/` (`reference.md`, `install.md`, `evidence.md`, `why.md`), which is repo documentation and is **not** copied into a user's `.claude/`. Each English file has a Russian twin at the same filename under `guide/ru/`, and the pairs are kept in structural parity — same sections, same tables, same code blocks. If you change one and cannot write the other, say so in the PR and it will be translated; an out-of-sync pair is worse than an untranslated note. Code identifiers, paths, commands, config keys, and established domain terms stay in English inside the Russian text.
 
 ### Prose is not hard-wrapped
 
-In markdown that a human reads rendered — both READMEs, `CHANGELOG.md`, `docs/*.md`, the root policy files, and PR descriptions — one paragraph is **one line**. No wrapping at 80 or 100 columns; the renderer wraps, and a re-wrapped paragraph turns a one-word fix into a diff over every following line. Line breaks stay where they carry meaning: list items, table rows, code blocks, frontmatter. Commit messages are exempt — wrap those as usual.
+In markdown that a human reads rendered — both READMEs, `guide/**/*.md`, `CHANGELOG.md`, `docs/*.md`, the root policy files, and PR descriptions — one paragraph is **one line**. No wrapping at 80 or 100 columns; the renderer wraps, and a re-wrapped paragraph turns a one-word fix into a diff over every following line. Line breaks stay where they carry meaning: list items, table rows, code blocks, frontmatter. Commit messages are exempt — wrap those as usual.
 
 ## Commits and pull requests
 

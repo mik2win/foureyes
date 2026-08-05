@@ -67,5 +67,5 @@ body:
     attributes:
       label: Before submitting
       options:
-        - label: I checked `/which-skill`'s catalog and the README's "What's in it" table
+        - label: I checked `/which-skill`'s catalog and the "What's in it" table in `guide/en/reference.md`
           required: true

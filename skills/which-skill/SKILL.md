@@ -35,8 +35,8 @@ taxes every prompt:
 
 Never make the user re-state the task after routing — carry it into the skill you name.
 
-> **Maintenance:** every user-facing workflow skill should appear both here and in `README.md`'s
-> "What's in it" table — keep the two in sync when a skill is added or removed. (This catalog
+> **Maintenance:** every user-facing workflow skill should appear both here and in the kit repo's
+> `guide/*/reference.md` "What's in it" table — keep the two in sync when a skill is added or removed. (This catalog
 > deliberately omits `/which-skill` itself and the on-demand stack pack-reference skills like
 > `/ruby-idioms`, so the two lists aren't byte-identical.) If unsure the list is current, `Glob`
 > `skills/*/SKILL.md` and reconcile. Adding a skill the *model* may reach unprompted (no
@@ -333,10 +333,10 @@ Pick the flow that matches, render it with the user's current position marked, a
 - **Don't invent skills.** Only route to skills that exist in the catalog (or a global built-in
   like `/deep-research`); if unsure the list is current, `Glob` `skills/*/SKILL.md` and reconcile.
   If nothing fits, say so and suggest the closest manual approach rather than inventing a `/skill`.
-- **Stay in sync.** Every user-facing workflow skill appears here and in `README.md` — update both
-  when the set changes (the router need not list itself or the pack-reference skills).
+- **Stay in sync.** Every user-facing workflow skill appears here and in the kit repo's
+  `guide/*/reference.md` — update both when the set changes (the router need not list itself or the pack-reference skills).
 
 ## See also
 
 - **`/writing-skills`** — when the user wants to *add* a skill, not pick one.
-- `README.md` — the same catalog in table form (kept in parity with this one).
+- `guide/en/reference.md` (kit repo) — the same catalog in table form, kept in parity with this one.

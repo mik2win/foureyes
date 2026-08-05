@@ -33,7 +33,7 @@ Work top-to-bottom.
 - **Backups?**
   - Bootstrap snapshots: `.claude/.bootstrap-backup/<ts>/` (with `created.txt`).
   - Pre-copy backup the user made before copying the kit in: e.g. `.claude.bak/`,
-    `CLAUDE.md.bak` (README "Integrate" step).
+    `CLAUDE.md.bak` (README "Quick start" step).
 - **Git?** Run `git rev-parse --is-inside-work-tree` — if tracked, git is the safest restore
   path; surface it as an option.
 
