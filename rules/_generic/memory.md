@@ -46,9 +46,13 @@ store is written by an executor the user never watches deliberate.
   just audited belongs in the audit report, not in memory.
 - **Announce writes.** An agent that wrote to memory says so in its report — the filename and
   one line of why — so the user can object *before* the entry is committed rather than after.
-- **Prune on read.** When loading `MEMORY.md`, treat entries whose cited `path:line` no longer
-  exists as stale: drop them and say so. Memory that outlives its referent is worse than no
-  memory — it is a confident wrong fact from a trusted source.
+- **Prune on read.** When loading `MEMORY.md`, treat an entry whose cited referent no longer
+  exists as stale: drop it and say so. Memory that outlives its referent is worse than no memory —
+  it is a confident wrong fact from a trusted source.
+  Cite the referent as `file.py::symbol`, not `file.py:214` (see `code.md` § Greppability): a
+  memory is durable text, and a line number gives a **false** staleness signal every time an edit
+  above it shifts the file, while a vanished *symbol* is a true one. Prune on the symbol; a moved
+  line proves nothing either way.
 
 ## Agents that carry `memory: project`
 

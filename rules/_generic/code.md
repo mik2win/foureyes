@@ -15,6 +15,21 @@ paths:
   **generated-and-committed** code over runtime magic.
 - Sanctioned metaprogramming (ORM, routing, DSL) lives in one narrow declared layer, and
   every generated name is enumerable from a static registry next to the generator.
+- **In durable text, cite by name — never by line.** A cross-file reference that will be *read
+  again* (comment, docstring, rules file, doc, plan) is `file.py::symbol`, never `file.py:214`.
+  A line number is invalidated by any edit above it, in a file its author never opens, and
+  **nothing fails when it rots** — it decays silently and sends the next reader to the wrong
+  place. Re-sweeping stale anchors is a subscription, not a fix: measured once, a module growing
+  410 → 576 lines invalidated 12 anchors across 7 other files in one commit. If a reference
+  names nothing a symbol can point at, it is usually not load-bearing — delete it.
+  **The carve-out is ephemeral output** — a review finding, an audit report, a session verdict,
+  a chat message — read once and discarded, where `path:line` is the cheapest proof and staleness
+  never arrives. Evidence cites lines; code and docs cite names.
+- **A number owned by a config is cited, not copied.** Limits, versions, sizes, budgets and
+  thresholds live in their config/lockfile/manifest; prose that restates the value drifts from
+  it, and the drift is invisible because both sides look authoritative. Point at the file that
+  owns it. (Observed: three separate docs carried a container memory limit the deployment file
+  had already changed.)
 
 ## Comments
 

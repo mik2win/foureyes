@@ -249,5 +249,5 @@ limit), `AskUserQuestion`, `EndConversation`, `EnterPlanMode`, `ExitPlanMode`, `
 error instead of spawning. Background narrows the set again; check `docs/sub-agents` §Available
 tools for what survives rather than freezing a copy here. So run the check **when you add a
 tool**, not as a one-off audit: an agent instructed to call a tool it cannot reach does not fail
-— it invents the result (`agents/docs-writer.md:58-59` and `skills/audit-quality/SKILL.md:238`
+— it invents the result (`agents/docs-writer.md` § Output options and `skills/audit-quality/SKILL.md`
 are the kit's two cases, both already fixed).
