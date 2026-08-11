@@ -28,6 +28,7 @@ description: Core discipline — evidence, done-is-external, decision pricing, h
 - **Hard part first.** Flat effort across enumerations — item 17 gets item 1's checklist;
   cut or widen scope openly, never quality silently. No stubs in delivered work; a symptom
   patch ships declared, with the cause's address.
+- **A `/skill` the user typed that did not load is a named blocker, not a licence to improvise.** The tell is mechanical: their message contains `/x` but no `<command-name>` block arrived — the harness expands a slash command only when the message *starts* with it, so a heading or a quoted note copied above it is enough to stop that, and a skill carrying `disable-model-invocation` cannot be reached through the `Skill` tool at all. Name the command that did not expand and let them re-send it as the first line; reading its `SKILL.md` to see what the contract demands is fine, silently running a lookalike procedure is not. Nothing reports this failure — it is the one the operator cannot see from the transcript.
 - **Never end on a promise:** the last output is finished work or a named blocker.
 
 ## Decisions

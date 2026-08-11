@@ -201,9 +201,16 @@ Wave: W1 | Owns: <files> | Reads: <files> | Deps: NN-x or None | Shared edits: <
 
 ## Templates
 
-**Per-session brief** (in `implementation-prompts.md`, one per session, grouped under its wave):
-```
+**Per-session brief** (in `implementation-prompts.md`, one per session, grouped under its wave).
+**The heading and any hand-off note stay OUTSIDE the fence; the slash command is the FIRST line
+inside it** — the operator copies the fenced block and pastes it as a whole message, and the harness
+expands a slash command only when the message *starts* with it. A heading, a `>`-quoted hand-off or
+a note riding above the command downgrades the invocation to plain text: the skill never loads,
+**nothing errors**, and the session runs a lookalike procedure instead of the contract.
+
 ### Wave W1 · Session 01 — <title>
+
+```
 /implement <backlog>/<task>/01-<name>.md
 
 Solo:                  no   (or: YES — run alone; reason: <why>)
@@ -296,7 +303,9 @@ See `implementation-prompts.md` for ready-to-use session prompts.
 ```
 
 **`implementation-prompts.md` skeleton** — always written when there are ≥2 subtasks. Organize
-**by wave**; each entry is the per-session brief above, with the test-approach suffix appended:
+**by wave**; each entry is the per-session brief above, with the test-approach suffix appended.
+Every fenced block starts with its slash command, per the brief rule above; a file whose blocks
+carry a note above the fence hands the operator a prompt that silently will not invoke anything:
 ```markdown
 # Implementation prompts — <task name>
 

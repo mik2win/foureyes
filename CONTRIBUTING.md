@@ -27,6 +27,8 @@ These are the kit's own rules applied to the kit. A PR that breaks one will be a
 
 **Respect the listing budget.** Every model-invocable skill's `description` is spent on every request. `validate-kit.py --stats` prints the per-skill budget; the cap is 1536 characters and the validator warns within 10% of it. Most skills should carry `disable-model-invocation: true` (42 of 49 do) — the kit is manual-first on purpose.
 
+**Put the slash command first in any copy-paste prompt.** Claude Code expands a slash command only when the message **starts** with it, so in a prompt pack the command is the first line **inside** the fenced block and headings, hand-offs and notes stay **outside** it. Get this wrong and the failure is silent — the skill never loads, nothing errors, and the session runs a lookalike procedure. [The measured case and its cost](guide/en/evidence.md#skills-are-manual-by-default--and-the-three-escape-hatches).
+
 **Never publish code on the user's behalf.** The kit denies `git add`/`commit`/`merge`/`push` and blocks them in `guard-bash.sh`. Do not add a code path that stages, commits, or pushes; suggest the command as text and let the user run it.
 
 ## Working on specific parts

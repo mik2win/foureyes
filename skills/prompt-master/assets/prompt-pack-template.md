@@ -19,6 +19,13 @@
    the Artifact column. If you rename/move one, update the later prompts.
 4. If a phase goes sideways, re-run that prompt in a fresh session (optionally pasting
    what went wrong) — don't patch it mid-session across phases.
+5. **Copy the fenced block only, and let a slash command be the first thing in the
+   message.** The heading above a prompt, and any note between it and the fence, are for
+   your eyes — pasted along with the prompt they push `/prepare` or `/implement` off the
+   start of the message, and the harness expands a slash command only from there. The
+   failure is silent: the skill never loads, nothing errors, and the session runs a
+   lookalike procedure. If you are unsure whether it expanded, ask — the session is
+   required to tell you when a named command did not (`rules/_generic/core.md` § Done).
 
 ## Pipeline overview
 
