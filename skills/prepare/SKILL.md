@@ -264,6 +264,19 @@ guidance, not hard rules — adjust to the project's grain.
 | **Medium** | 3–5 files, ~200–500 LOC | Phase 6 optional |
 | **Complex** | 5+ files, 500+ LOC, or crosses layers/modules | Phases 5–6 **required** |
 
+**Tier measures size; this check measures *count*.** One plan carries **one intent you can state
+in a single sentence**. If you cannot, you are holding several changes — and Complex is the wrong
+answer to that: decomposition splits one intent into waves, it never fuses three intents into one.
+Any of these signs means split first, then run this skill per piece:
+
+- the scope reads as a list of unrelated features joined by "and";
+- reviewing the result would take the operator half a day — so nobody will review it;
+- two people could not work on it without colliding, even across different files;
+- a good half of it could ship on its own and still be worth shipping.
+
+(Splitting into ≥2 plans is different from tier 1 above: that is a whole surface to be swept by
+`/prompt-master`; this is a handful of separable changes you can name right now.)
+
 ---
 
 ## Phase 4 — Impact Analysis
@@ -480,12 +493,15 @@ executes it row by row and writes the observed values back beneath it.
 - **If the input is an `/analyst` spec** (requirements numbered `US-1..n`, acceptance `AC-n`):
   include an explicit mapping table — one row per user story:
 
-  | US-ID (from the /analyst spec) | Plan step(s) |
-  |--------------------------------|--------------|
-  | US-1 | Prep step 2 · subtask 03 |
+  | US-ID (from the /analyst spec) | Plan step(s) | Its ACs → step |
+  |--------------------------------|--------------|----------------|
+  | US-1 | Prep step 2 · subtask 03 | AC-1 → step 2 · AC-3 → subtask 03 |
 
   Every US-ID must appear; **a user story with no plan step FAILS the gate** — add the step,
-  or mark it explicitly out-of-scope with user sign-off.
+  or mark it explicitly out-of-scope with user sign-off. **Every AC of that story too**, in the
+  third cell, each pointing at a step: the happy path gets a step, the expired token does not,
+  and the row still looks covered — that gap is what the column is for. An AC with no step is
+  fixed or signed off out-of-scope exactly like a US.
 - **No `/analyst` spec:** fall back to the self-check — every requirement from the user
   request maps to a step.
 - [ ] Each file to modify is listed with a SPECIFIC change.
@@ -602,7 +618,7 @@ single source of truth — a fresh `/implement` session reads only the file:
 
    | Check | Status |
    |-------|--------|
-   | US-ID → step mapping complete (or fallback: every requirement has a step) | |
+   | US-ID **and its ACs** → step mapping complete (or fallback: every requirement has a step) | |
    | All steps specific (WHERE+WHAT+HOW) | |
    | No vague language | |
    | Edge cases addressed | |
@@ -615,6 +631,22 @@ single source of truth — a fresh `/implement` session reads only the file:
 
 10. **Go / No-Go** — can implementation start now, or must prep steps (or assumption
     confirmations) land first?
+
+---
+
+## Hand-off — how the human should read this plan
+
+Hand the reading order over with the plan, ordered for **early exit**: **intent & scope
+boundaries → requirements / AC coverage → the steps**. A wrong intent means *stop reading* —
+everything below it is downstream of that error, and reviewing steps under the wrong goal is an
+expensive way to agree with it. Then say the line that earns those two minutes:
+
+> I faithfully wrote down what you told me. The costliest find here is what you **forgot** to
+> tell me — in a plan, absence looks exactly like agreement.
+
+**Right-size it or it becomes ceremony** (`core.md` → reversibility prices the decision): a
+one-line reversible fix is a twenty-second look at the intent; an irreversible change —
+migration, money, authorization, an external contract — earns the full pass.
 
 ---
 

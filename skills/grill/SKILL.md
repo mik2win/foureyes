@@ -94,6 +94,10 @@ design, that question goes last or not at all.
 - **Edge cases & failure modes** — empty/boundary inputs, concurrency, partial failure,
   idempotency — the cases a happy-path plan silently skips.
 - **Acceptance** — how we'll know it works; the observable definition of done.
+- **Unquantified words** — every "fast", "reliable", "handy", "large", "soon" hides a decision
+  nobody has made. Ask for the number and its unit, or record it as an open question: left
+  vague, it gets decided silently by whoever writes the code, and no one can say later that
+  it came out wrong.
 
 Challenge over-scope, contradictions, and anything simpler-than-proposed. A good grilling pushes
 back; it doesn't just transcribe.

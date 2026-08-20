@@ -93,10 +93,23 @@ implementation (scope, data, integration behavior, reuse bets). Never silently a
 
 ## 8. Acceptance criteria
 
-> Verifiable, traceable to user stories.
+> Verifiable, traceable to user stories, and **quantified wherever the thing is measurable** —
+> "fast", "reliable", "handles large inputs" are not criteria until they carry a number and a
+> unit. Put the number in, or list it as an open question; left vague, it is decided silently
+> by whoever writes the code.
 
 - **AC-1 (US-1):** <observable, testable condition>
 - **AC-2 (US-2):** ...
+
+**Scenarios** — mandatory for every AC that touches state, money, authorization, or an external
+contract; elsewhere as needed. The header names the case, never its number.
+
+```
+Scenario: Rejects an expired token          (AC-2)
+- GIVEN <state>
+- WHEN <event>
+- THEN <observable result>
+```
 
 **Definition of done** — <overall condition for "shipped".>
 

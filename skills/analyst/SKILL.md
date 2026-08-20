@@ -201,6 +201,22 @@ Write to the **plans location from `PROJECT.md`** using its naming convention (e
    output/state) — a worked example pins down what abstract prose leaves open to divergent
    readings. An AC nobody can demonstrate by running something is an opinion, not a criterion.
 
+   **Where the AC touches state, money, authorization, or an external contract, that example
+   takes scenario form** — elsewhere it is your call, prose is enough:
+
+   ```
+   Scenario: Rejects an expired token
+   - GIVEN <state>
+   - WHEN <event>
+   - THEN <observable result>
+   ```
+
+   The header **names the case** (*"Rejects an expired token"*), never numbers it (*"Test 2"*) —
+   a case you cannot name is one nobody thought through. Write the case you would least want to
+   see broken in production, not the happy path: the empty input, the expired token, the second
+   click. Each scenario is one ready test case for `/test-spec` and one check `plan-verifier`
+   can hold the diff against.
+
 Keep requirements **traceable**: number user stories and reference those ids from
 acceptance criteria, the authorization matrix, and open questions. On revision, **never
 renumber existing ids — append** new ones (US-n, AC-n); downstream steps (`/prepare`,
@@ -229,6 +245,16 @@ resolved by inventing the answer yourself — the missing information is the use
 
 - Tell the user the spec path.
 - List the top open questions that still block implementation.
+- **Hand over the reading order with it**, ordered for early exit: **problem & scope boundaries
+  → US and their ACs → everything else**. A wrong problem statement means *stop reading* —
+  the rest is downstream of that error, and reviewing ACs under the wrong goal is an expensive
+  way to agree with it. Then say the line that earns those two minutes:
+  > I faithfully wrote down what you told me. The costliest find here is what you **forgot** to
+  > tell me — in a spec, absence looks exactly like agreement.
+
+  **Right-size it or it becomes ceremony** (`core.md` → reversibility prices the decision): a
+  small reversible feature is a skim of the problem statement and the open questions; anything
+  irreversible — migration, money, authorization, an external contract — earns the full pass.
 - Suggest `/prepare <spec-path>` as the next step (then implement).
 
 ## Supporting files

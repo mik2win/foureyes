@@ -65,11 +65,17 @@ it never silently compensates downstream, where the gap costs more.
 |---------------------|--------------------------------------------------------------|
 | Brief (`/discover`) | route recommended · every claim cited (`path:line`) or marked inferred · "searched but absent" recorded · no open question that blocks spec-writing |
 | Spec (`/analyst`) | ACs falsifiable ("do X, observe Y") with concrete examples · unhappy paths per US or explicit n/a · assumptions & open questions listed |
-| Plan (`/prepare`) | every step answers WHERE + WHAT + HOW + VERIFY · US→step mapping complete · material assumptions confirmed / repo-verified / routed to `/spike` · waves pass the safety check |
+| Plan (`/prepare`) | every step answers WHERE + WHAT + HOW + VERIFY · US→step *and* AC→step mapping complete · material assumptions confirmed / repo-verified / routed to `/spike` · waves pass the safety check |
 | Implementation (`/implement`) | tests green · behavior driven & observed (or skip reason named) · deviation report + log written into the plan · status frontmatter set |
 
 A gate item that is genuinely inapplicable is **stated** n/a with a reason — never silently
 skipped. A returned artifact is not a failure; papering over a weak input is.
+
+The same holds for a whole stage: **a declared skip satisfies the gate, a silent one fails it.**
+Skipping an artifact is legal when the downstream artifact names it — what was skipped, why, and
+what stands in its place ("no spec: two-line change, the ticket text is the requirement"). An
+artifact nobody mentioned is an unchecked input, not an absent need, and the consuming skill
+treats it as a failed gate.
 
 ## Phase ordering — correctness before structure
 
