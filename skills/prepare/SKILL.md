@@ -638,8 +638,7 @@ single source of truth — a fresh `/implement` session reads only the file:
 
 Hand the reading order over with the plan, ordered for **early exit**: **intent & scope
 boundaries → requirements / AC coverage → the steps**. A wrong intent means *stop reading* —
-everything below it is downstream of that error, and reviewing steps under the wrong goal is an
-expensive way to agree with it. Then say the line that earns those two minutes:
+everything below it is downstream of that error. Then the line that earns those two minutes:
 
 > I faithfully wrote down what you told me. The costliest find here is what you **forgot** to
 > tell me — in a plan, absence looks exactly like agreement.

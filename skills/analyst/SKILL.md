@@ -246,9 +246,8 @@ resolved by inventing the answer yourself — the missing information is the use
 - Tell the user the spec path.
 - List the top open questions that still block implementation.
 - **Hand over the reading order with it**, ordered for early exit: **problem & scope boundaries
-  → US and their ACs → everything else**. A wrong problem statement means *stop reading* —
-  the rest is downstream of that error, and reviewing ACs under the wrong goal is an expensive
-  way to agree with it. Then say the line that earns those two minutes:
+  → US and their ACs → everything else**. A wrong problem statement means *stop reading* — the
+  rest is downstream of that error. Then the line that earns those two minutes:
   > I faithfully wrote down what you told me. The costliest find here is what you **forgot** to
   > tell me — in a spec, absence looks exactly like agreement.
 

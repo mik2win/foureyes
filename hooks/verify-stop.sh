@@ -13,15 +13,19 @@
 # the user alone is no longer forced. Warn-not-block is unchanged: additionalContext is feedback,
 # not a decision, and this hook still exits 0 and never emits `decision:"block"`. The model may
 # act on the failure or not; nothing here compels a retry. `hookEventName` echoes the incoming
-# event so the same script is correct wired to Stop or to SubagentStop; unknown output fields are
-# ignored by the harness, so emitting both channels is safe on older builds.
+# event, but wire this hook to **Stop only**: on SubagentStop the harness delivers
+# additionalContext to the subagent that just stopped — not to the orchestrator such text
+# addresses — and resumes that agent's turn (measured 2026-08-21 on 2.1.220). Unknown output
+# fields are ignored by the harness, so emitting both channels is safe on older builds.
 #
-# Feedback to the model is sent once per distinct failure: additionalContext continues the turn,
-# so re-sending the SAME failure at every Stop is how a warn-only hook would start ping-ponging
-# with a failure the model cannot fix. The signature of the last-reported failure is remembered
-# per session; an unchanged failure goes to the user only, a changed one is fed to the model
-# again. `stop_hook_active` below should already cover this — the marker just does not depend
-# on it.
+# A warn-only hook must not ping-pong with a failure the model cannot fix. The guard is
+# `stop_hook_active` below: a turn already continuing from a Stop hook exits early, so the same
+# failure is not fed back round after round. This covers the additionalContext path too, which is
+# not obvious — the flag and its cap (`stop_hook_block_count`, `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`)
+# are built around *blocking* continuations, and additionalContext is not a block. Measured
+# 2026-08-21 on 2.1.220: the Stop event ending a turn that additionalContext continued carries
+# `stop_hook_active: true`, so this hook speaks at most once per chain. It therefore needs no
+# dedup state of its own, and keeps none.
 #
 # DISABLED by default — two independent off-switches, both must be flipped to enable:
 #   1. WIRING: the kit does NOT wire this hook in settings.template.json. To enable, merge the
@@ -34,8 +38,8 @@ input=$(cat)
 dir=$(printf '%s' "$input" | jq -r '.cwd // .workspace.current_dir // "."')
 event=$(printf '%s' "$input" | jq -r '.hook_event_name // "Stop"')
 
-# Defensive: if Claude is already continuing from a prior Stop hook, do nothing (this hook
-# never blocks, so a loop can't form — but exit early anyway, it's free).
+# Defensive: if Claude is already continuing from a prior Stop hook, do nothing. This hook never
+# blocks, so the blocking loop cannot form; the additionalContext path is the unverified one above.
 [ "$(printf '%s' "$input" | jq -r '.stop_hook_active // false')" = "true" ] && exit 0
 
 # --- project commands (fill in when enabling; from PROJECT.md → Commands) ---
@@ -62,18 +66,8 @@ run "test" "$TEST_CMD"
 
 msg=$(printf 'verify-stop.sh (non-blocking): post-turn checks failed.%b\nNot blocked — fix before committing.' "$fails")
 
-# Same failure as last time in this session? Report to the user only — do not re-feed the model.
-sid=$(printf '%s' "$input" | jq -r '.session_id // "unknown"' | tr -cd 'A-Za-z0-9._-')
-marker="${TMPDIR:-/tmp}/verify-stop-${sid:-unknown}.last"
-sig=$(printf '%s' "$fails" | cksum | tr -d ' ')
-
-if [ "$sig" = "$(cat "$marker" 2>/dev/null)" ]; then
-  jq -n --arg m "$msg" '{"systemMessage": $m}'
-else
-  printf '%s' "$sig" > "$marker" 2>/dev/null || true
-  jq -n --arg m "$msg" --arg e "$event" '{
-    systemMessage: $m,
-    hookSpecificOutput: { hookEventName: $e, additionalContext: $m }
-  }'
-fi
+jq -n --arg m "$msg" --arg e "$event" '{
+  systemMessage: $m,
+  hookSpecificOutput: { hookEventName: $e, additionalContext: $m }
+}'
 exit 0

@@ -69,9 +69,11 @@ the map of changes, then whole files one at a time, and name in the summary what
 before judging any of them, each tagged:
 
 - **`[AGENT]`** — decided by an agent while building. Every row of the plan's **Deviation
-  Report** (`Plan said` / `What was done` / `Reason`) is one of these, automatically.
-- **`[USER]`** — decided by the user, and only with the user's **verbatim quote** from the
-  conversation, in its original language, unparaphrased. **No quote, no `[USER]` tag — it is
+  Report** is one of these unless its `Decided by` cell carries a quote.
+- **`[USER]`** — decided by the user, and only with the user's **verbatim quote**, in its
+  original language, unparaphrased. In a fresh review session the build conversation is gone, so
+  the quote comes from the artifact: the Deviation Report's `Decided by` cell, which
+  `/implement` fills at the moment of the answer. **No quote, no `[USER]` tag — it is
   `[AGENT]`.** An agent that "remembers" a user decision is precisely the mechanism this tag
   exists to catch.
 
