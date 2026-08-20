@@ -105,16 +105,22 @@ If any applicable gate is missing, gather that context FIRST — do not start ed
 ## Build the step ledger
 
 1. **Plan Step Extraction (MANDATORY):** extract EVERY numbered step or bullet from the
-   plan into a **step ledger** — a scratchpad file, one row per step carrying the step's
-   **EXACT text**, no paraphrasing, plus a `Status` column (`todo` / `done` / `deviated` /
-   `skipped`). State the total step count in the ledger header; the final report accounts
-   for every row against it.
+   plan into a **step ledger** — **one named file in the session scratchpad directory**,
+   `<scratchpad>/implement-ledger-<slug>.md` (slug from the plan file's name, or from the task
+   focus when there is no plan file). One row per step carrying the step's **EXACT text**, no
+   paraphrasing, plus a `Status` column (`todo` / `done` / `deviated` / `skipped`). State the
+   total step count in the ledger header; the final report accounts for every row against it.
+   **Print the ledger's full path in the chat when you create it**, and re-read the file — not
+   your memory of the run — whenever you need its contents.
 
    Verbatim extraction is the point, not bookkeeping: a numbered item copied out of the
    middle of a long plan becomes its own beginning and stops losing attention to the plan's
-   first and last steps (`docs/agent-failure-modes.md` → middle-loss). A *file* is the point
-   too — the harness offers no session task list on current models, and a checklist that
+   first and last steps (`docs/agent-failure-modes.md` → middle-loss). A *named file* is the
+   point too — the harness offers no session task list on current models, and a checklist that
    lives only in the reply is gone at the next compaction, exactly when a long build needs it.
+   "A scratchpad" is not a location: a build that never wrote the rows down reaches persistence
+   with nothing to copy from and reconstructs its deviations from memory — the one thing this
+   skill forbids. The path is what makes the ledger findable again after a compaction.
 2. Classify the task:
    - **Code changes** — edits to source under the Architecture map (PROJECT.md).
    - **Non-code** — configs, rules, skills, docs.
@@ -173,10 +179,12 @@ For each step, in order:
    rework; caught at the end, it can cost the session.
 4. **Track deviations at the moment of decision — not retrospectively.** The instant your
    actual action differs from the plan (different approach, skipped item, extra action),
-   append a row to the ledger file's **Deviations** section with three fields: `Plan said`
-   (verbatim), `What was done`, `Reason`, and set the step's status to `deviated`. That
-   section is the raw material for the Deviation Report. Do NOT reconstruct deviations at
-   the end.
+   append a row to the **ledger file's** `## Deviations` section — the file named above, on
+   disk, not a line in the reply — with three fields: `Plan said` (verbatim), `What was done`,
+   `Reason`, and set the step's status to `deviated`. Write it before you move to the next
+   step: a compaction between the decision and the report takes the unrecorded row with it.
+   That section is the raw material for the Deviation Report. Do NOT reconstruct deviations
+   at the end.
 
 ### What you CAN adapt (record as a deviation)
 - Implementation details when the code differs from the plan's assumptions.
@@ -291,11 +299,24 @@ If the audit flags issues:
    unsure). Out-of-scope-and-small in a file no sibling owns → fix and log it. Out-of-scope-and-large,
    or in a concurrent-sibling / serialization-point file → *Flagged — NOT fixed*, with the owner
    named. "The auditor said so" does not widen your `Owns` set.
-2. Re-audit until all modified files pass — **continue the SAME auditor agent** (send it a
+2. Re-audit the files you touched — **continue the SAME auditor agent** (send it a
    follow-up: "I fixed X and Y — re-check those files") rather than spawning a fresh one.
    The continuation already holds the first audit's context, so re-verdicts stay consistent
    and cost a fraction of a cold re-read; a fresh spawn may re-litigate files it already
    passed. Spawn fresh only if the original agent is no longer available.
+3. **Cap the loop at 3 fix-and-re-audit rounds.** "Re-audit until everything passes" has no
+   stopping condition when auditor and implementer simply disagree: a finding the auditor keeps
+   restating and you keep failing to satisfy buys round after round of rewriting working code to
+   please a reviewer, and that is thrash (`docs/agent-failure-modes.md`). Rounds 1–3 run as above.
+   **At the cap, stop — a silent fourth round is the failure this cap prevents.** Instead:
+   - list **every still-open finding by name** in the report's Architecture Audit table, one row
+     per finding: the file, the auditor's last verdict marked open-at-cap, and in `Reason` what
+     you tried and why it is still open (concrete — not "auditor disagreed");
+   - **flag the run**: set the plan status to `PARTIAL` and say in the report that the audit hit
+     its cap with N findings open;
+   - hand those findings to the user as an explicit decision — fix now (as a follow-up task),
+     defer with a ticket, or accept — and let them choose. Do not drop them from the report to
+     make the run look clean: an unreported open finding is worse than an unfixed one.
 
 ---
 
@@ -346,7 +367,10 @@ drives at the wave boundary — and name the outstanding epic-level rows in the 
 ## Persist implementation log + archive (when a plan file exists)
 
 1. **Append the implementation log** to the plan file at `$ARGUMENTS` (Edit, append-only —
-   never overwrite). Add `## Implementation Log — <today>` containing, per step: the step
+   never overwrite). **Re-read the step ledger first** — `<scratchpad>/implement-ledger-<slug>.md`,
+   the path you printed when you built it — and copy from its rows and its `## Deviations`
+   section. The ledger is the record; the conversation is not, and after a compaction it holds
+   only the tail of the run. Add `## Implementation Log — <today>` containing, per step: the step
    text, **What was done**, and any **Deviation + reason** — the same content as the chat
    report's Changes Made + Deviation Report. Mark each step done / deviated / skipped
    (with the approval note). Parallel wave: scope the log to your session's steps only.
@@ -399,6 +423,11 @@ user decide. If the mapping says no deploy is needed for the changed paths, say 
 | File | Verdict | Reason |
 |------|---------|--------|
 | file | SOUND | reason |
+| file | HACK — open at cap | tried X twice; auditor still flags Y |
+
+*(If the fix-and-re-audit loop hit its 3-round cap, one `OPEN` row per still-open finding plus a
+line "Audit capped at 3 rounds — N findings open, listed above for your decision", and the plan
+status is `PARTIAL`. Never an audit that ends with unlisted open findings.)*
 
 ### Deviation Report
 *(ALWAYS — even "no deviations" needs the explicit row, never an empty table.)*
@@ -491,7 +520,8 @@ git commit -m "type(scope): description" -m "- detail"
 `status: DONE | PARTIAL | BLOCKED` · `completed_at: <today>` · `notes:` (optional)
 
 - **DONE** — every step implemented as described (no/only cosmetic deviations).
-- **PARTIAL** — partial, or meaningful deviations. Deviation rows mandatory.
+- **PARTIAL** — partial, meaningful deviations, or an architecture audit that hit its 3-round
+  cap with findings still open. Deviation rows mandatory.
 - **BLOCKED** — halted (missing dependency/API, ambiguity). Reason in `notes`; not archived.
 
 ### Archive
@@ -515,6 +545,8 @@ code is wrong rather than the test. One line, and it costs nothing to decline.
 ## DO NOT
 
 - Skip the Deviation Report — even "no deviations" needs the explicit row.
+- Open a fourth architecture-audit round, or end a capped audit without naming every finding
+  it left open.
 - Overwrite the plan file — the log is append-only.
 - Run `git add`, `git commit`, or a deploy automatically — output the message + command only.
 - Mark a plan DONE if tests fail or the audit found unresolved issues.

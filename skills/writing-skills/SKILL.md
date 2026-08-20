@@ -216,6 +216,35 @@ bookending, forced restatement, worked examples, checkable steps, named biases �
 `docs/prompt-patterns.md`; kit skills are written for the **weakest model that will run
 them**, not the strongest.
 
+## Micro-test a wording before you trust it
+
+A **behavioural** line — a gate, a prohibition, a phrasing meant to change what the executor
+*does* — is a hypothesis until it is measured. Measuring it needs no harness: raw one-shot calls,
+or one throwaway subagent per run, on the smallest prompt that reproduces the failure.
+
+1. **Run the control arm first — the same prompt with no guidance at all.** If the bare prompt
+   does not produce the failure you are writing against, there is nothing to fix: drop the
+   guidance instead of tuning it. Most candidate lines die here, and that is the protocol paying
+   for itself — every line that dies is always-on context the kit does not spend.
+2. **5+ runs per variant.** One run shows the wording is *possible*, not that it *binds*.
+3. **Read every hit by hand.** Grepping for the forbidden token counts strings, not behaviour;
+   the failures worth finding are the ones that comply with the letter.
+4. **Score the variance, not only the rate.** Five runs that read the line five different ways
+   mean it does not bind — even if all five happen to pass, the next model picks a sixth reading.
+   Convergent-wrong is better than divergent-right: it is fixable.
+5. **Change one thing per round**, and record the losing variants (backlog note or commit body) —
+   otherwise the next author re-runs the experiment you already paid for.
+
+Two results worth knowing before the first draft (measured by `obra/superpowers` on their own
+skills; re-test rather than inherit, but do not start from the losing side):
+
+- On **shaping** failures — the output has the wrong flavour rather than the wrong facts — a bare
+  prohibition ("don't write X") produced **more** of the unwanted content than a positive recipe,
+  and more than no guidance at all. Naming the thing summons it. Write the recipe; keep the
+  prohibition for a failure you have actually observed (`docs/prompt-patterns.md` §4).
+- One hedge appended to a winning recipe — "unless it matters", "use judgment here" — degraded it
+  back to baseline. A nuance clause is not free: it re-opens the decision the recipe had closed.
+
 ## Editing checklist
 
 - [ ] `name` matches the directory; `description` has clear TRIGGER + DO-NOT-TRIGGER.
@@ -232,6 +261,8 @@ them**, not the strongest.
       gate: consumer phase/mode named + the skip condition (`assets/*` exempt).
 - [ ] The workflow's likely failure modes (per `docs/agent-failure-modes.md`) have a
       *structural* countermeasure, and steps are checkable states (`docs/prompt-patterns.md`).
+- [ ] Behavioural wording you added or reworded was micro-tested against a no-guidance control
+      arm (§Micro-test a wording) — or you can name the observed failure it is written against.
 - [ ] Editing an `agents/*.md`, not a skill? Its `tools:` list is governed elsewhere —
       `rules/_generic/delegation.md` §Tools an agent will not get. This file covers skills only.
 - [ ] `description` + `when_to_use` under **1 536** characters, and if you dropped

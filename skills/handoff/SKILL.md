@@ -49,6 +49,9 @@ handoff is a snapshot, not a verification (that is `/test` or the opt-in `verify
   plans/backlog location. Note its path (may be none).
 - **Git state** — run, from the repo root:
   - `git branch --show-current`
+  - `git rev-parse --short HEAD` — the commit this snapshot describes; it goes into the
+    frontmatter as `git_commit` and is what the next session diffs against to see what moved
+    since (Phase "How to resume" below). Without it, "what's done" has no anchor in time.
   - `git status --short` (modified/untracked files)
   - `git diff --stat HEAD` (size of the change)
   - `git log --oneline -5` (recent commits, for orientation)
@@ -58,7 +61,9 @@ handoff is a snapshot, not a verification (that is `/test` or the opt-in `verify
      done, in progress, or untouched.
   2. **What the session wrote down** — the plan's `## Implementation Log` and Deviation rows if
      `/implement` already appended them, plus any step ledger / deviation scratchpad this
-     session kept (`/implement`, `/sweep`, `/tdd` each keep one in a file).
+     session kept (`/implement`, `/sweep`, `/tdd` each keep one in a file — `/implement`'s is
+     `<scratchpad>/implement-ledger-<slug>.md`, and it holds deviation rows the plan does not
+     yet have).
   3. **The working tree** — the git state gathered above: `git status --short` and
      `git diff --stat HEAD` say which files actually moved; `git log --oneline -5` says what
      already landed.
@@ -93,6 +98,7 @@ Frontmatter + sections:
 type: handoff
 created: <YYYY-MM-DD>
 branch: <current branch>
+git_commit: <short SHA of HEAD when this was written>
 source_plan: <path or "none">
 status: <IN_PROGRESS | BLOCKED | READY_TO_REVIEW>
 ---
@@ -126,6 +132,11 @@ status: <IN_PROGRESS | BLOCKED | READY_TO_REVIEW>
 
 ## How to resume
 - Re-read this file + the source plan (`<path>`) + `.claude/PROJECT.md`.
+- **Re-verify before trusting.** `git log --oneline <git_commit>..HEAD` and `git status --short`
+  first: anything there happened after this snapshot. Then take each "What's done" line and
+  check it against the live tree — `[from handoff] → [checked now] → present | missing | modified`
+  — before building on it. Re-read, then re-check; a line that no longer holds is corrected here,
+  not carried forward.
 - Continue from "What's next"; for execution use `/implement <source plan>`.
 ```
 

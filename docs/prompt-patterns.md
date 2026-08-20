@@ -24,6 +24,10 @@ An example is executable specification: a GOOD/BAD pair pins the interpretation 
 
 Say what TO do as the main line — "write X to location Y in format Z" executes better than "don't put X in the wrong place". Reserve DO-NOTs for **predicted failure modes**, stated concretely (the do-not list in `delegation.md` briefs, the DO NOT sections closing kit skills). A prohibition without a predicted failure behind it is noise that dilutes the prohibitions that matter.
 
+Two measured refinements, both counter-intuitive enough to be worth stating (`obra/superpowers`, micro-tests on their own skills). On **shaping** failures — where the output has the wrong flavour rather than the wrong facts — a bare "don't X" produced *more* of the unwanted content than a positive recipe, and more than no guidance at all: naming the thing summons it. And one hedge bolted onto a recipe that was winning — "unless it matters", "use judgment here" — degraded it back to baseline, because a nuance clause re-opens the decision the recipe had closed. So: recipe first; prohibition only where you have *seen* the failure; no softening clause on a line that already works.
+
+Treat both as hypotheses about your prompt, not as facts about models — and settle them the same way they were settled: a **control arm with no guidance at all** (if the control doesn't fail, there is nothing to fix and the guidance should be deleted), 5+ runs per variant, every hit read by hand rather than grepped, and **answer variance scored as its own metric** — five runs that read a line five ways mean it doesn't bind, however many of them pass. The full protocol is in `/writing-skills` §Micro-test a wording; it needs no test harness, only raw calls.
+
 ## 5. Structure output to force the thinking
 
 A mandatory output section is a checkpoint the executor cannot skip silently: the Deviation Report's mandatory no-deviation row, the gate tables, "Searched but absent". If you need a check to *happen*, give its result a required slot — and demand evidence in the slot (`path:line`, counts, verbatim output), because slots invite padding (failure mode #13). Allow honest "n/a — <reason>" so the template never forces fabrication.
@@ -50,7 +54,7 @@ Without instruction, an executor over-processes trivial input and under-processe
 
 ## 11. Test prompts like code
 
-A skill or prompt pack is software. Before trusting it: run it on one known scenario and compare the output *shape* to expectation (did the gates fire? did the tables fill with evidence?); when it misfires, fix the prompt's structure — add the slot, the STOP, the example — rather than appending another adjective to the instructions. Iterate descriptions from real trigger misses (`/writing-skills`' editing checklist), and let `/retro` catch what slips through in production.
+A skill or prompt pack is software. Before trusting it: run it on one known scenario and compare the output *shape* to expectation (did the gates fire? did the tables fill with evidence?); when it misfires, fix the prompt's structure — add the slot, the STOP, the example — rather than appending another adjective to the instructions. Iterate descriptions from real trigger misses (`/writing-skills`' editing checklist), and let `/retro` catch what slips through in production. For a single **behavioural line** rather than a whole skill, the cheap version is the micro-test protocol under §4 — control arm, 5+ runs, hits read by hand.
 
 ## 12. Sequence output: evidence slots before verdict slots
 

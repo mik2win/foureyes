@@ -1,10 +1,27 @@
 #!/usr/bin/env bash
 # Stop hook — OPT-IN, OFF BY DEFAULT, NON-BLOCKING.
 # After a turn, if the working tree has uncommitted changes, optionally run the project's
-# lint / targeted-test commands and SURFACE failures as a systemMessage. It NEVER blocks:
-# it always exits 0 and never emits `decision:"block"` or exit 2, so it cannot break the
-# interactive flow or trap the session in a Stop-retry loop. The user opts into verification;
-# this hook only reports.
+# lint / targeted-test commands and SURFACE failures. It NEVER blocks: it always exits 0 and
+# never emits `decision:"block"` or exit 2, so it cannot break the interactive flow or trap the
+# session in a Stop-retry loop. The user opts into verification; this hook only reports.
+#
+# Output: emits the failure text via BOTH
+#   - systemMessage                         (surfaced to the user), and
+#   - hookSpecificOutput.additionalContext  (fed to the model, turn continues).
+# Since Claude Code v2.1.163, Stop and SubagentStop hooks may return additionalContext to give
+# Claude feedback and keep the turn going *without* being labeled a hook error — so reporting to
+# the user alone is no longer forced. Warn-not-block is unchanged: additionalContext is feedback,
+# not a decision, and this hook still exits 0 and never emits `decision:"block"`. The model may
+# act on the failure or not; nothing here compels a retry. `hookEventName` echoes the incoming
+# event so the same script is correct wired to Stop or to SubagentStop; unknown output fields are
+# ignored by the harness, so emitting both channels is safe on older builds.
+#
+# Feedback to the model is sent once per distinct failure: additionalContext continues the turn,
+# so re-sending the SAME failure at every Stop is how a warn-only hook would start ping-ponging
+# with a failure the model cannot fix. The signature of the last-reported failure is remembered
+# per session; an unchanged failure goes to the user only, a changed one is fed to the model
+# again. `stop_hook_active` below should already cover this — the marker just does not depend
+# on it.
 #
 # DISABLED by default — two independent off-switches, both must be flipped to enable:
 #   1. WIRING: the kit does NOT wire this hook in settings.template.json. To enable, merge the
@@ -15,6 +32,7 @@
 
 input=$(cat)
 dir=$(printf '%s' "$input" | jq -r '.cwd // .workspace.current_dir // "."')
+event=$(printf '%s' "$input" | jq -r '.hook_event_name // "Stop"')
 
 # Defensive: if Claude is already continuing from a prior Stop hook, do nothing (this hook
 # never blocks, so a loop can't form — but exit early anyway, it's free).
@@ -43,5 +61,19 @@ run "test" "$TEST_CMD"
 [ -z "$fails" ] && exit 0
 
 msg=$(printf 'verify-stop.sh (non-blocking): post-turn checks failed.%b\nNot blocked — fix before committing.' "$fails")
-jq -n --arg m "$msg" '{"systemMessage": $m}'
+
+# Same failure as last time in this session? Report to the user only — do not re-feed the model.
+sid=$(printf '%s' "$input" | jq -r '.session_id // "unknown"' | tr -cd 'A-Za-z0-9._-')
+marker="${TMPDIR:-/tmp}/verify-stop-${sid:-unknown}.last"
+sig=$(printf '%s' "$fails" | cksum | tr -d ' ')
+
+if [ "$sig" = "$(cat "$marker" 2>/dev/null)" ]; then
+  jq -n --arg m "$msg" '{"systemMessage": $m}'
+else
+  printf '%s' "$sig" > "$marker" 2>/dev/null || true
+  jq -n --arg m "$msg" --arg e "$event" '{
+    systemMessage: $m,
+    hookSpecificOutput: { hookEventName: $e, additionalContext: $m }
+  }'
+fi
 exit 0
