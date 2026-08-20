@@ -25,7 +25,9 @@ interactive: detect what you can, **ask the user about anything ambiguous or whe
 diverge from the real code**, then generate the project layer. Read `_kit/KIT.md` and
 `_kit/rules-library/PACKS.md` once at the start — they define the kit and the pack format.
 
-Work top-to-bottom. Use TodoWrite to track the phases.
+Work top-to-bottom, naming each phase as you enter it — the phase headings below **are** the
+checklist, and none is optional. Do not skip or reorder: this run is interactive and long, and
+a run that loses its place re-asks the user questions they already answered.
 
 ---
 

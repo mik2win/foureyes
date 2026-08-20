@@ -27,7 +27,9 @@ you, then re-adapts — all in **one run**. (`/bootstrap` is the front door: on 
 project it hands off here; you can also run `/update-kit` directly.) A same-version re-adapt is
 just the degenerate case where everything merges quietly and only the re-adapt step does work.
 
-Work top-to-bottom. Use TodoWrite to track the phases. New kit source: `$ARGUMENTS` (a path), or
+Work top-to-bottom, naming each phase as you enter it — the phase headings below **are** the
+checklist, and none is optional. A merge run that loses its place re-litigates a conflict the
+user already resolved. New kit source: `$ARGUMENTS` (a path), or
 the pre-staged `.claude/.kit-incoming/` if no path is given.
 
 ---

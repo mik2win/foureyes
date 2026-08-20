@@ -10,7 +10,7 @@ description: >-
   across the repo", "migrate all call sites", "replace library A with B", "update every
   usage"). DO NOT TRIGGER when: the work is a feature or redesign (use /prepare → /implement),
   deleting dead code (use /clean-mvp), or cleaning one diff (use /refactor).
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, TodoWrite, AskUserQuestion, Agent
+allowed-tools: Read, Grep, Glob, Bash, Edit, Write, AskUserQuestion, Agent
 effort: high
 ---
 
@@ -60,10 +60,13 @@ Multi-modal, like `/discover` — one search angle always misses:
   finding — the migration is the moment to make it static.
 - Glob file patterns the migration implies (e.g. every file importing the old library).
 
-Produce the **site inventory** — the sweep's single source of truth, tracked via `TodoWrite`
-(one item per batch) and as a table:
+Produce the **site inventory** — the sweep's single source of truth. **Write it to a file**
+(scratchpad, or alongside the report at the Plans location) rather than only into the reply:
+it is the sole record of which of N sites are done, and a migration outlives the context
+window that held the chat. Each row carries its own status, so the table *is* the progress
+tracker — there is no second one to keep in sync.
 
-| # | `path:line` | Kind (mechanical / judgment / string-doc) | Batch | Status |
+| # | `path:line` | Kind (mechanical / judgment / string-doc) | Batch | Status (todo / done / judgment / deferred / exception) |
 
 **State the total count.** If you bound the inventory in any way (scope, sampling), say what
 was excluded and why — a truncated inventory that reads as complete is how migrations ship
@@ -106,7 +109,9 @@ tests cover each batch):
 
 1. Transform the batch (matching each file's local idiom, not just the recipe literal).
 2. Run `test:targeted` for the touched modules — green before the next batch.
-3. Tick the inventory rows; update the TodoWrite item.
+3. Tick the batch's rows in the inventory file — `done`, or `deferred` / `judgment` with the
+   reason — **before** starting the next batch. A row still reading `todo` is an untouched
+   site, whatever the chat remembers.
 4. **Judgment sites**: batch them separately — for each, show the site + your proposed
    change + the semantic difference, and apply only what the user confirms.
 5. After each batch, output the suggested `git add <paths> && git commit` command (the user
@@ -147,7 +152,8 @@ The sweep is done when **re-discovery returns empty**, not when the checklist do
 
 ## Hard rules
 
-- **Inventory before any edit.** No transform until the site table exists with a total count.
+- **Inventory before any edit.** No transform until the site table exists **in a file** with a
+  total count — and every batch updates it in place before the next one starts.
 - **No silent truncation.** Every bound on coverage is stated; every inventory row ends as
   transformed / deferred-with-reason / named exception.
 - **Pilot before scale.** An unconfirmed recipe never touches the long tail.
@@ -155,7 +161,7 @@ The sweep is done when **re-discovery returns empty**, not when the checklist do
   surface; write the tool, prove it on the pilot, keep it as the artifact.
 - **Judgment sites are proposed, never auto-applied.** Semantic changes get user confirmation.
 - **Done = re-scan clean.** The finish line is empty re-discovery + green full suite, not an
-  exhausted todo list.
+  inventory with every row ticked.
 - **Never commit.** Output batch-sized commit commands; the user runs them.
 - **Facts from PROJECT.md.** Commands and scope boundaries come from the profile.
 

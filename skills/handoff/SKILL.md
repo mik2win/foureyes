@@ -52,8 +52,23 @@ handoff is a snapshot, not a verification (that is `/test` or the opt-in `verify
   - `git status --short` (modified/untracked files)
   - `git diff --stat HEAD` (size of the change)
   - `git log --oneline -5` (recent commits, for orientation)
-- **What's done / what's next** — derive from the session's TodoWrite list (if any),
-  the source plan's steps, and the actual edits made this session.
+- **What's done / what's next** — never a read-back of a session task list (it may not exist, and
+  a ticked item is a claim, not a diff), so this is *derived from evidence*, in this order:
+  1. **The source plan's step list** — the authoritative enumeration of the work. Each step is
+     done, in progress, or untouched.
+  2. **What the session wrote down** — the plan's `## Implementation Log` and Deviation rows if
+     `/implement` already appended them, plus any step ledger / deviation scratchpad this
+     session kept (`/implement`, `/sweep`, `/tdd` each keep one in a file).
+  3. **The working tree** — the git state gathered above: `git status --short` and
+     `git diff --stat HEAD` say which files actually moved; `git log --oneline -5` says what
+     already landed.
+
+  **Cross-check the plan against the tree — do not trust either alone.** A step whose files
+  show no diff is not done however confidently the chat reads, and a file modified with no
+  matching step is either an undeclared deviation or out-of-scope work: say which. Any step
+  whose state you cannot establish from the three sources goes into the doc marked
+  **unverified**, never silently promoted to done — a resume doc that overstates progress
+  costs the next session more than one that admits a gap.
 - **Test/lint status** — the *last observed* result from this session (e.g. "tests green
   before the last edit", "lint not run since"). If unknown, say "not run this session"
   and record the exact commands so the next session can run them.
@@ -85,7 +100,8 @@ status: <IN_PROGRESS | BLOCKED | READY_TO_REVIEW>
 # Handoff — <work focus> (<YYYY-MM-DD>)
 
 ## What's done
-- <completed step / change, with file refs>
+- <completed step / change, with file refs — plan step ↔ the diff that proves it>
+- <step whose state the tree could not confirm> — **unverified**, check `<what to look at>`
 
 ## What's next
 - <the very next action, then the rest, in order>

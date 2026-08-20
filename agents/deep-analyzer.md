@@ -5,7 +5,7 @@ description: >-
   architectural issues, and propose concrete refactoring with named patterns. Use for
   thorough analysis of complex modules or before major refactors. Read-only —
   parallel-safe when instances analyze different modules.
-tools: Read, Grep, Glob, Bash, TodoWrite
+tools: Read, Grep, Glob, Bash
 model: opus
 maxTurns: 60
 color: purple

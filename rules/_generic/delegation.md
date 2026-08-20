@@ -230,10 +230,10 @@ instead of requested.
 Part of the tool surface is **deferred**: the name is visible, the schema is not, and calling
 it before fetching fails. `SendMessage`, `Monitor`, `TaskOutput` and `TaskStop` — the
 continue-don't-respawn and background-collection primitives this file prescribes — are
-routinely among them, as are `TodoWrite`, `WebFetch` and `WebSearch`.
+routinely among them, as are `WebFetch` and `WebSearch`.
 
 So a run that plans to delegate fetches them **once, up front**:
-`ToolSearch("select:TodoWrite,SendMessage,Monitor")`. One call before the first spawn beats
+`ToolSearch("select:SendMessage,Monitor,TaskOutput")`. One call before the first spawn beats
 three discovered mid-run, and the check is cheap: if a tool you need appears only as a name in
 a `<system-reminder>`, its schema is not loaded yet. Listing a deferred tool in a skill's
 `allowed-tools` does **not** un-defer it.
@@ -251,3 +251,19 @@ tools for what survives rather than freezing a copy here. So run the check **whe
 tool**, not as a one-off audit: an agent instructed to call a tool it cannot reach does not fail
 — it invents the result (`agents/docs-writer.md` § Output options and `skills/audit-quality/SKILL.md`
 are the kit's two cases, both already fixed).
+
+**A third way a tool disappears: the build or the model tier drops it.** The todo tools
+(`TodoWrite`, `TaskCreate`/`Get`/`Update`/`List`) are gated by tier and build, and the gate moves
+under you: absent outright in an Opus 5 session on 2.1.220 (observed 2026-08-20, here), present as
+a *deferred* tool in an Opus 5 session on that same 2.1.220 elsewhere (observed 2026-08-21). Do
+not trust a named escape hatch either — `CLAUDE_CODE_ENABLE_TODO_TOOLS` does not exist in the
+2.1.220 binary at all (0 hits against 14 for `CLAUDE_CODE_ENABLE_TELEMETRY` as a control), so
+pinning it in `env` writes down a decision nothing executes. That is the case with no local
+signal: nothing in `tools:` or `allowed-tools` changed, and the instruction rots wherever it was
+written. So assume nothing either way — when a skill *prescribes* a tool call, the durable form is
+a mechanism the kit owns — a checklist file, an artifact section — with the harness tool as at
+most an accelerator. Progress tracking across the kit is written to files for exactly this reason
+(`/implement`'s step ledger, `/sweep`'s site inventory) — and for a second reason that does not
+depend on the tool existing at all: the todo list is **write-only**. There is no `TodoRead`, so
+nothing can read a task list back; even where `TodoWrite` is present it is live operator display,
+never a record, and never a source `/handoff` can derive "what's done" from.

@@ -64,7 +64,7 @@ Format per mode: **Symptom → Mechanism (why it happens) → Countermeasure →
 - **Symptom:** requirements from the middle of a long spec/plan under-honored, while the first and last items are done well.
 - **Mechanism:** attention over long inputs is U-shaped — beginnings and ends dominate.
 - **Countermeasure:** structure defeats position: numbered items extracted into a checklist are each their own beginning; critical constraints repeat at start *and* end.
-- **In the kit:** `/implement`'s mandatory verbatim step-extraction into TodoWrite, skills' Phase-0 + Hard-rules bookend shape, `/prepare`'s US→step mapping gate (nothing survives on attention alone).
+- **In the kit:** `/implement`'s mandatory verbatim step-extraction into a written step ledger (one row per step, exact text, status ticked as you go — and `Steps: N/N` accounted for in the final report), `/sweep`'s site inventory in a file, skills' Phase-0 + Hard-rules bookend shape, `/prepare`'s US→step mapping gate (nothing survives on attention alone). Note the shape these share: the checklist is a **file**, not a list in the reply — extraction defeats middle-loss only for as long as the checklist still exists, and a file outlives the context window that held the plan.
 
 ## 9. Test-weakening
 

@@ -3,7 +3,7 @@ name: implement
 disable-model-invocation: true
 description: >-
   Execute a prepared plan or subtask file with quality gates. Reads the plan,
-  builds a todo list, implements each step with real-time deviation tracking,
+  builds a verbatim step ledger, implements each step with real-time deviation tracking,
   routes every finding (adapt / fix-and-log / file-as-card / STOP), spawns an audit
   subagent (counter-bias), runs tests, drives its slice of the epic's E2E block, and
   ends with a MANDATORY formatted report (Changes, Architecture Audit, Deviation
@@ -13,7 +13,7 @@ description: >-
   /prepare (to write one) or /analyst (to investigate) first; or the work is a new
   module/component/command modelled on an existing one that must be registered in an
   extension point — route to /scaffold.
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, TodoWrite, AskUserQuestion, Agent
+allowed-tools: Read, Grep, Glob, Bash, Edit, Write, AskUserQuestion, Agent
 effort: high
 ---
 
@@ -31,9 +31,8 @@ from `.claude/PROJECT.md`.
 **deferred** by the harness: the session lists them by name only and loads their schemas on
 demand, so calling one before it is fetched fails. Listing a tool in `allowed-tools` does **not**
 un-defer it. Issue a single `ToolSearch` up front covering the whole run —
-`select:TodoWrite,SendMessage,TaskOutput` (the todo list below, continuing the *same* auditor in
-the Architecture Audit, collecting a backgrounded drive) — instead of one round-trip per
-discovery. A name already loaded costs nothing to include; a schema discovered missing mid-run
+`select:SendMessage,TaskOutput` (continuing the *same* auditor in the Architecture Audit,
+collecting a backgrounded drive) — instead of one round-trip per discovery. A name already loaded costs nothing to include; a schema discovered missing mid-run
 costs a turn.
 
 Then load context:
@@ -103,15 +102,23 @@ If any applicable gate is missing, gather that context FIRST — do not start ed
 
 ---
 
-## Build the todo list
+## Build the step ledger
 
-1. **Plan Step Extraction (MANDATORY):** extract EVERY numbered step or bullet from
-   the plan. Create one TodoWrite item per step using the EXACT text — no paraphrasing.
-   Count total steps for the final compliance check.
+1. **Plan Step Extraction (MANDATORY):** extract EVERY numbered step or bullet from the
+   plan into a **step ledger** — a scratchpad file, one row per step carrying the step's
+   **EXACT text**, no paraphrasing, plus a `Status` column (`todo` / `done` / `deviated` /
+   `skipped`). State the total step count in the ledger header; the final report accounts
+   for every row against it.
+
+   Verbatim extraction is the point, not bookkeeping: a numbered item copied out of the
+   middle of a long plan becomes its own beginning and stops losing attention to the plan's
+   first and last steps (`docs/agent-failure-modes.md` → middle-loss). A *file* is the point
+   too — the harness offers no session task list on current models, and a checklist that
+   lives only in the reply is gone at the next compaction, exactly when a long build needs it.
 2. Classify the task:
    - **Code changes** — edits to source under the Architecture map (PROJECT.md).
    - **Non-code** — configs, rules, skills, docs.
-3. Append conditional todos at the end of the list:
+3. Append conditional rows at the end of the ledger:
    - If code changes: `Architecture audit`, `Run tests`, `Behavior check`.
    - Always (when a plan file exists): `Write Deviation Report into plan`, `Archive plan`.
    - If tracked files changed: `Generate commit message`.
@@ -158,17 +165,18 @@ For each step, in order:
 
 1. Quote the step text from the plan.
 2. Implement it. If the step carries a `Verify:` line (from `/prepare`), run that check now —
-   the step is done when the check passes, not when the edit is saved. Mark the todo done as
-   you go.
+   the step is done when the check passes, not when the edit is saved. Set the ledger row's
+   status as you go — before starting the next step, not in a batch at the end.
 3. **Tighten the feedback loop.** After each step (or small coherent group), run the fastest
    applicable signal — typecheck/lint/`test:targeted` from PROJECT.md → Commands — rather than
    batching all verification to the end. A mistake caught one step later costs one step of
    rework; caught at the end, it can cost the session.
 4. **Track deviations at the moment of decision — not retrospectively.** The instant your
    actual action differs from the plan (different approach, skipped item, extra action),
-   append a row to a scratchpad with three fields: `Plan said` (verbatim), `What was done`,
-   `Reason`. This scratchpad is the raw material for the Deviation Report. Do NOT
-   reconstruct deviations at the end.
+   append a row to the ledger file's **Deviations** section with three fields: `Plan said`
+   (verbatim), `What was done`, `Reason`, and set the step's status to `deviated`. That
+   section is the raw material for the Deviation Report. Do NOT reconstruct deviations at
+   the end.
 
 ### What you CAN adapt (record as a deviation)
 - Implementation details when the code differs from the plan's assumptions.
@@ -406,6 +414,8 @@ No-deviation form:
 | — | Matches plan exactly | No deviations |
 
 If you skipped a step, explain why and confirm user approval was obtained.
+State the ledger count — `Steps: N/N accounted for` (done / deviated / skipped, no row
+left at `todo`); a short count is an unfinished build, not a formatting slip.
 Confirm this table + Changes Made were appended to the plan file, or note
 "no plan file — log skipped".
 

@@ -54,11 +54,17 @@ wrong invocation class:
 - **`description` is the router.** Lead with what it does, then **TRIGGER** (phrases and
   situations) and **DO NOT TRIGGER** (the neighbours it's mistaken for, with the redirect). Vague
   descriptions cause misfires — the kit's failure mode is *under*-triggering, so be concrete.
-- **`context: fork` obliges a file output.** A forked run's reply does not come back to the
-  conversation, so a fork that only *reports* reports into a void. Give the skill `Write`, name the
-  artifact path in the body, and end by telling the user where the file landed (`/audit-quality` is
-  the model). A fork also runs on a reduced built-in toolset — a step that must call a specific
-  tool doesn't belong behind one.
+- **`context: fork` obliges a file output.** A forked run is a **background task by default**
+  (harness v2.1.218; `background: false` opts out per skill), so its reply *does* return to the
+  main session — as a task-notification. That is a weaker guarantee than it sounds: a
+  notification queued while the session keeps working to its end is never drained
+  (`rules/_generic/delegation.md` → collect-on-notification, measured 2 of 6 delivered), and a
+  fork is exactly the case where the main session has something else to do. So a fork whose only
+  output is its reply can still report into a void — the reason changed, the obligation didn't.
+  Give the skill `Write`, name the artifact path in the body, and end by telling the user where
+  the file landed (`/audit-quality` is the model): the file is what survives a lost notification,
+  and it is re-readable later, which a notification is not. A fork also runs on a reduced
+  built-in toolset — a step that must call a specific tool doesn't belong behind one.
 - Fields the kit deliberately does **not** use: `when_to_use` (triggers live inside `description`),
   `agent:`, `argument-hint`. Don't introduce them in one skill only.
 

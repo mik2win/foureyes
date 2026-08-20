@@ -11,7 +11,7 @@ description: >-
   DO NOT TRIGGER when: the user wants to add/audit tests for existing code (use /test), debug a
   specific failure (use /diagnose, then return here to lock the fix), or execute a plan verbatim
   without test-first (use /implement).
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, TodoWrite, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Bash, Edit, Write, AskUserQuestion
 effort: high
 ---
 
@@ -90,7 +90,10 @@ exactly what behaviour matters and how to verify it.
       most (critical paths and complex logic, not every edge case).
 - [ ] Identify **deep-module opportunities** (small interface, deep implementation) via
       `/codebase-design` — a testable seam now saves mock-heavy tests later.
-- [ ] Get the user's approval on the slice list. Track slices with `TodoWrite`, one per slice.
+- [ ] Get the user's approval on the slice list, then **write it to a scratchpad file** — one
+      row per slice, status `todo` / `green` / `dropped` — and update the row at the end of each
+      cycle. The loop below runs one slice at a time over many turns; a slice list held only in
+      the conversation is a slice list that quietly loses its tail.
 
 For a bug fix, the first slice is a test that **reproduces the bug** (RED for the right reason)
 before any fix — see `/diagnose`, then come here to lock it in.
