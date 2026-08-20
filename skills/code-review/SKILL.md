@@ -60,6 +60,27 @@ Skip binary, lock, and generated files. Read each surviving file in full **and**
 diff hunks, so you judge both the change and its context. Note each file's layer/module
 from `PROJECT.md` → Architecture.
 
+**If the diff does not fit, stop and narrow — never truncate.** A truncated read loses coverage
+silently while the report still looks complete. Narrow explicitly instead: `git diff --stat` for
+the map of changes, then whole files one at a time, and name in the summary what stayed unread
+(`core.md` → *verdicts carry denominators*).
+
+**Collect the change's decisions — the provenance block.** List the decisions the diff embodies
+before judging any of them, each tagged:
+
+- **`[AGENT]`** — decided by an agent while building. Every row of the plan's **Deviation
+  Report** (`Plan said` / `What was done` / `Reason`) is one of these, automatically.
+- **`[USER]`** — decided by the user, and only with the user's **verbatim quote** from the
+  conversation, in its original language, unparaphrased. **No quote, no `[USER]` tag — it is
+  `[AGENT]`.** An agent that "remembers" a user decision is precisely the mechanism this tag
+  exists to catch.
+
+An empty block is a normal outcome (the plan held, nothing was quoted) — never invent decisions
+to fill it. The block is context for *why the code looks like this*, never established truth:
+press `[AGENT]` decisions hardest, because an agent's own choice re-labelled "the requirement"
+is how a review walks past its own author. A `[USER]` decision that looks wrong is not silently
+accepted either — raise it for discussion rather than reviewing around it.
+
 ## Phase 2 — Review workflow
 
 Examine every changed file in this focus order; stop chasing once a category is clean.
@@ -87,6 +108,16 @@ set) or only the caller's discipline? The invariant is already a write-rule
 double-apply is CRITICAL, not a smell. If the write-path is out of the diff and you did not
 open it, say so in the summary rather than letting the review imply coverage
 (`core.md` → *verdicts carry denominators*).
+
+**The verification question.** One lens over the change, not a separate pass: *if the
+behaviour this change exists to produce broke where it is actually used, would verification
+fail?* Trace that behaviour to its consumers (`grep -rn` the symbol) instead of measuring the
+module's coverage, and state the concrete regression that would ship green — no demonstration,
+no finding, the same evidence gate as everything else. Tests that do not answer the question:
+ones that never executed (`testing.md` — unregistered, filtered out, skipped, disabled),
+assertions on source text rather than behaviour, no-throw and snapshot-only checks, and
+mock-only paths that never reach the changed code. Report a gap as *missing tests for changed
+behaviour* (STRUCTURAL).
 
 **Mandatory: comment-quality check.** Audit every added/changed comment against
 `.claude/rules/_generic/code.md` — restating the code, commented-out code,
@@ -123,15 +154,25 @@ Do not apply any fix.
   performance smells, missing tests for changed behaviour.
 - **STYLE** — naming, comment-quality violations, minor readability nits.
 
-```
+**CRITICAL findings carry their code; STRUCTURAL and STYLE carry `path:line`.** For each
+CRITICAL, quote the 2–3 lines around the problem so the user decides with the code in front of
+them instead of blind. This applies **only to this report** — ephemeral output, read once, where
+a line anchor plus a snippet is the cheapest proof. It does **not** reach durable artifacts: plan
+files, decision records and the plan write-path below keep citing symbols, not line-anchored
+snippets (`rules/_generic/code.md` → *durable text cites symbols, ephemeral output cites lines*).
+
+````
 ## Code Review — <target>
 ### CRITICAL
 - `path:line` — <problem>. Violates <rule|risk>. Fix: <concrete change>.
+  ```<lang>
+  <the 2–3 lines around the problem>
+  ```
 ### STRUCTURAL
 - ...
 ### STYLE
 - ...
-```
+````
 
 End with one line: `X critical, Y structural, Z style.`
 

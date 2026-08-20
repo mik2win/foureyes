@@ -63,7 +63,11 @@ Every agent prompt carries five parts; a missing part is filled by the agent's g
    retries on mismatch; keep markdown for single-agent, human-facing runs). Unbounded output
    from N agents is how a fan-out floods the session that launched it.
 4. **Do-NOT list** — the failure mode you'd predict for this task, stated as a prohibition
-   ("do not propose fixes, only locate", "do not read generated dirs").
+   ("do not propose fixes, only locate", "do not read generated dirs"). One prohibition is
+   standing, on every brief: **never describe the fan-out to the delegate.** A brief says what
+   to investigate and what to return; "ask the second agent", "check the panel finished",
+   "collect the others' results" is launch machinery, not a requirement of the task — and an
+   agent handed it opens a nested review of its own.
 5. **Evidence requirement** — citations (`path:line`, command output) for every claim, and an
    explicit instruction to report *negative* results ("searched X, found nothing") — an agent
    that only reports hits looks identical to one that barely searched.
@@ -130,6 +134,16 @@ files instead of rediscovering, and can check any claim without this session's t
 - **Aggregate honestly.** Dedupe overlapping findings, keep attribution, and preserve
   disagreement between agents as a finding in itself — two agents reading the same code to
   opposite conclusions is signal about the code (or the brief), never noise to average away.
+- **The synthesizer does not re-investigate.** Aggregating a fan-out is reading the reports and,
+  where they are unclear, asking their authors again — not re-running the reads and searches the
+  finders already did. Measured in rejudge (SYN-039): a judge holding `read`/`git_diff` stops
+  delegating and re-checks the panel itself — duplicating its work, spending the context the
+  fan-out existed to save, and getting captured by instructions embedded in the material it
+  reopens. Here the judge is almost always the main thread, which has every tool by definition,
+  so this is **discipline, not configuration**: the targeted spot-check of the one load-bearing
+  citation stays (*Reports are claims, not facts*); re-reading what the finders read does not.
+  When no one can confirm a claim, the synthesizer **reports the uncertainty** rather than going
+  to look for itself.
 - **Effort scales breadth, not just depth.** An orchestrating skill's `effort:` (and each
   agent's own `effort:` frontmatter) is a real dial: at `low` — few finders, single-vote
   verification, one round; at `high` — a wider finder pool, panel/majority verification for

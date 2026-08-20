@@ -81,6 +81,10 @@ correctly; **STYLE** = fix when you're already in the file.
 ## Coverage
 
 - Coverage is a floor, not a goal. A passing suite with no assertions is worthless.
+- **A test that did not run counts as missing.** Before calling behaviour covered, confirm the
+  covering test actually ran and passed *in the verification output* — one that exists but was
+  unregistered, filtered out, skipped or disabled proves nothing, and a green run it never
+  entered is indistinguishable from real coverage.
 - Don't delete or weaken assertions to make a test pass — fix the code or the test's
   premise.
 - Aim higher where logic is pure and cheap to cover, lower where it's mostly I/O:
