@@ -234,13 +234,14 @@ than a couple of files is what makes it mandatory:
 
 A gap found here is closed before reporting, not footnoted.
 
-**Why this is a self-check and not the `completeness-critic` agent.** This skill runs in a fork,
-and a forked skill cannot spawn: the spawn tool stays listed but returns an error instead of
-launching, so a fan-out here would read on the way out as a failed phase rather than as a
-configuration mistake. The independent critic is not lost — it moves one layer up. The fork
-returns a short summary plus the report path, so the **main thread** can run
-`completeness-critic` over the written file (its input contract takes a path), which is a
-stronger check anyway: a genuinely separate context, reading the artifact rather than the draft.
+**Why this is a self-check and not the `completeness-critic` agent.** Neither context this rubric
+runs in can spawn: in a fork the spawn tool stays listed but returns an error instead of launching,
+and preloaded into `quality-auditor` it is a subagent, where `Agent` is stripped outright
+(`rules/_generic/delegation.md` § Tools an agent will not get). Either way a fan-out here would
+read on the way out as a failed phase rather than as a configuration mistake. The independent
+critic is not lost — it moves one layer up: the run hands its report back, so the **caller** can
+run `completeness-critic` over the written file (its input contract takes a path), which is a
+stronger check anyway — a genuinely separate context, reading the artifact rather than the draft.
 Recommend it in the return line when the scope was large.
 
 ## Report format
@@ -317,6 +318,12 @@ a prior audit**; the old one is the evidence that a finding is a repeat. Then re
 conversation, a **short summary plus the file path** — not the whole report. When the scope ran
 past a handful of files, add one line recommending the main thread run `completeness-critic`
 over that file: the fork cannot spawn it, the thread that receives the path can.
+
+**Exception — preloaded into `quality-auditor`.** That agent carries this file as its rubric
+(`skills:` frontmatter) and `/implement` spawns it *synchronously*, collecting its reply and
+continuing it by `SendMessage`. No fork, no notification to lose: there the final message **is**
+the deliverable (`agents/quality-auditor.md` → Output), the agent declares no `Write`, and no file
+is written. The obligation above is for the `/audit-quality` run.
 
 ## Hard rules
 

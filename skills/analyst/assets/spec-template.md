@@ -36,6 +36,9 @@
 
 ### Behavior & rules
 
+> One rule = one observable behavior. A line that needs an "and also" to finish is two rules;
+> split it, or the AC that traces to it can pass while half the behavior is missing.
+
 - <Action> — <effect, validations, side effects, async work>
 
 ## 3. Domain model

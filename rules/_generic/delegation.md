@@ -266,6 +266,13 @@ tool**, not as a one-off audit: an agent instructed to call a tool it cannot rea
 — it invents the result (`agents/docs-writer.md` § Output options and `skills/audit-quality/SKILL.md`
 are the kit's two cases, both already fixed).
 
+**The list also under-states what an agent gets.** Measured 2026-08-21 on 2.1.220: the harness
+hands `Write` and `Edit` to subagents that declare neither — `quality-auditor`, `finding-verifier`,
+`security-reviewer`, `code-reviewer` all resolve with both, and an agent with no `skills:` gets
+them too, so it is not a union with a preloaded skill's `allowed-tools`. So a `tools:` line reading
+`Read, Grep, Glob, Bash` states *intent*; "read-only" is enforced by the body saying so, never by
+the frontmatter. Write the prohibition into the prompt.
+
 **A third way a tool disappears: the build or the model tier drops it.** The todo tools
 (`TodoWrite`, `TaskCreate`/`Get`/`Update`/`List`) are gated by tier and build, and the gate moves
 under you: absent outright in an Opus 5 session on 2.1.220 (observed 2026-08-20, here), present as
