@@ -93,7 +93,7 @@ defect.full_category  # => "Code Defect / Logic Error"
 
 ---
 
-## 4. Law of Demeter (POODR)
+## 4. Law of Demeter
 
 **Why:** Long chains couple you to the internal structure of distant objects. If any intermediate structure changes, your code breaks.
 
@@ -116,7 +116,7 @@ One dot per statement is a guideline, not a hard rule. Chaining on the same type
 
 ---
 
-## 5. Duck Typing (POODR)
+## 5. Duck Typing
 
 **Why:** Type checking (`.is_a?`) creates rigid coupling and violates Open/Closed. Adding a new type means modifying every `is_a?` check.
 
@@ -145,7 +145,7 @@ end
 
 ---
 
-## 6. Managing Dependency Direction (POODR)
+## 6. Managing Dependency Direction
 
 ```ruby
 # BAD — stable class depends on volatile class
@@ -165,7 +165,7 @@ end
 
 ---
 
-## 8. Open/Closed Principle (99 Bottles, SOLID)
+## 8. Open/Closed Principle (SOLID)
 
 ```ruby
 # GOOD — open for extension via strategy

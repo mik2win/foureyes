@@ -5,8 +5,7 @@ paths:
 
 # Ruby and Rails Conventions
 
-Always-apply conventions for this codebase. Based on POODR (Sandi Metz), 99 Bottles of OOP,
-Clean Architecture (Robert Martin), The Rails Way, Sustainable Web Development with Rails.
+Always-apply conventions for this codebase — object design, naming, and the Rails idioms the team follows.
 
 > Worked GOOD/BAD examples and the optional patterns (value/query/form objects, custom
 > validators, focused concerns) live in the **`rails-conventions-reference` skill** — invoke

@@ -204,6 +204,7 @@ pointer in the rule + the bulk in an on-demand skill (that's how the deep-module
   checklist / See-also instead.
 - **`$ARGUMENTS`** is the user's input to a user-invoked skill; handle the empty case (ask, then
   stop).
+- **Sources stay outside the kit.** Kit text carries ideas in the kit's own operational voice: trigger, threshold, action. Never name a book, an author, or a talk, and never paste or closely paraphrase a sentence from one — rewrite the principle for the moment the agent applies it. Well-known pattern names (Strangler Fig, Null Object, guard clause) are fine; a book title as a section name is not. Attribution of ideas, when it matters, lives in `_backlog/` research notes, which are never published.
 
 ## Design against the failure catalog
 

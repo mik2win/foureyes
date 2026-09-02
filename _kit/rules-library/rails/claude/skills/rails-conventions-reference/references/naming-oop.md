@@ -25,7 +25,7 @@ user && user.profile && user.profile.avatar_url
 Time.now
 ```
 
-## OOP principles (POODR, 99 Bottles, Clean Architecture)
+## OOP principles
 
 ### Single Responsibility (SRP)
 

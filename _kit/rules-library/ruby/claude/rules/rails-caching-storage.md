@@ -6,7 +6,7 @@ paths:
 
 # Rails Caching, Storage & Performance
 
-Based on Rails Guides (Caching, Active Storage), Solid Cache documentation, High Performance Browser Networking.
+Based on Rails Guides (Caching, Active Storage), Solid Cache documentation.
 
 > Worked examples live in the `rails-reference` skill (`references/caching-storage.md`).
 

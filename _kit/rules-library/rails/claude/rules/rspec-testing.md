@@ -7,7 +7,7 @@ paths:
 
 # RSpec Testing Best Practices
 
-Based on RSpec Best Practices (cursor.directory), POODR, and team conventions.
+The RSpec conventions this team follows — apply them when writing or reviewing specs.
 
 > Worked examples live in the `rspec-reference` skill (`references/rspec.md`).
 

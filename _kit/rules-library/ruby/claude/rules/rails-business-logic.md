@@ -10,7 +10,7 @@ paths:
 
 # Rails Business Logic Patterns
 
-Based on Crafting Rails 4 Applications, Clean Architecture (Robert Martin), DDD, Rails AntiPatterns.
+The business-logic patterns this team follows — domain rules stay independent of Rails internals.
 
 Service object fundamentals (Pattern 1: single `#call`, Pattern 2: multi-method facade) live in `ruby-oop.md` section 13. This file covers Rails-specific patterns and extensions.
 

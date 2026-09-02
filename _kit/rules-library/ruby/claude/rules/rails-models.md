@@ -5,7 +5,7 @@ paths:
 
 # Rails Model Layer
 
-Based on Rails Guides (Active Record), The Rails Way (Obie Fernandez), Rails AntiPatterns, Sustainable Web Development with Rails.
+Based on Rails Guides (Active Record).
 
 For OOP principles (SRP, composition, duck typing), see `ruby-oop.md`.
 

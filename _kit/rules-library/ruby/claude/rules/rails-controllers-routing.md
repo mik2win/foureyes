@@ -7,7 +7,7 @@ paths:
 
 # Rails Controllers & Routing
 
-Based on Rails Guides (Action Controller, Routing), The Rails Way (Obie Fernandez), Rails AntiPatterns.
+Based on Rails Guides (Action Controller, Routing).
 
 For OOP principles and service object patterns, see `ruby-oop.md`.
 

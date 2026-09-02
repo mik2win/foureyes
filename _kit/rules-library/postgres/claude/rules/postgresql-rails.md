@@ -7,7 +7,7 @@ paths:
 
 # PostgreSQL for Ruby on Rails
 
-Based on "High Performance PostgreSQL for Rails" (Andrew Atkinson), "PostgreSQL Mistakes and How to Avoid Them" (Jimmy Angelakos), Rails Guides (Active Record and PostgreSQL), PostgreSQL Documentation.
+Based on Rails Guides (Active Record and PostgreSQL) and the PostgreSQL Documentation.
 
 > Worked examples live in the `postgres-reference` skill (`references/rails.md`).
 

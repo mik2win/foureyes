@@ -6,7 +6,7 @@ paths:
 
 # ActiveRecord Query Optimization
 
-Based on Rails Guides (Active Record Query Interface), High Performance MySQL (Baron Schwartz), Rails AntiPatterns (Chad Pytel & Tammer Saleh).
+Based on Rails Guides (Active Record Query Interface).
 
 > Worked examples live in the `rails-reference` skill (`references/queries.md`).
 

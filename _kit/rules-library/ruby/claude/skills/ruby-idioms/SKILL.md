@@ -16,7 +16,7 @@ allowed-tools:
 
 # Ruby standard library and functional idioms
 
-Based on Eloquent Ruby (Russ Olsen), The Well-Grounded Rubyist (David A. Black), Ruby docs.
+Based on Ruby docs.
 Read the reference file (in this skill's folder) for the topic you need:
 
 - **Enumerable** — core trio, each_with_object, flat_map/filter_map/tally, group_by/chunk,

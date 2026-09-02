@@ -8,7 +8,7 @@ paths:
 
 # PostgreSQL Best Practices
 
-Based on "Mastering PostgreSQL 17" (Schönig), "PostgreSQL 14 Internals" (Rogov), "PostgreSQL Mistakes and How to Avoid Them" (Angelakos), "Learn PostgreSQL" (Ferrari & Pirozzi), PostgreSQL Official Docs, and the PostgreSQL Wiki "Don't Do This".
+Based on the PostgreSQL Official Docs and the PostgreSQL Wiki "Don't Do This".
 
 > Worked examples live in the `postgres-reference` skill (`references/universal.md`).
 

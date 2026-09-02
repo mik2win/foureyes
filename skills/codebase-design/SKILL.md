@@ -38,7 +38,7 @@ Consistent language is the whole point (and feeds the project's own `CONTEXT.md`
 - **Depth** — leverage at the interface: how much behaviour a caller (or test) exercises per unit
   of interface they must learn. **Deep** = large behaviour behind a small interface; **shallow** =
   interface nearly as complex as the implementation.
-- **Seam** *(Michael Feathers)* — a place where you can alter behaviour **without editing in that
+- **Seam** — a place where you can alter behaviour **without editing in that
   place**; the *location* where a module's interface lives. Where to put the seam is its own
   design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD).
 - **Adapter** — a concrete thing that satisfies an interface at a seam. Names a *role* (what slot

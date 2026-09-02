@@ -58,4 +58,4 @@ end
 
 Organize with modules when appropriate: `Reports::ExportService`, `Orders::FulfillmentService`.
 
-**Dependency Rule (Clean Architecture):** Domain services should not depend on framework specifics. Keep business logic independent so it can be tested and reused without Rails.
+**Dependency rule:** Domain services should not depend on framework specifics. Keep business logic independent so it can be tested and reused without Rails.

@@ -4,8 +4,7 @@
 `/codebase-design` §Design it twice, `/arch-health` when proposing a new seam. Skip it when the
 design is settled and the work is applying it.
 
-> "Designing software is hard, so it's unlikely that your first design will be the best one. You
-> can greatly improve your design by considering multiple options." — John Ousterhout
+> **The first design you can defend is a candidate, not the answer.** A design good enough to describe is the point at which to produce a second one — the comparison, not the first sketch, is what makes the interface deep.
 
 The first design that *works* is rarely the design you should ship. Before committing to an
 interface, generate a **second, genuinely different** one and compare them. The cost is minutes;

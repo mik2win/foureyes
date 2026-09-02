@@ -5,7 +5,7 @@ paths:
 
 # Ruby Style and Modern Features
 
-Based on Eloquent Ruby (Russ Olsen), The Well-Grounded Rubyist (David A. Black), Ruby 3.2-3.4 changelogs.
+Based on Ruby 3.2-3.4 changelogs.
 
 > Worked examples live in the `ruby-conventions-reference` skill (`references/style.md`).
 
