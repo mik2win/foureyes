@@ -22,7 +22,11 @@ it, so context does not leak between pipeline stages or between sessions. This i
 - Anything the next stage or the next session must know goes **into the plan**, not into a
   reply that scrolls away.
 - Match the length of a written artifact to what the task needs: cover the substance; no
-  filler sections, no redundant summaries, no boilerplate.
+  filler sections, no redundant summaries, no boilerplate. An artifact that must stay current
+  is created only once you can name who updates it and on what trigger.
+- **You cannot judge the clarity of what you wrote.** Before a plan or handoff is declared
+  done, hand the file alone to a context-free reader (a subagent, no other brief): what is
+  this, what would you do first? A wrong first guess is the finding. Once per artifact.
 
 ## Persist every decision the turn it's made
 
@@ -92,3 +96,5 @@ the bug with it.
 - **New seam → design first.** When the work introduces a new module / seam / abstraction,
   run `/codebase-design` **before** planning it — a new abstraction must be justified as a
   deeper module (small interface, more behaviour hidden), not merely more files.
+- **New technology → a decision, not a step.** A dependency, datastore, queue or service the
+  project does not run yet enters as its own priced line, never through an implementation diff.
