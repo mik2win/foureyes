@@ -148,10 +148,14 @@ Think the idea through before touching code. Challenge assumptions, explore alte
 | Minimal viable version — smallest useful slice? | |
 | Trade-offs given up (simplicity vs. flexibility, speed vs. correctness)? | |
 | Risks, unknowns, assumptions to validate? | |
-| In scope / explicitly out of scope? | |
+| In scope · out of context (another part owns it) · in context but out of scope (ours, deferred)? | |
 | Definition of done + acceptance criteria? | |
 | Future implications — enables what, locks out what? | |
 | Horizon — throwaway probe / internal tool / living surface, and the next two plausible features? (operator-confirmed, from the spec or one question — `core.md`) | |
+
+**The two out-buckets differ.** *Out of context* leaves an integration edge the steps must
+call and Phase 4 must map; *in context, out of scope* stays in the vocabulary. The filter
+runs both ways — it also names a core concept nobody has.
 
 If an answer is unknown AND **materially** blocks the analysis (a choice expensive to undo), ask via
 AskUserQuestion. Otherwise adopt a **named reversible default** and continue — see *Deliver, don't
@@ -163,8 +167,9 @@ halt* above. Never stall the whole brainstorm on a question a default could unbl
 
 ### 2.5.1 Design alternatives (2–3 viable approaches + trade-off table)
 
-Do not commit to one path implicitly. Generate **2–3 genuinely different** viable
-approaches (e.g. extend-in-place vs. new-abstraction vs. buy/reuse-existing), then
+Do not commit to one path implicitly. Generate **2–3 genuinely different** viable approaches —
+extend-in-place · new-abstraction · buy/reuse-existing · delegate to a layer you already run ·
+cordon off — comparable in *kind* and at one level of granularity, then
 score them (a "buy" approach that needs an external library/service *chosen* routes
 through `/select-tech` — its verdict and adapter seam come back as plan steps) — a lightweight, single-agent adaptation of the multi-approach pattern. A
 "new-abstraction" approach must justify itself as a **deeper module** (small interface, more
@@ -175,11 +180,34 @@ behaviour hidden) — invoke `/codebase-design` for that lens, not just "more fi
 Contract (`rules/_generic/planning-artifacts.md`) — a new abstraction is justified as a deeper
 module, not accepted as more files.
 
+**Row A is the least-machinery option** — extend what exists, a config change, the framework
+default, or do not build it. A row above A is earned by naming the point at which A fails: the
+input, load, or requirement it cannot carry ("it won't scale" is not that point). A minimal
+recommendation ships labelled: its failure point and the number at which it stops being enough.
+
+**The two rungs that get skipped.** *Delegate to a layer you already run* — a proxy, gateway or
+broker that can log, throttle, retry or route for you, often by configuration and no code; when
+it does not fit, write the line saying why. *Cordon off* — when the plan must touch code too
+tangled to clean now, draw the boundary where coupling is weakest, force everything crossing it
+through one named interface, and record where the pile now lives. A "rewrite it first" row is
+legitimate after a post-mortem of what the old code does well and two cheaper options priced.
+
+**Size the problem before you name a component.** Write the arithmetic first — rows · bytes ·
+peak requests/s · the working set that must stay hot — and name the fattest real row. The
+estimate has veto power: if it all fits one server, drop the cache and leave the number.
+
 | Approach | Effort | Risk | Reversibility | Fit-to-architecture | Notes |
 |----------|--------|------|---------------|---------------------|-------|
-| A — <name> | low/med/high | low/med/high | easy/hard to undo | aligns / strains layers (per PROJECT.md) | <key trade-off> |
+| A — <name> | low/med/high | low/med/high | easy/hard to undo | aligns / strains layers (per PROJECT.md) | <key trade-off> · prerequisite: <what must already hold, or none> |
 | B — <name> | | | | | |
 | C — <name> | | | | | |
+
+**Notes carries the prerequisite** — the condition that must already hold for the approach to
+be legitimate — or the word `none`; an unverified prerequisite is an assumption and goes to
+§2.5.2 before it can be recommended. **Score on the failure branch:** two options that look
+equally simple until something fails have not been compared — say what each does on a partial
+failure and on a step that succeeded and must be undone. **A winner overlapping an incumbent**
+carries two commitments: a step retiring the old one, and the named way back.
 
 Then state a **recommendation with reasoning** — which approach and *why* it wins on
 the columns that matter for this change. If the trade-offs are close or the choice is
@@ -201,7 +229,8 @@ yourself:
    cleanly, per `/codebase-design`). Each returns a sketch: seams, touched files, trade-offs.
 2. **Judge** — spawn 1–2 judge Agents in parallel (**synchronously**, same reason), blind to
    each other, scoring all sketches on the table's columns (effort · risk · reversibility ·
-   fit-to-architecture, per `PROJECT.md`), each returning a ranked verdict with reasons.
+   fit-to-architecture, per `PROJECT.md`) **plus each sketch's prerequisite and what it does on
+   the failure branch**, each returning a ranked verdict with reasons.
 3. **Synthesize** — you (not an agent) build the recommendation from the winner, grafting in
    any runner-up idea the judges scored higher on a column that matters. Record what each
    losing approach contributed or why it lost — that reasoning is what makes the plan
@@ -285,13 +314,20 @@ Map the blast radius using `PROJECT.md` → Architecture (its layer/module model
 boundary rules) — do not assume any particular framework's layout.
 
 1. **Directly modified**: list every file that will change.
-2. **Ripple effects**: files that import from / depend on the modified files.
+2. **Ripple effects — three sources, not one**: files that import from or depend on the
+   modified files; files git shows changing in the same commits (`git log --format=%H
+   --name-only`, grouped by commit — copy-paste, shadow contracts and paired configs are
+   invisible to the import graph); and effects travelling by mutation of arguments or writes
+   to module-level state, which no signature shows. Cite it; do not turn it into a rule.
 3. **Layer / module classification**: place each affected file in the project's layers or
    modules as defined in `PROJECT.md`. Flag any boundary crossing and its direction.
 4. **Boundary integrity**: will the change introduce an import/dependency that violates the
    project's declared boundary rules (from `PROJECT.md` or a boundaries rule)?
 5. **Cross-module**: does it span more than one module/context? If so, does it go through
    the sanctioned interfaces?
+6. **Moving parts**: for each queue, cache, worker pool, replica or external provider the
+   change introduces or leans on, write one line — what the system does while it is down. A
+   part you cannot write that line for is the single point of failure you just found.
 
 ---
 
@@ -360,6 +396,10 @@ it either.
 **Extract-before-implement**: logic duplicated across 2+ places that both old and new code
 will need — extract to the shared location FIRST, then build on it.
 
+**An abstraction's approval expires.** Before extending a shared unit, count the switches that
+pick a branch for one caller rather than express a real variation in the domain. A requirement
+the current shape fits *almost* perfectly is the danger sign; plan both options with costs.
+
 ### 5.3 Rules Checklist (assembled from INSTALLED rules)
 
 Build this table at runtime from the files in `.claude/rules/` that apply to the touched
@@ -405,6 +445,10 @@ and the expected result ("run `<test:targeted> <path>` → new cases green", "hi
 response contains `<field>`"). A step whose completion cannot be observed isn't a step, it's a
 hope — and `/implement` executes these lines instead of inventing its own definition of done.
 
+**An increment is a whole abstraction, not a slice of one.** Growing one mechanism across three
+phases makes every intermediate version special-purpose, and "generalize it later" is the step
+that gets cut: merge the phases, or say why the intermediate version earns its own review.
+
 ### 6.2 Wave & ownership model (gist)
 
 Declare for every subtask: **Owns** (files it exclusively edits), **Reads** (read-only),
@@ -424,7 +468,8 @@ subtasks). Rules:
   proves every seam works, which later waves flesh out.
 - **Interface-first steps.** When later subtasks build against a new module/seam, add an early
   step that pins its public contract (signatures, types, error behavior) so parallel sessions
-  code against a stable interface instead of guessing at one.
+  code against a stable interface instead of guessing at one. A hook placed for a later wave
+  says what wave 1 ships if that wave is cut — otherwise it moves into the wave that uses it.
 - **Model hint per row — state it, don't leave it ad-hoc.** Recommend the **strongest available
   model** for a subtask that is irreversible, touches a server-side or live-signal path, or carries
   a wide blast radius; the **default model** everywhere else. Record the hint in the wave schedule
@@ -585,8 +630,9 @@ single source of truth — a fresh `/implement` session reads only the file:
 ## Output Format
 
 1. **Strategic Assessment** — problem, value, recommended approach, scope boundaries.
-2. **Design Alternatives** (Phase 2.5.1) — the 2–3 approaches trade-off table
-   (effort · risk · reversibility · fit-to-architecture) and the recommendation + reasoning.
+2. **Design Alternatives** (Phase 2.5.1) — the 2–3 approaches trade-off table (effort · risk ·
+   reversibility · fit-to-architecture · `Notes` = prerequisite) and the recommendation +
+   reasoning, labelled with its failure point and the number at which it stops being enough.
 3. **Assumptions to Confirm** (Phase 2.5.2) — the assumptions list with impact-if-wrong;
    flag which were confirmed via `AskUserQuestion` and which were verified in the repo.
 4. **Impact Summary**
