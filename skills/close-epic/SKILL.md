@@ -3,10 +3,13 @@ name: close-epic
 description: >-
   Terminal epic-close checklist over a wave-structured decomposition (one epic =
   one <backlog>/<task-name>/ directory from /prepare Phase 6): verify every plan is
-  terminal, execute the epic's declared E2E-verify block (or derive a battery from the
-  surfaces its diff touched) plus ONE integration test pass, run plan↔code conformance on
-  deviated plans, detect docs drift the epic caused, promote flagged findings to follow-up
-  cards, draft the ledger/changelog row, and EMIT a copy-paste archive command.
+  terminal, execute the epic's declared E2E-verify block plus ONE integration test pass,
+  run plan↔code conformance on deviated plans, detect docs drift the epic caused and fix
+  small documentation debt inline,
+  price every remaining finding (default: a named known-undone clause, NOT a card), promote only
+  the survivors into a runnable follow-up board, draft the ledger/changelog row, and EMIT a
+  copy-paste archive command.
+  Takes ONE epic or a BATCH of them in a single invocation.
   Never flips statuses, never runs git.
   TRIGGER when: a multi-session epic looks finished and should be settled and archived —
   "close the epic", "settle and archive this", "finalize the epic", or right after its
@@ -18,7 +21,7 @@ description: >-
   DO NOT TRIGGER when: snapshotting an UNfinished session (use /handoff), checking progress /
   next-wave (use /epic-status), executing a wave (use /implement), or grooming single issues
   (use /triage).
-allowed-tools: Read, Grep, Glob, Bash, Edit, Agent
+allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Agent
 effort: high
 ---
 
@@ -33,6 +36,10 @@ This skill carries only invariant close-out logic. The backlog/archive locations
 test command, the drive commands for each surface, and the ledger location all come from
 `.claude/PROJECT.md`. `Bash` is for the verification runs and read-only inspection (`git log`,
 `git status`, `ls`) — never mutation.
+
+`$ARGUMENTS` is one epic or several (Phase 0). The card tier — worth-it gate (default: **not** a
+card), the stock gate, card template, route
+rubric, session packing — lives in **`reference/followups.md`**, read at Phase 5.
 
 **Verification adapts to what the epic was about.** A test suite plus a docs grep proves almost
 nothing about a chart that renders an interpolated line across a data gap, or a route that 200s on
@@ -71,13 +78,16 @@ costs nothing to include; a schema discovered missing mid-run costs a turn.
    epic to close. Do not guess. See `skills/prepare/reference/parallel-wave-execution.md` for the
    wave layout and `/epic-status` for how per-subtask status is derived.
 
-   **One invocation may span several epic directories.** An observed close-out covered 7 plans
-   across 5 backlog directories because a RUN-ORDER wave cut across them — "close wave 4" is a
-   legitimate ask, and "the epic" is then a *set*. Resolve that set up front and name it in the
-   output. The contract then holds **per directory**: each epic's own `## E2E verify` block is
-   executed separately, each gets its own ledger row and its own archive command. The tier
-   (Phase 1) is computed **once over the union** — a wave spanning five directories is not Small.
-   Never silently treat the first directory as the whole job.
+   **One invocation may name several epics — resolve the set before anything else.** Accept a space- or newline-separated list of directory names or paths under the backlog location; strip the prefix and any trailing slash, print the resolved set in the first output line, and never silently treat the first directory as the whole job. Two shapes arrive here and they price differently:
+
+   - **Wave-batch** — one RUN-ORDER wave cutting across directories ("close wave 4"; an observed close covered 7 plans across 5 backlog directories). It is **one logical unit**: the tier (Phase 1) is computed **once over the union**, so a wave spanning five directories is never Small.
+   - **Close-batch** — N independent epics handed over together, the common case for a list of paths. Each epic is priced, tiered, verified, ledger-rowed and archived **on its own**; the tier of one says nothing about the next.
+
+   In both shapes the contract holds **per directory**: each epic's own `## E2E verify` block is executed separately, each gets its own conformance pass, its own ledger row and its own archive command. What is shared across the batch is exactly three things — the single integration test run (Phase 2, once per session and not per epic), the follow-up inventory (Phase 5, grouped by topic across epics), and the agent budget below.
+
+   **Batch ceiling — the caps are per epic, the budget is per run.** Per-epic caps stay as the tier table sets them; on top of that a run never exceeds **8 concurrently live agents** and **~12 spawned in total**. Do the arithmetic before spawning: 5 epics × (3 drives + 1 verifier batch) is 20 agents and will not fit — so batch by *surface* across epics (one drive agent covering a surface for every epic that touched it), run the conformance verifiers in waves of 3–4, and launch **one** `completeness-critic` over the whole batch rather than one per epic. When the arithmetic still does not fit, close the batch in **two passes and say so** — a half-run close-out that dies mid-spawn is the measured failure this ceiling exists to prevent.
+
+   **Collection is mandatory in a batch, not best-effort.** With N epics in flight the queued-notification loss (measured: 6 agents spawned, all finished before the parent ended, **2** notifications delivered) is near-certain. Either spawn with `run_in_background: false` when the next step depends on the answer, or hold a task-id list and `TaskOutput` every one of them before the conformance verdict.
 3. **Parent RUN-ORDER — look, never require.** Walk up from the epic directory toward the program
    directory for a `RUN-ORDER.md`. **Found** → it is the execution truth: read this epic's row, and
    hold it for Phase 5 (follow-up rows are *proposed* into its Follow-ups section) and Phase 6
@@ -97,6 +107,12 @@ its `Owns` files), or not-started.
   straggler: finish it (`/implement`), fold/drop it, or accept-as-is. Do **not** flip a status
   yourself — if a subtask is done in fact but unstamped, propose the exact `status:` edit and let the
   user confirm. Closing requires every subtask terminal.
+- **A plan whose status cannot be read is a straggler, not a pass.** Plan-shaped files with no
+  status header at all are common in epics written before the frontmatter convention (measured in
+  one 5-epic batch: two epics, 11 and 8 headerless plans). Their terminal state is *unknown*, and
+  unknown never closes an epic. Read their Implementation Logs, propose the exact status header to
+  add per plan with the evidence for each, and let the user confirm — writing a status where none
+  existed **is** a status flip.
 - All terminal → continue.
 
 ### Tier gate — computed once, here
@@ -107,9 +123,9 @@ ran **39 min / 8 agents** and **34 min / 6 agents** — each more expensive than
 finishing. `/prepare` has carried a proportionality gate for a while ("Simple: 1-2 files, <200 LOC →
 skip Phase 5 … keep it proportional"); this is its missing counterpart at the other end.
 
-Compute the tier **once**, right here, from evidence Phase 1 already holds (the per-plan statuses)
-plus one `git diff --stat` over the epic's commits. Later phases **read** it; none of them
-recomputes or re-argues it.
+Compute the tier from evidence Phase 1 already holds (the per-plan statuses) plus one
+`git diff --stat` over the epic's commits — **once per epic in a close-batch, once over the union in
+a wave-batch** (Phase 0). Later phases **read** it; none of them recomputes or re-argues it.
 
 **Small** — all four hold:
 
@@ -132,7 +148,7 @@ recomputes or re-argues it.
 | 3 — plan↔code conformance | one `plan-verifier` per deviated plan, batches of 3–4 | **one** `plan-verifier` for the whole epic; **inline** at ≤2 deviated plans |
 | 4.5 — completeness critic | always | only when Phase 2 or Phase 3 found something, **or** the epic has ≥4 plans |
 | 2c — integration pass | always | **always — unchanged.** Cheap, and the one check that catches breakage *between* plans |
-| 5 · 6 · 7 — follow-ups · ledger · archive | always | always — unchanged |
+| 5 · 6 · 7 — follow-ups · ledger · archive | gate + stock check always; a **board** only if both are green | same gates — unchanged. Zero cards filed is a normal outcome, never a skipped step |
 
 **`Standard` carries its own caps — the tier switch is not the whole of proportionality.** Four
 consecutive measured closes all landed `Standard` (4, 6, 5 and 7 plans): the gate computed
@@ -299,16 +315,120 @@ launched from this skill, so offer it in one line and run the batches above when
 *verdicts*, editing nothing; the fix-vs-accept call on every finding, and the decision to close,
 stay here. See `rules/_generic/delegation.md` → *Deterministic fan-out*.
 
-## Phase 4 — Docs drift the epic caused
+## Phase 4 — Docs drift (both directions), and the small debt fixed here
+
+Drift has two directions and they need two different checks. Most tooling covers only the first.
+
+### 4a — Dangling refs (docs → files: something documented that no longer exists)
 
 Detect references broken by renames / moves / splits **this epic performed** (not pre-existing rot):
 
 1. From the epic's Implementation Logs and `git log`, list files this epic **renamed, moved, or
    deleted**.
 2. `grep -rn` the docs/code for lingering references to those old paths/names.
-3. Dead refs **caused by this epic** → offer to fix inline, or delegate the pass to the
-   **`docs-writer`** agent. Unrelated, pre-existing dead refs → just report them; they are not this
-   epic's job to fix.
+3. Dead refs **caused by this epic** → **fix them inline** (they are on the allowlist below), or
+   delegate the pass to the **`docs-writer`** agent when it is large enough to be its own task.
+   Unrelated, pre-existing dead refs → just report them; they are not this epic's job to fix.
+
+### 4b — Undocumented surface (files → docs: what the epic *added* and the profile never learned)
+
+A reference checker cannot see this class: it verifies that mentioned things exist, so a module,
+command or invariant mentioned **nowhere** is invisible to it and scores as a clean pass. This is the
+drift that outlives the epic — the code is right, the map is wrong, and every later session plans
+against the map. In this kit the map is `.claude/PROJECT.md`, which **every other skill reads first**:
+a stale profile does not merely misinform a human, it mis-routes `/prepare`, `/implement`,
+`/scaffold`, `/deploy` and this skill's own next run.
+
+Derive the delta from **this epic's own commits**, never a repo-wide sweep — `git diff --name-status`
+across them for added/renamed files, plus the new public names inside them (commands, routes, config
+keys, schema tables, exported symbols). Then ask the mechanical question per name: *does any durable
+doc mention it?* — `grep -rl -- "<new-name>" .claude/PROJECT.md <rules dir> <docs dir> | wc -l`.
+Zero hits is a **candidate**, not proof; the thing may be documented under another name.
+
+| What the epic added | What must know about it |
+|---|---|
+| a new module / package / layer, or a module that changes a layer's meaning | `PROJECT.md` → Architecture (Layers / modules, Dependency direction) |
+| the first instance of a recurring shape (adapter, command, worker) | `PROJECT.md` → Canonical exemplars, and its registration/wiring point + the command that proves it |
+| a new CLI verb, task-runner target, or entry point | `PROJECT.md` → Commands, and the operator docs |
+| a new dependency, datastore or external integration | `PROJECT.md` → Stack / Integrations |
+| a new deploy target, environment or secret | `PROJECT.md` → Deploy mapping, Security / VCS policy |
+| a new invariant or threshold other code must respect | the owning project rule |
+| a term the epic coined | the domain glossary (`/domain-model`'s `CONTEXT.md`) |
+| a pattern this epic used **≥3 times** | a **candidate** rule — a card routed to `/distill`, never written here |
+| a settled verdict or a dead end | the ledger row (Phase 6). A verdict is not a rule |
+
+**Disposition — three buckets, and nothing lands in "later" by default:**
+
+- **Applied now** — a one-line update (a module row, a Commands line, a term, a threshold inside a
+  rule that already owns that subject) is on the allowlist below and just lands.
+- **Proposed, not applied** — everything else this session *could* write but should not write
+  unasked: a new rule or a rewritten rule section (a rule is a claim about the whole repo, argued
+  from occurrences across it, and this session has read one epic), a new docs page, a `PROJECT.md`
+  section that needs re-deriving rather than a line edit, or a one-liner that did not fit the budget.
+  These go into the final report as **ready-to-apply edits**: target file, the exact text and where
+  it goes, one line on why it did not land. **The user's go-ahead is the only unlock, and it applies
+  in this same session** — do not ask preemptively, present them and continue.
+- **Carded** — only what genuinely needs a *different* skill's context: a convention worth installing
+  repo-wide → `/distill`, a lesson that recurred across epics → `/retro`, a profile re-derivation →
+  `/bootstrap`. Those rest on occurrences this close-out never read, which is why they are not
+  proposals here.
+
+**The census is a ledger that must reconcile — this is what stops anything slipping quietly.** Every
+surface the delta turned up gets **exactly one row**, including the ones that needed nothing, and the
+arithmetic is stated: `N surfaces checked = applied + proposed + carded + already documented`. A count
+that does not balance means a row was dropped, and a dropped row is precisely the failure this phase
+exists to prevent. Report it as its own table — not scattered across the inline-fixes row, where a
+profile sync is indistinguishable from a typo fix:
+
+| Surface the epic added | Artifact that must know | What changed | Why (the claim that went stale) | Status |
+|---|---|---|---|---|
+| a new CLI verb | `PROJECT.md` → Commands | one row added | the profile listed N-1 of N entry points | **applied** |
+| a new read module | `PROJECT.md` → Architecture | — | the layer row already covers this directory | **already documented** |
+| 3× the same retry wrapper | a project rule | proposed text in the report | one epic is not evidence for a repo-wide rule | **proposed** |
+
+**Write it into the epic's own `00-overview.md`** as `## Rules & docs sync — <YYYY-MM-DD> (close-out
+pass)`, next to the `## E2E results` block (it is on the allowlist below). The chat report is
+ephemeral and the epic gets archived; the record of what the close-out changed in the durable docs,
+and what it deliberately did not, belongs in the artifact that survives.
+
+**State the negative result.** "Checked N added surfaces — all present" is a reported row, and the
+table is how it is reported. Silence is indistinguishable from a skipped step, which is how this drift
+accumulates. Pre-existing undocumented surface the epic did not touch is reported once and left alone
+— same rule as 4a.
+
+### The inline-fix allowlist
+
+The close-out is the last session that will ever hold this epic's full context, so trivial
+documentation debt dies here rather than outliving the epic as a card nobody grabs. The boundary is
+mechanical, and every fix made under it is listed in the Output with its diff size.
+
+**Fix inline, no permission needed** — total **≤ ~15 changed lines per epic**, none behavioural:
+
+- dead file refs and stale line anchors this epic caused (above);
+- comments and docstrings this epic's own diff falsified — a comment describing the old mechanism is
+  worse than no comment, and the code is in front of you;
+- typos, broken links and wrong paths inside the epic's own plans / overview / spec;
+- the **one-line** profile/rule syncs Phase 4b turned up — a module row, a Commands line, a coined
+  term, a threshold added to a rule that already owns that subject;
+- appending the `## E2E results` block (Phase 2a) and the `## Rules & docs sync` table (Phase 4b) and ticking this epic's **own** board Result cells
+  with observed one-liners;
+- recording a `deviated-UNLOGGED` finding the user accepted as a dated
+  `### Deviations (recorded at close-out, YYYY-MM-DD)` section quoting the diff evidence — writing
+  down what happened is record-keeping; deciding it is acceptable is the user's and already happened
+  in Phase 3.
+
+**Never inline — it becomes a card, however small it looks:**
+
+- **any change to source behaviour.** A one-line bug fix is still a bug fix: unreviewed, unowned by
+  any plan, and landing in a commit whose message says "close epic". This is the boundary that keeps
+  a close-out from turning into an implementation session;
+- anything needing a decision the epic never made;
+- **authoring a new rule, or rewriting a rule or `PROJECT.md` section** — a rule is argued from
+  occurrences across the repo, and this session has read one epic. It goes to Phase 4b's *proposed*
+  bucket (written out in full, applied the moment the user says so) or to a card when it needs
+  occurrences this session never read;
+- anything past the ~15-line budget, or touching files outside this epic's blast radius;
+- status flips, ledger appends, and every git verb — those stay proposals (see *Hard rules*).
 
 ## Phase 4.5 — Completeness critic (what would closing miss?)
 
@@ -316,9 +436,9 @@ Detect references broken by renames / moves / splits **this epic performed** (no
 the epic has ≥4 plans.** A clean 3-plan, single-surface epic does not earn a dedicated absence hunt;
 if either check surfaced anything at all, it does.
 
-Before drafting the ledger row, launch the **`completeness-critic`** agent over the epic
-directory + this close-out's evidence so far, with the scope "everything `00-overview.md`
-promised". It hunts absences the phase-by-phase checks can't see: an overview requirement
+Before drafting the ledger row, launch **exactly one** `completeness-critic` agent — in a batch,
+one over the whole set and never one per epic — over the epic directory + this close-out's evidence
+so far, with the scope "everything `00-overview.md` promised". It hunts absences the phase-by-phase checks can't see: an overview requirement
 no subtask ever owned, a wave listed but never executed, a cross-linked review whose
 verdict was never folded back, a follow-up the Implementation Logs deferred that landed
 nowhere (no backlog issue, no ledger note). Each gap → the user decides: reopen (back to
@@ -326,28 +446,81 @@ nowhere (no backlog issue, no ledger note). Each gap → the user decides: reope
 Closing with silent gaps is the failure this phase exists to prevent; closing with *named*
 gaps is a legitimate outcome.
 
-## Phase 5 — Promote flagged findings to follow-up cards
+**The critic hunts absences and cannot price them; pricing is Phase 5's gate, and most gaps price at
+zero.** A named known-undone clause is the expected disposition for a gap carrying no consequence
+class — not a consolation prize. A critic returning twenty gaps is not a mandate for twenty
+dispositions above `known-undone`; it is twenty rows to price.
+
+## Phase 5 — Findings → cards → a board someone can run
 
 The epic's sessions recorded findings they were **right not to fix** — out of scope, or needing a
 decision the plan never made (`/implement` files these as *Flagged — NOT fixed*, alongside its
 STOP-and-flag notes and deferred Implementation-Log items). A close that leaves them where they are
-turns them into silent TODOs; this phase is where they become work with a position.
+turns them into silent TODOs; this phase is where they become work with a position — and, when they
+are worth a session, a directory the next session can be pointed at.
 
-Sweep three sources: the epic's Implementation Logs, Phase 2's failed **non-blocking** rows, and
-Phase 4.5's named gaps. For each finding:
+**5a. Inventory and gate.** Sweep four sources: the epic's Implementation Logs (*Flagged — NOT
+fixed*), Phase 2's failed **non-blocking** rows, Phase 3's accepted `deviated-UNLOGGED` findings,
+and Phase 4.5's named gaps. **In a batch this is one inventory across all epics, grouped by topic
+rather than by source epic.** Every row gets exactly one of four dispositions and appears in the
+report under the one it got: **card** (confirmed, has a landing site, **and carries a consequence
+sentence** — see below) · **gated card** (real, blocked on a precondition nobody here can discharge —
+files with an exact trigger) · **known-undone clause in the ledger row** — **the default, not the
+residue** · **dropped** (refuted or stale — with the evidence that killed it). Anything you did not
+observe yourself goes through `finding-verifier` before it becomes a card. Nothing disappears
+silently.
 
-1. **Draft a card** — the problem, the recommended fix, the file(s) it lands in, and a one-line
-   size estimate. Silent TODOs and bare "should probably" notes are not an outcome.
-2. **Give it a follow-up id and a position** — `F<wave>.<n>`, plus a one-line **"why here"** that
-   says what was discovered and why it sits at that spot. A row without a position and a reason
-   does not get filed: that is how "file a card" becomes a way to defer real work indefinitely.
-3. **Record cross-card file collisions inline** — *"F2.7 and F2.8 both edit `<file>` — run them in
-   order, or merge them."* Two follow-ups on one file is a serialization fact, not a footnote.
+**A row leaves `known-undone` only by carrying a consequence sentence** — `<class> · <who or what
+bears it> · <what goes wrong and by when>` — with the class drawn from the closed list in
+`reference/followups.md` §2 (data/money loss · a wrong number on a production path · user-visible
+breakage · shipped code with an unobserved verification · a blocked successor). Doc drift, stale
+tallies, tooling-vocabulary gaps and rule polish argued from one epic are **never** cards, however
+true. Each is then split by one test — **does the fix fit a ride-along?** ≲10 lines, written down in
+full → a row in the project's **small-debt register** (`PROJECT.md` § *Plans / backlog*; create it
+from `assets/small-debt-register.md` if it does not exist yet), keyed by file path, retired for free
+by the next session that opens that file. Anything bigger → a **named** known-undone clause in the ledger
+row. Either way it is written down by name, so nobody rediscovers it as new work. `finding-verifier`
+rules on truth and never on worth — the sentence stands in for the skeptic, because the session
+applying this gate is the session that authored the findings.
 
-**Where the rows go.** Parent `RUN-ORDER.md` found in Phase 0 → **propose** the rows for its
-Follow-ups section, formatted per the companion's template; never write them yourself, it has
-exactly one writer. No RUN-ORDER → emit the cards as copy-paste text and name where you would file
-them. **Do not create a RUN-ORDER as a side effect of closing an epic.**
+**Measure the open stock before adding to it** (`reference/followups.md` §2.5) and report the line
+whether or not you file anything: `open boards N (M untouched >14d) · open cards C (U not started) ·
+parked P`. **≥3 open boards, or any board untouched >14 days, or an epic that is itself generation
+≥2** (a follow-up/residuals board, or one whose provenance names a `/close-epic` pass) → **this run
+authors no new board**; survivors append to an existing board on the topic, get parked with a
+trigger, or become known-undone clauses.
+
+Every surviving row keeps its **`F<wave>.<n>` id and a one-line "why here"** — what was discovered
+and why it sits there; a row without a position and a reason does not get filed, because that is how
+"file a card" becomes a way to defer real work indefinitely. Cross-card file collisions are recorded
+inline: *"F2.7 and F2.8 both edit `<file>` — run them in order, or merge them."*
+
+**5b. Author the board — if 5a's stock gate is green and the operator confirmed the list.** Put the
+surviving cards to the operator as **one line each** first (`NN <slug> · <consequence class> ·
+<route> · <rec>`) and write nothing until they answer; an empty list after the gate is a legitimate
+and common outcome, reported as such. Once confirmed, the cards are written to disk as a **runnable
+epic**, not proposed as chat text — the confirmation is of *contents*, never a return to rebuilding
+the board by hand — measured across close-out sessions, the operator's very next request was
+usually exactly this artifact ("create a run-order/epic for the follow-ups, with prompts and cards,
+so we can finish it"). Per topic (**≤3 topics per run**, ≥2 cards each): a `<topic>-followups/`
+directory under the backlog location, holding the board index, one card file per work item with a
+`status` header the project's tooling can read, and a session-prompts file. **Every card names its
+route and its `rec: <model>/<effort>`** — the same value in all three places (card header, board
+`Rec` column, session heading), scored on the shared rubric in
+`skills/prepare/reference/parallel-wave-execution.md` rather than invented per file. Routes:
+`/implement` when the cause is known and the files are named, `/prepare` when it is ≥5
+files or crosses layers, `/diagnose` when the cause is unknown, `/analyst` or `/grill` when the
+premise is undecided, `/spike` when it needs a measurement first — and sessions are packed to the
+context budget `/prepare` uses, one route per session, `Owns` sets pairwise disjoint inside a wave.
+
+Full contract — gate, caps, card template, route rubric, packing arithmetic and the two index files:
+**`reference/followups.md`**.
+
+**Where a single orphan row goes.** Parent `RUN-ORDER.md` found in Phase 0 → **propose** the row for
+its Follow-ups section, formatted per the companion's template; never write it yourself, it has
+exactly one writer. No RUN-ORDER → a gated card if it has a trigger, otherwise a known-undone clause
+in the ledger row. **Never write into a parent program's RUN-ORDER, and never create one as a side
+effect of closing an epic** — the follow-up board above is the one index this skill authors.
 
 ## Phase 6 — Draft the ledger / changelog row
 
@@ -366,9 +539,12 @@ Draft one row:
   and it is precisely the signal `/retro` and `/revisit` need and currently cannot see. If a parent
   RUN-ORDER exists, the same line belongs in this epic's Status cell — **propose** it, don't write it.
 
+**One row per epic in a batch** — a shared row for five epics is unreadable to `/retro` and to the
+next `/revisit`; the batch gets at most one extra *summary* line naming the set.
+
 **Show the row for approval.** Append it to the ledger/changelog (Phase 0) **only after the user
-approves** — that plus the `## E2E results` block in `00-overview.md` (Phase 2a) are the only files
-this skill edits. If the project defines no ledger, emit the row as copy-paste text for the user to
+approves** — that, the `## E2E results` block in `00-overview.md` (Phase 2a), the allowlisted inline
+fixes (Phase 4) and the follow-up board (Phase 5b) are the only files this skill writes. If the project defines no ledger, emit the row as copy-paste text for the user to
 file wherever they keep settled-work records.
 
 ## Phase 7 — Emit the archive command (never run it)
@@ -378,18 +554,26 @@ project's convention; the user runs it. Follow the **Commit Message** pattern in
 explicit paths only (never `git add -A` / `.` / a bare directory), no `Co-Authored-By` trailer.
 
 ```
-# move the settled epic into the archive (preserve the sub-path)
-git mv <backlog>/$ARGUMENTS <archive-location>/<YYYY>/<MM>/<DD>/$ARGUMENTS
-# stage the approved ledger row too, if one was appended
-git add <ledger path>
-git commit -m "chore(backlog): close $ARGUMENTS — archive + ledger row"
+# move each settled epic into the archive (preserve the sub-path) — one line per epic in a batch
+git mv <backlog>/<epic> <archive-location>/<YYYY>/<MM>/<DD>/<epic>
+# stage the approved ledger row, and the follow-up board if one was authored
+git add <ledger path> <backlog>/<topic>-followups/
+git commit -m "chore(backlog): close <epic…> — archive + ledger row + follow-up board"
 ```
+
+`git mv` needs the destination's parent directory to exist — prepend `mkdir -p` for the dated path,
+and spell the full parent path when moving a **nested** sub-epic into an already-archived parent.
 
 If backlog docs are **local** (gitignored, per Artifact git policy), swap `git mv` for a plain `mv`
 and skip the commit — say so. If there is no archive convention, leave the epic in place and note
 that closing is bookkeeping-only.
 
 ## Output
+
+**In a batch, lead with a one-row-per-epic summary table** — epic · plans terminal · tier · E2E
+(N/N blocking) · conformance · inline fixes (lines) · cards spun out · ledger row · archive line —
+then the per-epic detail below it. An epic missing from that table is an epic that was not closed,
+and saying so is the point.
 
 ```
 ## Close Epic: <task-name>
@@ -403,9 +587,13 @@ that closing is bookkeeping-only.
 | 2c Integration pass   | PASS / FAIL (verbatim failures) |
 | — Number re-derived   | <which one>: agent said X, I got Y — match / MISMATCH |
 | 3 Plan↔code conformance | PASS (M deviated plans clean) / attention (…) |
-| 4 Docs drift          | none / fixed / reported (pre-existing) |
+| 4a Dangling refs      | none / fixed / reported (pre-existing) |
+| 4b Surface ↔ profile  | N checked = A applied + P proposed + C carded + D already documented (must reconcile; detail in *Rules & docs sync*) |
+| 4 Inline fixes        | N lines across <files> / none — allowlist only |
 | 4.5 Completeness      | no gaps / N gaps (reopened: …, recorded known-undone: …) |
-| 5 Follow-ups promoted | N cards drafted (F2.1–F2.N) / none |
+| — Debt stock          | open boards N (M untouched >14d) · open cards C (U not started) · parked P — gate **green / red** |
+| 5a Findings gated     | N cards · N gated · N known-undone (**named, not counted**) · N dropped (all listed below) |
+| 5b Follow-up board    | `<backlog>/<topic>-followups/` — N cards, W waves / **none** (stock gate red / generation ≥2 / no topic kept ≥2 cards) — say where the survivors went |
 | 6 Ledger row          | drafted — awaiting approval / appended |
 
 ### E2E results — <date>
@@ -416,9 +604,22 @@ that closing is bookkeeping-only.
 ### Conformance summary
 <per-plan plan-verifier verdicts>
 
-### Follow-up cards (for the RUN-ORDER's Follow-ups section, or to file as-is)
-| # | Card | Mode | Why here |
-(plus any cross-card file collisions, inline)
+### Rules & docs sync
+| Surface the epic added | Artifact that must know | What changed | Why | Status |
+(one row per added surface, the ones needing nothing included; counts reconcile with the 4b row, and
+the same table is written into the epic's `00-overview.md` so it survives archiving)
+
+### Proposed doc/rule edits — not applied
+| Target | Exact edit (ready to paste, and where it goes) | Why it did not land | Unlock |
+(the paste-ready detail behind every `proposed` row above — say "go" on any and it lands in this
+session; over-budget is a reason to propose, never to drop)
+
+### Findings — disposition (every row appears exactly once)
+| F-id | Finding | Disposition | Where it landed / why not |
+
+### Follow-up board — `<backlog>/<topic>-followups/`
+| # | Card | Route | Wave | Est. context | Why here |
+(plus the wave map, the per-session context projections, and any cross-card file collisions)
 
 ### Ledger / changelog row (for approval)
 <the drafted row, including predicted-vs-actual>
@@ -465,8 +666,34 @@ If any of the three is missing from a run, the trade is not being made — corne
 - **Never invents a baseline, never fakes a drive.** A baseline not captured at prepare time is
   reported missing; a surface with no drive command in the profile is reported undrivable. Neither
   is estimated, and neither is inferred from a different environment.
-- **Never authors a RUN-ORDER.** Follow-up rows are *proposed* into an existing one; absence of one
-  is not a gap and not something to fix while closing.
+- **Never authors a parent program's RUN-ORDER.** Follow-up rows are *proposed* into an existing
+  one; absence of one is not a gap and not something to fix while closing. The follow-up board of
+  Phase 5b is the one index this skill creates, and only for cards its own gate kept.
+- **Never files an unverified row into the small-debt register, and never sweeps it on a row count.**
+  Rows rot; a sweep that fixes without re-reading writes new drift over old, and a count is not
+  evidence a sweep is worth a session.
+- **Never cards a finding it cannot write the consequence sentence for.** True is not the bar; the
+  closed class list in `reference/followups.md` §2 is. Everything else real becomes a *named*
+  known-undone clause — named, so the next close-out does not rediscover it as new work.
+- **Never authors a new board while the stock gate is red**, or while closing an epic that is itself
+  generation ≥2. A close-out that keeps spawning boards of its own size is re-financing debt, not
+  retiring it; survivors merge into an open board, get parked, or land in the ledger row.
+- **Never writes a card file before the user has confirmed the one-line list.** The board is still
+  authored on disk once they say go — the confirmation is of contents, not of the artifact.
+- **Never authors a rule or a profile section at close *unasked*.** The epic's delta is evidence for
+  *one* epic; a rule needs the repo. Sync the one-liners, write the rest out as proposed edits in the
+  report, and apply them here the moment the user says to. What stays a card is only what needs
+  occurrences this session never read (`/distill` / `/retro` / `/bootstrap`).
+- **Never reports a census that does not reconcile**, or one that omits the surfaces which needed
+  nothing. A missing row and a silent drop look identical from the outside; the table exists so they
+  cannot.
+- **Never lets an edit exceed the inline budget silently.** Over-budget is a reason to propose, never
+  a reason to drop: the report names every edit that did not land and why.
+- **Never fixes source behaviour inline.** The Phase 4 allowlist is documentation, comments and plan
+  text; a one-line bug fix at close is unreviewed, unowned by any plan, and buried in an archive
+  commit. It becomes a card with a route.
+- **Never closes a batch partially in silence.** Every epic named in the invocation appears in the
+  summary table with a verdict, including "not closed — stragglers" and "deferred to a second pass".
 - **Facts from PROJECT.md.** Backlog/archive locations, the test and drive commands, and the ledger
   location come from the profile — never hardcoded.
 - **Evidence only.** Every terminal/conformance/E2E claim comes from disk or from a command's output
@@ -484,7 +711,12 @@ If any of the three is missing from a run, the trade is not being made — corne
 - **`/implement`** — runs one subtask; stamps `status`, writes the Implementation Log this skill
   verifies, and files the *Flagged — NOT fixed* rows Phase 5 promotes. Mirrors its **Commit
   Message** pattern for the emitted git block.
-- **`/triage`** — the natural inbox for the follow-up cards Phase 5 drafts (a card with
-  `Mode: P → I` is a `/prepare` request, not a bug report).
+- **`/triage`** — the natural inbox for the follow-up board Phase 5b authors (a card routed
+  `/prepare` is an analysis request, not a bug report).
+- **`assets/small-debt-register.md`** — the register's own contract, shipped as the template a
+  project copies on first use: what may enter, the three ways a row dies, and why no row count ever
+  triggers a sweep.
+- **`reference/followups.md`** — the card tier in full: the worth-it gate, the card template, the
+  route rubric, session packing, and the two index files Phase 5b writes.
 - **`/handoff`** — snapshot an *unfinished* session (this skill settles a *finished* epic).
 - **`plan-verifier`** / **`docs-writer`** agents — plan↔code conformance and docs-drift fixes.

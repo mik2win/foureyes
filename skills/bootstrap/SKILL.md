@@ -106,6 +106,11 @@ Fill `PROJECT.template.md` into a draft `.claude/PROJECT.md` from detection.
   `<backlog>/issues/`, used by `/to-issues` and `/triage`), and the **Triage labels** state
   machine — offer the default `needs-triage → ready → in-progress → done` + `blocked` and let the
   user adjust. Don't scaffold the issues directory; `/to-issues` creates it on first use.
+- Set **Plans / backlog → Small-debt register** — default `<backlog>/small-debt-register.md`, the
+  path-keyed home for verified zero-consequence fixes that `/close-epic` refuses to card and
+  `rules/_generic/code.md` tells a file-editing session to grep. **Don't scaffold it**; it is created
+  from `skills/close-epic/assets/small-debt-register.md` on first use. `n/a` is a valid answer — the
+  rows then stay as clauses in ledger rows, which is where they were before the register existed.
 - Ask the **artifact git policy** and record it in `PROJECT.md` → "Artifact git policy". For each
   category of agent-generated artifact, the **user decides** whether it stays **local** (gitignored,
   never pushed) or is **committed** (shared) — explain the trade-off, don't impose. Group into a

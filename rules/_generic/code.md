@@ -41,6 +41,12 @@ paths:
 - **No internal planning labels** — spec/session/wave/finding IDs (`US-2`, `B-2`, `BUG-17`) and
   plan-file paths mean nothing to a future reader: say the *why* in domain terms. Holds for
   identifiers, string literals, test names, and anything generated for a user (reports, logs).
+- **Ride-along on the small-debt register.** When `PROJECT.md` § *Plans / backlog* names one, grep
+  it for the file you are about to edit and take the rows you find in the same diff, striking each
+  one there. They are verified, zero-consequence fixes (stale comments, drifted tallies, dead
+  anchors) whose entire economics is that someone is *already* in the file — which is also why a
+  session opened to sweep them on a row count is the wrong move, and the register's own contract
+  says so.
 
 ## Boundary validation
 

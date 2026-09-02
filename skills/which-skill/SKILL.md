@@ -201,9 +201,14 @@ research    spec        plan        build
   then run the epic end-to-end — its declared `## E2E verify` block, or a battery *derived* from
   the surfaces the diff touched and disclosed as derived (drives delegated, verdict kept, one
   headline number re-derived by hand) — then plan↔code conformance + docs drift, a completeness
-  critic, promotion of every flagged follow-up into a numbered `F<wave>.<n>` card, a
-  predicted-vs-actual ledger row, `## E2E results` written back into the epic overview, and a
-  copy-paste archive command it never runs.
+  critic, a **surface↔profile check in both directions** (dangling refs, *and* what the epic added
+  that `PROJECT.md` / the rules / the docs never learned), small documentation debt fixed inline,
+  pricing of every flagged follow-up against a closed list of consequence classes (default: a named
+  known-undone clause, **not** a card) with only the survivors promoted into a **runnable board**
+  (`<topic>-followups/` — cards + routed session prompts + RUN-ORDER, packed to the session context
+  budget) and only when the open-debt stock allows a new one, a predicted-vs-actual ledger row, `## E2E
+  results` written back into the epic overview, and a copy-paste archive command it never runs.
+  **Takes a batch** — several epic paths in one invocation close per-epic under one agent budget.
 
 ## Security & dependencies
 
@@ -275,7 +280,8 @@ research    spec        plan        build
 | "Break this into tickets/work items" | `/to-issues` |
 | "What should I work on next / sort the backlog" | `/triage` |
 | "Where is this epic / what's the next wave / can I run these in parallel" | `/epic-status` |
-| "This epic's done — settle and archive it" | `/close-epic` |
+| "This epic's done — settle and archive it" (one epic **or a list of them**) | `/close-epic` |
+| "Turn what the close-out found into an epic with cards/prompts so we can finish it" | `/close-epic` (Phase 5b authors the board) — **not** `/prepare`, which takes one card at a time |
 | "Are my dependencies safe" | `/deps` |
 | "Security audit before deploy / full security sweep" | `/audit-security` |
 | "I need to stop / hand this off" | `/handoff` |

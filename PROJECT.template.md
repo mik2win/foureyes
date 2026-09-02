@@ -95,6 +95,7 @@ schema_version: 1
 - **Archive on done:** <e.g. _backlog/realised/ or n/a>
 - **Issue tracker:** <local — markdown issues from `/to-issues`>
 - **Issues directory:** <e.g. `_backlog/issues/` — `NNNN-<slug>.md`, the local issue tracker>
+- **Small-debt register:** <e.g. `_backlog/small-debt-register.md` — one path-keyed row per verified, zero-consequence fix; created from `skills/close-epic/assets/small-debt-register.md` on first use, or `n/a` if the project keeps such rows in ledger clauses only>
 - **Triage labels:** <the canonical `/triage` state machine, e.g. `needs-triage → ready → in-progress → done`, plus `blocked`>
 
 ## Artifact git policy
