@@ -102,6 +102,22 @@ Both mis-pricings are real and symmetric. Under-pricing: the hand-rolled trio of
 - **Direction decisions are operator-confirmed.** Adopting a framework, a major dependency, or an architectural style sets direction for everything after — recommend with reasoning, then get explicit confirmation (one `AskUserQuestion`, your default stated). Never adopt silently; never hand-roll silently past the trajectory test. Between confirmations, don't overfit: build for the confirmed horizon, not the imagined one (speculative generality is the same waste at a different altitude).
 - **Record the horizon in the artifact** (spec/plan) so downstream stages inherit the pricing instead of re-guessing it.
 
+## 9. The operating list — what a new technology actually costs
+
+A cost paragraph that describes the technology is not an estimate. Price a candidate by walking the list of things every operated component needs, saying for each whether the existing stack already answers it or this thing makes you answer it again: logging · health checks · packaging · deployment · init and supervision · a unit-test story · alerting · operational metrics · backups · restores that have been *tested* rather than assumed · scaling · security upgrades · training everyone who will ever touch it · and the switching cost of leaving.
+
+Two properties make this the cheapest honest estimate available. It is **enumerable** — fourteen lines, each answerable in a sentence, so an omission is visible instead of hidden inside a vibe. And it is **differential** — the incumbent already answers most of it for free, so the walk measures the *marginal* cost of the addition rather than the absolute cost of running software, which is the number a comparison actually needs.
+
+Read backwards, the same list is the maturity test. "Mature" is not age and not taste: it is that you can name the main ways the thing will let you down and what you would do about each. A technology whose failure modes you can enumerate is safe to be old and ugly; one you can only describe by its features is not understood, and its unknown failures are the expensive kind — a known one can be tested for this afternoon, an unknown one is the four-month investigation. Anything new has more of both. Stars, release cadence and "everyone uses it" are not entries in the list.
+
+`/select-tech` Phase 4 walks the list per finalist; `/incident` reads it backwards when the component on fire is the one nobody priced.
+
+## 10. Where the complexity lands — build time or run time
+
+When two options produce the same result they are rarely the same decision, and the axis that separates them is **which phase pays**. Build-time complexity is spent once and re-spent on every change: more data to prepare, more tooling, a longer release cycle, a heavier local setup. Run-time complexity is spent forever: another component in the hot path, another thing that can be down at 3am, another line in the on-call handover, another dependency inside the failure envelope.
+
+Name the phase before choosing. Build-time cost is paid by the people building, is visible in the pipeline, and shrinks as the work stabilizes; run-time cost is paid by whoever is on call, is invisible until it fires, and grows with traffic. Two options that tie on a feature matrix can be a week apart in build cost and a year apart in operating cost — and it is the second number that decides who carries the option for the rest of its life.
+
 ---
 
 ## Using this page
@@ -116,5 +132,7 @@ Both mis-pricings are real and symmetric. Under-pricing: the hand-rolled trio of
 | Decomposition sizing | `/prepare` waves + `/to-issues` slices (how to split), this page §6 (when not to) |
 | Invariants | `codebase-design` (interface invariants), `/test` (property tests), `/domain-model` (record them), `code-reviewer` (review lens) |
 | Horizon pricing | `rules/_generic/core.md`, `/analyst` (horizon interview question), `/prepare` (horizon row + direction-confirm), `/select-tech` (horizon as constraint) |
+| The operating list | `/select-tech` Phase 4 (per finalist), `/incident` (the component nobody priced), this page §9 |
+| Build time vs run time | `/select-tech` (the tie-break between equal results), `/prepare` §2.5.1 (alternatives table), this page §10 |
 
 **The meta-rule:** every section is one economic move — **price the decision before paying for it**. Reversibility sets the price of wrong; probes buy information at the cheapest vendor; predictions and calibrated language keep the books honest; pre-mortems price the failure before it's bought; decomposition and invariants decide what's load-bearing before weight lands on it. Process is not virtue — process is spend, and the craft is spending it where wrong is expensive and skipping it where wrong is cheap.
