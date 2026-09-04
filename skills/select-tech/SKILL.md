@@ -59,10 +59,30 @@ Before any candidate is named:
 - **Horizon** (from the spec, or one question to the operator): a throwaway probe biases
   hard toward the zero option / stdlib; a living surface with a feature trajectory biases
   toward adopting the ecosystem (`core.md` → Horizon prices the build).
+- **Tier the candidate by invasiveness; match the ceremony to the tier.** Special-purpose (one
+  narrow job, easily replaced) → decide and move on with a one-line note. General-purpose (a
+  wrapper over the language or stdlib) → overlap check against what the repo carries, then
+  recommend. Framework (owns a layer — persistence, DI, routing, UI) → the full run below, an ADR.
 - **The zero option — always a candidate.** "Write it ourselves / stdlib / vendor 100
   lines" enters the matrix like any other option. For narrow needs, code you own and can
   read beats a dependency with 40 transitive deps; the threshold is honest scope — a
   regex is not a date library, and half of an auth system is a breach.
+- **Solve it with what already runs in production, in writing, before any candidate is named.**
+  Which incumbent covers most of this, and what exactly does it fail to guarantee (persistent vs
+  ephemeral, ordered vs not, transactional vs not)? If the honest answer is "the problem is that we
+  want to use X", abort here. Otherwise list the **unnatural acts** the incumbent forces, one line
+  each — that list is the bar the new thing must clear, not a vague "it would be awkward".
+- **Novelty is one budget for the whole design, not a judgement per choice.** Count what is already
+  unfamiliar here — store, framework, language, deploy shape, a pattern nobody has run; about three
+  is the wallet, and the hard problem spends one. Which of the others gets cut to pay for this?
+- **The cost of being wrong picks the criteria.** Where a defect corrupts money or records, proven
+  longevity in comparable systems, the quality of the investigation tooling, and whether operators
+  can be hired outrank throughput benchmarks — rarely the binding constraint.
+- **Judge against the whole set of problems this project has**, not the one on the table: the
+  winner is the least-worst fit across many, and maintenance runs forever while the convenience is
+  felt once. A borrowed practice also gets its origin checked — same scale, same team size?
+- **If the thing holds or moves state** — a store, a cache, a queue or broker, a transport between
+  processes, a transaction engine — read `STORES-AND-TRANSPORTS.md` before naming any product.
 
 If the need is fuzzy enough that candidates can't be filtered, that's a framing problem —
 route back through `/discover`/`/analyst` first.
@@ -72,6 +92,9 @@ route back through `/discover`/`/analyst` first.
 - **Already installed?** Grep the lockfile and existing code first — the capability may be
   inside a dependency (or transitive dep) you already carry, or half-built in the repo
   (`/discover`'s territory; check its brief if one exists).
+  A second language reads as redundant to everyone; a second datastore, cache, queue or scheduler
+  is the same redundancy and nobody names it — so name it here.
+  If every candidate is a store, the Phase 1 gate missed — read STORES-AND-TRANSPORTS.md.
 - **Ecosystem gravity**: what do your existing framework/major libs officially integrate
   with? First-party adapters age better than community glue.
 - **The field**: WebSearch the registry + comparisons; for a genuinely open landscape,
@@ -85,7 +108,9 @@ library you remember may be renamed, abandoned, or two majors ahead.
 
 ## Phase 3 — Hard filters (kill fast, kill cheap)
 
-Run every candidate through binary filters; record each kill with its reason:
+Run every candidate through binary filters; record each kill with its reason. Which criteria are
+hard depends on what you control — latency is soft when you host the thing, hard when someone else
+does — so give each one both forms: what disqualifies here, and what ranks in Phase 5.
 
 - **License** compatible with the project's policy (and the licenses of *its* deps).
 - **Runtime/version compat** with the lockfile reality (not with "latest").
@@ -96,8 +121,9 @@ Run every candidate through binary filters; record each kill with its reason:
   second has no audit history.
 - **Weight**: install size + transitive dependency count within the envelope.
 
-2–3 survivors proceed. If zero survive, the zero option or a constraint change is the
-answer — say so; don't lower the bar silently.
+2–3 survivors proceed. If zero survive, the zero option or a constraint change is the answer — say
+so; don't lower the bar silently. When nothing fits, the output is not a pick but the written list
+of properties the thing must have, which becomes the acceptance criteria for what is built later.
 
 ## Phase 4 — Deep dive (the part nobody does)
 
@@ -119,6 +145,16 @@ For each finalist, in this order:
 5. **Escape cost**: if this had to be replaced in two years — what leaks past the seam
    (data formats, schema, idioms in call sites)? Cheap-escape candidates get credit;
    lock-in gets priced, not ignored.
+   Then name the **layer it puts between your code and what actually runs** — the request it
+   builds, the query it emits, the call it makes — and how you would inspect that layer when the
+   behaviour is wrong. A framework that owns a layer makes adding complexity cheap, so defer one
+   until the pain it removes has been felt, and say what it does with a component it cannot support.
+6. **Failure modes, enumerated**: list the main ways this thing will let you down, and what you
+   would do about each. A candidate you can only describe by its features is not understood, and
+   the unknown failure is the four-month one. Stars and release cadence are not entries in the list.
+7. **The operating bill**: walk the operating list (`docs/decision-craft.md` §9) and say which
+   entries the existing stack already answers for free. Then the arithmetic nobody does — volume ×
+   published rate, per-call fees, per-GB storage, rounded hard — and who owns this in year two.
 
 When finalists are close, spawn parallel agents one-per-candidate for steps 1–3
 (`delegation.md` brief shape) — but the verdict synthesis stays here, not in an agent.
@@ -141,9 +177,11 @@ recommended default.
 The selection isn't done until the door is lightened:
 
 - **Adapter seam**: the dependency enters behind a project-owned interface **sized to
-  actual use** — expose the 3 calls you need, not the library's 40. This keeps the choice
-  swappable (two-way door), gives tests a boundary to mock (`testing` rules), and contains
-  idiom leakage. Trivial-scope exceptions (a dev-only CLI tool) — say so explicitly.
+  actual use** — expose the 3 calls you need, not the library's 40. This keeps most choices
+  swappable, gives tests a boundary to mock (`testing` rules), and contains idiom leakage. The
+  exception is a **storage model**: aggregate shape and query shape leak through any repository
+  interface, so a store chosen for its model is a one-way door — probe its hard case now, not after
+  the seam is written. Trivial-scope exceptions (a dev-only CLI tool) — say so explicitly.
 - **Pin + provenance**: exact version pinned per the ecosystem's practice; note the
   registry/source. New-dep security posture follows `code.md` / `/deps`.
 - **Record the decision**: write the selection report to the Plans location
@@ -159,6 +197,8 @@ The selection isn't done until the door is lightened:
   leading question.
 - **The hard case is probed for every finalist** — a selection that only checked the
   happy path selected the README, not the library.
+- **One grid for every candidate, and the traded axis is named** — cost and simplicity move against
+  scalability and modularity in every shape, so a proposal gaining on both sides has an unnamed cost.
 - **One recommendation**, losers with kill reasons; "here are three options" without a
   verdict is homework returned (`core.md`).
 - **No dependency without a seam decision** — adopt-behind-adapter, adopt-bare (declared,
