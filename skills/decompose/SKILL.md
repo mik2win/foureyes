@@ -6,11 +6,11 @@ description: >-
   extracting a service, per candidate boundary, on evidence: real extraction drivers
   (deploy contention, asymmetric scaling, failure isolation, team ownership) weighed
   against the distributed tax, with "extract the seam before the service" as the
-  governing rule. Verdict per boundary: STAY / MODULARIZE / EXTRACT, recorded as an ADR
-  and routed to the right executor.
-  TRIGGER when: the user asks "should we split this into services", "monolith or
-  microservices", "extract X into its own service", "is it time to break this up", or a
-  plan proposes a new service and the boundary hasn't been justified.
+  governing rule. Verdict per boundary: STAY / MODULARIZE / EXTRACT / MERGE, recorded as an
+  ADR and routed to the right executor.
+  TRIGGER when: the user asks "should we split this into services", "monolith or microservices",
+  "extract X into its own service", "is it time to break this up", "should we merge these two
+  services back", or a plan proposes a new service and the boundary hasn't been justified.
   DO NOT TRIGGER when: the user wants in-process module/interface design (use
   /codebase-design), a whole-tree rot scan (use /arch-health), the extraction is already
   decided and needs a shipping strategy (use /rollout), or a past architecture decision
@@ -21,8 +21,8 @@ effort: high
 
 # Service Decomposition: $ARGUMENTS
 
-`$ARGUMENTS` names the candidate boundary ("billing", "the notifications module") or is
-empty = survey the whole system for extraction candidates and verdict each.
+`$ARGUMENTS` names the candidate boundary ("billing", "the notifications module") or an existing
+service to audit; empty = survey the whole system, extraction candidates and existing splits both.
 
 ## Principle
 
@@ -77,6 +77,8 @@ output. Ground every claim in `path:line` or a command's output.
   either severed before extraction or becomes a distributed failure mode after it.
 - **Data ownership** — can each side own its data outright? A table written by both sides
   is the single strongest STAY/MODULARIZE-first signal.
+- **Connection budget** — services × pool size × expected instances against the store's
+  ceiling; waits surface as request timeouts and tripped breakers, not connection errors.
 - **Change coupling** — `git log --format=%H --name-only` mined for commits touching both
   sides of the boundary: code that ships together wants to live together. Independent
   change histories support a split; interleaved ones refute it.
@@ -103,7 +105,7 @@ gateway) to `/select-tech`. Never decide on remembered facts about platforms or 
 | Driver | Evidence that makes it real |
 |--------|-----------------------------|
 | Independent deploy cadence | releases demonstrably blocked/serialized across the boundary |
-| Asymmetric scaling | measured resource profile divergence, not anticipation |
+| Asymmetric scaling | measured resource profile divergence that replicas or sharding cannot absorb |
 | Failure isolation | a part whose failure must not take the rest down (and currently can) |
 | Team ownership | a real team wanting an independent roadmap for exactly this boundary |
 | Divergent constraints | runtime/latency/compliance needs one side genuinely can't share |
@@ -111,11 +113,23 @@ gateway) to `/select-tech`. Never decide on remembered facts about platforms or 
 **Fake drivers — name them when you see them, they never justify extraction:**
 "the code is a mess" (→ `/arch-health`), "microservices are best practice", "it'll be
 easier to understand" (locality *drops* across a network), "we might need to scale
-someday" (speculative scale = STAY; extract when measured), résumé-driven architecture.
+someday" (speculative scale = STAY; extract when measured), résumé-driven architecture,
+"it's too big" / "it's too small" (size is not a finding — co-change is).
+**Against every driver that counts, name the boring alternative** — a bigger machine, reassigned
+ownership, a deploy pipeline replacing manual testing and long-lived branches — say why it is
+insufficient, and name the measure that will show in three months whether the split worked.
+
+**Vetoes — no driver outweighs these; when one fires the verdict is STAY and the report says
+which.** *Atomicity*: two updates the business needs both-or-neither stay in one transaction and
+one service — a saga buys "both eventually, or an observable compensation". *Consistent read*: a
+decision needing one consistent view of both sides must read it from one store. *Operated by the
+customer*: someone else's per-service ops floor is not yours to spend — cap at MODULARIZE.
 
 **The distributed tax — the extraction side must accept ALL of these, listed explicitly:**
 network calls that partially fail (timeouts, retries, idempotency per `resilience` rule),
-no cross-service transactions (sagas / eventual consistency where a `BEGIN` used to do),
+no cross-service transactions (sagas / eventual consistency where a `BEGIN` used to do; durable
+execution is a third option, priced in class limits not vendor ones — deterministic replay, and
+workflow code versioned while old runs are still in flight),
 versioned contracts between the parts (Hyrum's law now applies internally), per-service
 observability + deploy + on-call floor, harder local dev, and data duplication where
 joins used to be — plus the **agent tax**, which nobody prices in: one user-visible flow
@@ -123,6 +137,10 @@ now spans N repos, N deploys, and N telemetry stacks, so no single agent session
 it end-to-end with Read and Grep. Comprehension shifts from code-reading (cheap, always
 available) to distributed tracing (needs the observability floor *already built*). The
 monolith's most under-priced asset is that its entire truth fits one context window.
+
+**Which axis?** A cut runs along **abstraction** (layers inside one deployable), **subdomain**
+(services) or **instances** (replicas, shards): say in one line why the other two do not answer
+this pressure, and while the domain is still being learned cut along abstraction only.
 
 **Verdict per candidate boundary:**
 
@@ -134,7 +152,11 @@ monolith's most under-priced asset is that its entire truth fits one context win
   it captures most of the benefit, keeps transactions, and leaves the door open.
 - **EXTRACT** — evidenced drivers outweigh the accepted tax **and** the in-process seam
   already exists and holds (no reach-ins, data ownable, contracts nameable). Both
-  conditions, not either.
+  conditions, not either. **Name the remainder**, not just the piece cut out: one sentence,
+  no "and", for what the other side does. A remainder that survives only as "the rest of X"
+  means the cut is in the wrong place — move it, cut into three, or leave it whole.
+- **MERGE** — the boundary already exists and is wrong: co-change, lockstep deploys, a shared
+  transaction, workflow, hot domain code or unownable data. Name the blast radius bought back.
 
 ## Phase 3 — Grill and record
 
@@ -151,6 +173,7 @@ assumptions it rests on stated explicitly (that's what a future `/revisit` will 
 | STAY | nothing to build; if the mess prompted the question, → `/arch-health` |
 | MODULARIZE | `/prepare` → `/implement` (large) or `/refactor` (small, local) |
 | EXTRACT | `/rollout` — strangler-fig staged strategy; each stage through `/prepare` → `/implement` |
+| MERGE | `/rollout` — merging back is a migration; `/revisit` first if an ADR recorded the split |
 | Missing evidence blocked a verdict | `/spike` (feasibility) · `/select-tech` (infra component) |
 
 ## Output
