@@ -25,7 +25,7 @@ These are the kit's own rules applied to the kit. A PR that breaks one will be a
 
 **Mind the always-on budget.** Only `rules/_generic/core.md` loads unconditionally, and three A/B rounds found that a *larger* always-on tier bought cost, not quality. Adding always-on text needs a reason beyond "it seems useful". Prefer a `paths:`-scoped rule, or a doc the rule points at.
 
-**Respect the listing budget.** Every model-invocable skill's `description` is spent on every request. `validate-kit.py --stats` prints the per-skill budget; the cap is 1536 characters and the validator warns within 10% of it. Most skills should carry `disable-model-invocation: true` (42 of 49 do) — the kit is manual-first on purpose.
+**Respect the listing budget.** Every model-invocable skill's `description` is spent on every request. `validate-kit.py --stats` prints the per-skill budget; the cap is 1536 characters and the validator warns within 10% of it. Most skills should carry `disable-model-invocation: true` (41 of 49 do) — the kit is manual-first on purpose.
 
 **Put the slash command first in any copy-paste prompt.** Claude Code expands a slash command only when the message **starts** with it, so in a prompt pack the command is the first line **inside** the fenced block and headings, hand-offs and notes stay **outside** it. Get this wrong and the failure is silent — the skill never loads, nothing errors, and the session runs a lookalike procedure. [The measured case and its cost](guide/en/evidence.md#skills-are-manual-by-default--and-the-three-escape-hatches).
 

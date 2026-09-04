@@ -76,7 +76,7 @@ The full map — every skill, every recommended chain, and the same flow as a Me
 - **A learning loop.** Every `/implement` writes a Deviation Report; `/retro` mines them for recurring patterns and folds the lessons back into your rules.
 - **The agent never publishes code without you.** `git add`/`commit`/`merge`/`push` are denied in `settings.json` and hard-blocked by a hook — it prints the command, you run it.
 
-Skills are **manual by default**: 42 of 49 carry `disable-model-invocation: true` and run only when *you* type them. That is deliberate, it has a measured cost, and there are three escape hatches — [the whole trade-off, with numbers](guide/en/evidence.md#skills-are-manual-by-default--and-the-three-escape-hatches).
+Skills are **manual by default**: 41 of 49 carry `disable-model-invocation: true` and run only when *you* type them. That is deliberate, it has a measured cost, and there are three escape hatches — [the whole trade-off, with numbers](guide/en/evidence.md#skills-are-manual-by-default--and-the-three-escape-hatches).
 
 ## Honest about what's proven
 

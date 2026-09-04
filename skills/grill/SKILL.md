@@ -1,6 +1,5 @@
 ---
 name: grill
-disable-model-invocation: true
 description: >-
   Relentless one-question-at-a-time interview that stress-tests a plan or design until every
   branch of the decision tree is resolved and you and the user share one understanding. The
