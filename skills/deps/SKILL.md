@@ -72,6 +72,10 @@ For each finding, recommend an action; do not perform it:
   edits the manifest/lockfile or commits).
 - **No fix available:** note mitigations (drop the dependency, restrict its input, or accept
   with a tracked exception) and surface it clearly rather than burying it.
+- **Upstream has stopped:** a **direct** dependency whose upstream is archived, past its stated end
+  of life, or superseded by a named successor is a HOLD, with the evidence cited (archive notice,
+  EOL date, the successor's own migration note); the replacement routes through `/select-tech`.
+  Never by age alone — a stable library with no reason to release is not a finding.
 
 ## Output
 

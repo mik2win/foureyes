@@ -36,6 +36,18 @@ Always for a module that will have **many callers** or a **long life** (a core d
 shared utility, anything other code will depend on). Skip it for a throwaway or a leaf with one
 caller — there, the obvious design is fine.
 
+## When the alternatives are already known
+
+Some needs are **named, solved mechanisms** — rate limiting, ID generation, deduplication, cache
+eviction, retry backoff, leader election. There the field is a small closed set of standard
+algorithms, not an open design space, and inventing a "genuinely different" design B is the wrong
+move: design B already exists and has a name.
+
+Do this instead: list the set (3–5 entries), give each one line of pro, one line of con, and its
+**tuning parameters**, then pick against the single constraint that actually decides here — burst
+tolerance, exactness, memory, or a steady outflow. A picked algorithm with no named rejects is a
+default you did not notice you were taking.
+
 ## In the kit
 
 `/prepare` Phase 2.5 already asks for 2–3 design alternatives; this is the *module-level* version
