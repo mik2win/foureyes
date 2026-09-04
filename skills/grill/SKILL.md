@@ -59,12 +59,23 @@ For each question:
 
 1. **State the question** plainly, in the project's vocabulary.
 2. **Give your recommended answer** and a one-line reason. A grilling is not a blank
-   interrogation — you bring a point of view the user can confirm, sharpen, or reject.
+   interrogation — you bring a point of view the user can confirm, sharpen, or reject. Ship a
+   named failure mode with every structure you propose — the specific way this shape breaks here,
+   not "it adds complexity"; a proposal whose only cost is "slightly more code" is not understood.
 3. **Wait** for the response. Let it reshape the tree — a new answer may open or close later
    branches. Adapt; don't read from a fixed script.
 
 Use `AskUserQuestion` when the answer is a genuine choice among a few concrete options; use plain
 text for open-ended questions. Never batch unrelated questions into one prompt.
+
+**Make the question answerable, then answer it with a case.** "Do people prefer A or B?" invites
+conviction and no reply settles it — rewrite it as "does this A, with these fields, for the people
+who will do this task, work?", or drop it. Resolve an ambiguous rule by proposing the case and the
+one just past the boundary ("100 with a 15% promo for a Gold customer: 85 — correct?").
+
+**Separate the two kinds of fork.** One with a defensible technical answer you answer yourself; a
+genuine trade-off, where both sides cost something the business can feel, goes to whoever owns the
+outcome — "we want X, which costs us Y: which matters more, [outcome A] or [outcome B]?"
 
 ### Explore instead of asking
 
@@ -87,19 +98,37 @@ design, that question goes last or not at all.
 - **Problem & value** — what pain/gap, for whom, what happens if we *don't* build it.
 - **Scope** — the smallest useful slice; what is explicitly out; what is deferred.
 - **Decisions & their dependencies** — each real fork in the design, in dependency order (a
-  choice that constrains later choices comes first).
+  choice that constrains later choices comes first). Design arguments are usually about WHEN, not
+  WHAT: ask which class of change is observably hard to make today, and design only until that
+  pressure is relieved — a proposal that cannot name an observed difficulty is speculation.
+- **Actors & recipients** — who performs this action, must anyone else enable it first, and who
+  exactly are the "interested parties" told afterwards? Each answer surfaces a missing concept — an
+  approval, a quorum, a second recipient, which is usually where eventual consistency belongs.
 - **Assumptions** — surface every "we're taking X as given" and test it: against the user, or
-  against the code (cite `path:line` when you verify one).
+  against the code (cite `path:line` when you verify one). Never test one by asking whether a
+  practice is "in place" — everyone claims CI, tests and review; ask for the behaviour that proves
+  it, such as whether a red job has ever blocked a merge in the last three.
 - **Edge cases & failure modes** — empty/boundary inputs, concurrency, partial failure,
   idempotency — the cases a happy-path plan silently skips.
+- **Multi-step sequences** — "we'll use a saga / eventual consistency" names a problem, not a
+  solution: every intermediate state is visible the moment a step commits, and "undo" is a new
+  action with side effects. Name the anomaly, its cost to the business in one sentence, and the
+  countermeasure — and reorder the steps before writing a single compensation.
 - **Acceptance** — how we'll know it works; the observable definition of done.
 - **Unquantified words** — every "fast", "reliable", "handy", "large", "soon" hides a decision
   nobody has made. Ask for the number and its unit, or record it as an open question: left
   vague, it gets decided silently by whoever writes the code, and no one can say later that
-  it came out wrong.
+  it came out wrong. Push the same way on "it's fast" and "it scales": ask for the breaking value —
+  at what rows, users or fan-out does this stop working, and is the fix a knob or a rewrite? A
+  number that comes back small has veto power — say what it removes from the plan.
+- **Words with two meanings** — the opposite failure: "monolith" is an unstructured codebase, a
+  non-distributed system, or one deployment unit, and the three produce different scope. Pin which
+  meaning is intended, in the project's vocabulary, before grilling a decision that turns on it.
 
-Challenge over-scope, contradictions, and anything simpler-than-proposed. A good grilling pushes
-back; it doesn't just transcribe.
+Challenge over-scope, contradictions, and anything simpler-than-proposed — but rank the competing
+goals first: "all three matter equally" is what makes the simpler option unanswerable, so make the
+user order them and refuse the tie. Where the work carries concurrency, retries, webhooks or jobs,
+ask which timelines exist and what they share. A good grilling pushes back; it doesn't transcribe.
 
 ---
 
@@ -114,6 +143,12 @@ blocking the whole session.
 the now-agreed plan in 2–3 sentences — the argument a sharp skeptic would make — and ask the
 user to defuse or accept it. If it collapses, the alignment is real; if it survives, it enters
 the summary as a named risk. Agreement that was never pushed on isn't alignment, it's momentum.
+
+**Disagree out loud, then commit.** When the user overrides you, do not silently switch sides —
+state your bet once with its reason, then: "going your way; my bet was X; the risk I accept is Y".
+
+**Do not supply the second position.** When the user argues *for* an approach, taking the opposite
+side turns a decision into a contest — ask for the honest downside of their own option instead.
 
 ---
 
