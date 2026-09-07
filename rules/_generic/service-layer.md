@@ -33,6 +33,13 @@ def handle(req):                            def handle(req):
 - A service function orchestrates: `load → compute → persist`. It sequences steps and calls the
   pure domain layer; it holds no business rules of its own (those live in the pure core — see
   `rules/_generic/code-quality.md` §Pure core, thin shells).
+- **One use case, one consistency boundary, one transaction.** Reading other boundaries is fine;
+  needing to write two of them atomically means the boundary is drawn wrong, not that the
+  transaction should be widened. If both must change but not atomically, split into two handlers
+  joined by an event and state the eventual consistency out loud — see
+  `rules/_generic/domain-events.md`.
+- Two-way object references across such a boundary are the same defect in the object graph:
+  replace one direction with an identifier the other side resolves when it needs it.
 - Report progress via injected logger/callback, not by printing to the delivery channel.
 
 ```

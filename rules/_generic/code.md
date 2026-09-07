@@ -59,6 +59,8 @@ paths:
   last-seen age); computations get minimum-size checks. Config validates at load, not first
   use. State loaded from storage and network responses are sanity-checked before use, not
   indexed blind.
+- A read that decides and a write that acts are two statements, and another writer fits between
+  them: guard the pair with a store-enforced constraint, one statement, or an explicit lock.
 
 ## Security
 
