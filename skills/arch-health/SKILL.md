@@ -67,6 +67,23 @@ small tree, **delegate** — don't read everything yourself:
   subtrees to scan first.
 - For a candidate module, `grep -rn` its public symbols across the tree to count call sites —
   that call-site count is the **leverage** number Phase 2 ranks on.
+- **Co-change probe** — file pairs that keep shipping together, which no import graph shows:
+  `git log --no-merges --format='%H' --name-only --since='6 months ago' | awk '/^[0-9a-f]{40}$/{if(c>=2&&c<=20)for(i=1;i<c;i++)for(j=i+1;j<=c;j++)print a[i]" + "a[j];c=0;next} NF{a[++c]=$0}' | sort | uniq -c | sort -rn | head`
+  Guards are not optional: the 20-file cap drops sweeps and renames, `co(A,B) / min(freq A,
+  freq B)` drops hub files, under 5 co-commits is noise, and pairs coupled by construction (a
+  source and its own test, manifest↔lockfile, generated or translated files) are excluded. Report
+  only pairs crossing a boundary `PROJECT.md` names that no import path explains — an explained
+  pair is `arch-tracer`'s. A top count of ≤2, a squash-merged history, or subjectless commits mean
+  the probe found nothing, and nothing is the report; `/decompose` runs its confirmatory form
+  over a boundary that already exists.
+- Regrouped by commit, that same log gives the two history smells of `DEEPENING.md`: one file in
+  commits with unrelated subjects is **divergent change**, a cluster that always moves together is
+  **shotgun surgery**. And never write that two things are "coupled" without the change that
+  couples them — coupled(A, B, Δ) means changing A for Δ forces changing B, Δ read off those same
+  commit subjects.
+- Where the profile names events or a message bus, list the emitters and the subscribers, draw one
+  edge per event name and look for a cycle: a chain nobody can point at in one file is a finding,
+  not a redesign.
 - Shallow clone or no history? Skip the churn step and rely on the agent fan-out below.
 
 **Profile drift check (cheap, piggybacks on this periodic run).** `PROJECT.md` goes stale
@@ -80,7 +97,9 @@ re-adapt instead of piecemeal edits.
 
 - **`arch-tracer`** agent — trace data flow & dependencies through each layer/module; report
   **layer violations** and dependency-direction breaks (imports pointing the wrong way,
-  sibling-to-sibling coupling, domain logic reaching into I/O).
+  sibling-to-sibling coupling, domain logic reaching into I/O), plus calls between two nodes of
+  the outer tree that never pass through the domain — an acyclic graph pointing downward does not
+  prove the domain was not bypassed.
 - **`deep-analyzer`** agent — for the densest/most-central modules, assess interface depth, leaky
   abstractions, conjoined methods, information leakage, god-objects.
 
@@ -123,9 +142,42 @@ pattern is intent, not mud. Drop REFUTED/STALE findings with a one-line reason �
 findings enter the ranked table, so the user never triages a false positive or a re-litigated
 decision.
 
+**Name the `ignore-if` before you rank.** A finding whose fix would remove, move or collapse a
+seam carries one line for the condition under which that shape is deliberate — a wrapper breaking
+an import cycle, a `switch` that is a factory's dispatch, an unused method that is a test seam —
+plus the grep that checked it. Asserted without that check it is UNVERIFIED, not CONFIRMED; local
+findings (duplication inside one file, a long method) need none. And an argument about structure
+names a direction, not a preference: to call an abstraction speculative, name what it obstructs on
+the stated horizon, and where the team is still learning the domain a loose shape is correct —
+what it owes is a recorded consolidation, not a finding.
+
 Label each surviving finding with the shared quality verdict — **SHORTCUT** (bounded debt, schedule
 it) or **HACK** (violates the architecture, fix before building on top) — as defined by the
 `quality-auditor` agent. A **SOUND** module is not a finding; it never reaches this table.
+
+**Classify before you rank.** "Painful to change" is a signal, not a complaint: the indicator that
+a part changed type is that its design can no longer carry current business needs. A CRUD-shaped
+module accumulating rules and invariants has exactly two readings — the complexity does not move
+the business, so it is accidental and the *requirement* is the finding; or it does, so this is
+what the product competes on and the pattern must be upgraded. Say which you took, and name the
+first only when those rules tie to nothing in `PROJECT.md`/`CONTEXT.md` scope — otherwise it is a
+Phase 3 question for the user, not an assertion. Changing pattern is normal, and expensive only
+when the first choice was never made consciously. The component everyone hates and nobody has
+managed to replace — a reverted rewrite, a dead `v2/`, years of patching — is that second reading
+at its strongest: characterization tests first, model it in place. Rough code nobody complains
+about and nobody changes is its mirror, and it leaves the table.
+
+**Name the force, and only from what the repo shows** — change (the churn count), scale, or
+complexity (essential, or Conway: authorship spread across team directories). "Sloppy" is not a
+force; time, cost, experience, skill and visibility are organisational facts no scan reaches, so
+name one only if the user states it and never infer a cause about the people who wrote the code.
+Then: is the force still acting? If it is, the cleanup re-erodes — either the fix changes the
+force, or the row is marked **recurring** and the route says so.
+
+Structural debt has three answers and all three are verdict rows: keep it healthy (alternate
+growth with deliberate consolidation), rebuild it, or **accept it, priced** — chosen out loud,
+with the price said: the system persists and stops evolving, and the people who can leave, leave.
+Accepted is a row, never a silent drop.
 
 Score each finding so the user spends effort where it pays off most. **Leverage** (how many callers
 / how much code gets simpler) against **cost** (how risky/large the change):
@@ -135,10 +187,23 @@ Score each finding so the user spends effort where it pays off most. **Leverage*
 | `path` — <module> | shallow / leaky / misplaced-seam / layer-violation / info-leak | SHORTCUT / HACK | high/med/low | high/med/low | ⭐ rank |
 
 - **Leverage high** = many call sites simplify, a leaked decision gets owned, a hot interface
-  shrinks, or a recurring bug class disappears.
+  shrinks, or a recurring bug class disappears. **Fan-in alone is not pain**: a module hurts when
+  it is concrete AND widely depended on AND changing often — cross the call-site count with the
+  Phase-1 churn list before scoring. A DB schema or a shared wire format is the archetype; a
+  concrete utility with the same fan-in and no churn is harmless.
+- **Traffic** is the third axis, and it ranks: how often the code is touched, not how bad it
+  looks. A mild smell in the hottest file outranks a severe one in a dead corner, and ugly code
+  nobody reads or changes works as an API — leave it. A module with cold history that nothing in
+  the run's scope or the plans backlog points at leaves the ⭐ ranking for a `Parked — no traffic`
+  line with its date and commit count — labelled so the operator can disagree, never a silent
+  drop. A hot module that cannot be cleaned gets isolation proposed, not a rewrite.
 - **Cost** = blast radius (callers touched), test coverage present, reversibility.
 - Prioritize **high-leverage / low-cost** first; flag **high-cost** ones as "plan via `/prepare`",
   not quick refactors.
+- **One structural finding beats N instances.** When a smell recurs across most of a traced
+  surface — a service layer that only forwards on 9 of the 12 paths traced — file one
+  high-leverage finding stating the fraction with its denominator ("9 of 12 traced", never a
+  percentage of a population you did not enumerate), routed to `/prepare`.
 
 Present the ranked table, and **`Write` it as a durable markdown report** to the **Plans location**
 from `PROJECT.md` (e.g. `<plans>/<YYYY-MM-DD>-arch-health.md`) so the findings aren't lost when the
@@ -168,8 +233,12 @@ If the deepening encodes a lasting decision (a new boundary, a chosen seam), rec
 | Small, mechanical, behaviour-preserving, in already-changed/local files | **`/refactor`** (applies + verifies via format/test) |
 | Larger, cross-layer, or needs new abstractions/migrations | **`/prepare`** (design + impact + decomposition) → `/implement` |
 | Missing test coverage that makes any change risky | **`/test`** first to pin behaviour, then refactor |
+| The requirement is the finding, not the module (the accidental reading) | back to the **user** — no code change; the report says what to stop carrying |
+| Accepted, priced | stays a row in the durable report with its price written down; re-enters next run |
 
-Hand off the grilled design as the input to that skill. Never apply the restructure here.
+Hand off the grilled design as the input to that skill. Never apply the restructure here, and
+never issue a REWRITE verdict: a rewrite is a row in `/prepare`'s alternatives table with its own
+preconditions, not an outcome ranked here.
 
 ---
 
@@ -187,8 +256,12 @@ Hand off the grilled design as the input to that skill. Never apply the restruct
 ### Layer-violation summary
 - `path:line` — <violation> (per PROJECT.md dependency direction)
 
-### Deferred / high-cost
+### Deferred / high-cost · Parked
 - <opportunity> — <why it needs /prepare, not a quick refactor>
+- <opportunity> — parked: last touched <date>, <N> commits/yr, nothing in scope points at it
+
+### Downtime map
+- <moving part> — what it does while it is down *(no line = SPOF; `rules/_generic/resilience.md`)*
 
 ### Profile drift
 - <PROJECT.md fact> → <reality, with path evidence> — <suggested correction | route: /update-kit>
@@ -210,6 +283,10 @@ Hand off the grilled design as the input to that skill. Never apply the restruct
   the profile — don't impose a generic architecture.
 - **Don't deepen for its own sake.** A correctly-simple leaf is not a finding (DEEPENING.md → "Not
   deepening").
+- **A health report is not a refactoring campaign.** Large simultaneous restructuring destabilises
+  a system even when every step has tests. Take the top-ranked opportunity; the rest stay rows in
+  the durable report and re-enter on the next run, or when a change lands in that module. Say this
+  when the user asks for all of them at once.
 
 ## See also
 
