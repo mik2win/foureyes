@@ -26,6 +26,11 @@ project's domain vocabulary and roles (from `PROJECT.md` → Domain) — never i
 - What is explicitly OUT of scope for now?
 - Is there a phased rollout — what ships first, what comes later?
 
+### Scale & horizon
+- How many users, records or requests today — a number, not "a lot"?
+- What do you expect at three months, six months, a year?
+- Which of those numbers would change what we build if it were ten times larger?
+
 ### Acceptance & constraints
 - How will we verify it works? What are the acceptance criteria?
 - What is the definition of done?
@@ -51,6 +56,10 @@ project's domain vocabulary and roles (from `PROJECT.md` → Domain) — never i
 - What problem does this feature solve, and who is the primary user?
 - What is the current workaround, if any?
 
+### If the ask is "make X automatic" or "self-correcting"
+- Is each step a decision followed by an action, or is it retrieval that only looks like one?
+- What in the environment answers back after each step, and can the loop act on that answer?
+
 ### Workflow & I/O
 - What triggers use of this feature? Expected input format?
 - What output should the user see? How often is it used?
@@ -64,6 +73,13 @@ project's domain vocabulary and roles (from `PROJECT.md` → Domain) — never i
 
 ## Part C — System analyst (both paths)
 
+### Domain walk (unfamiliar domain)
+- What has already happened — name the events in past tense along a timeline; collect too many,
+  and mark the ones that run in parallel.
+- What command causes each event, and who issues it? Only then: what entity does it act on?
+- Skip the walk for a plain linear sequence with no interesting rules. Record missing domain
+  knowledge the moment it surfaces, at whatever step.
+
 ### Domain model
 - What new entities/concepts are needed? What does each represent?
 - Key attributes per entity — which are required?
@@ -76,7 +92,7 @@ project's domain vocabulary and roles (from `PROJECT.md` → Domain) — never i
 - Who/what triggers each transition? Any guards?
 
 ### Behavior & rules
-- What actions/operations are performed? (CRUD + domain-specific)
+- What actions/operations are performed — in your words, not create/update/delete?
 - Validations — what must always be true?
 - Side effects — emails, background jobs, events, webhooks, audit logs?
 - Anything needing a transaction or a dedicated service/unit per the architecture?
@@ -94,12 +110,19 @@ project's domain vocabulary and roles (from `PROJECT.md` → Domain) — never i
 ### Data & integration
 - Migrations — new tables/columns? Backfill for existing records?
 - External integrations or APIs (from `PROJECT.md` → Integrations)?
+- For each external system: real-time or batch, is there a cut-off, and how long from "we sent
+  it" to "the result is final"? Batch or next-day makes a synchronous call a defect — ask for the
+  intermediate state and what the user sees while it is pending.
 - Performance hotspots — N+1 risk, heavy queries, large payloads?
 
 ### Edge cases & non-functionals
 - Empty states, very large datasets, concurrent edits?
 - What breaks if this feature fails? Failure modes?
 - Idempotency and retry behavior for async work?
+- A slogan ("five nines", "instant", "zero downtime") gets restated as a quantity before you
+  agree or object — then ask which part of the system actually needs it.
+- In production, how many callers against how many providers, and what limit does the far side
+  hold?
 
 ## Clarification patterns
 

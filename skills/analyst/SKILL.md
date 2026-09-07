@@ -98,8 +98,9 @@ interview.
 
 ## Phase 2 — Business interview
 
-One question at a time; adapt follow-ups; skip what is already clear. Aim for ~4–8
-focused questions. See `references/interview-guide.md` for the full bank.
+One question at a time; adapt follow-ups; skip what is already clear. Aim for ~4–8 focused
+questions — the bullets below are topics, not a queue. Horizon and the pre-mortem/inversion pair
+are always in the budget; the rest earn their turn. See `references/interview-guide.md`.
 
 - **Problem & value** — what pain/gap, for whom, what happens if we do NOT build it.
 - **Users & stakeholders** — primary users and others affected. Use the **roles from
@@ -107,14 +108,23 @@ focused questions. See `references/interview-guide.md` for the full bank.
 - **Domain framing** — frame in the project's **core concepts/vocabulary** (from
   `PROJECT.md`). For a domain-design feature, probe the new concept against existing ones;
   for a technical feature, probe the user workflow, inputs, and outputs instead.
-- **Scope** — minimal first version that is still useful; what is explicitly out; phasing.
+- **Scope** — minimal first version that is still useful; what is explicitly out; phasing. State
+  the real input profile (how many, where, how they arrive) and ask which stated requirement it
+  makes unnecessary — a measured number is the cheapest way to delete work before it is priced.
 - **Horizon & trajectory** (always ask — it's the operator's fact, not inferable from the
   request): is this a one-off probe, an internal tool, or the start of a living surface —
-  and *what are the next two features* they'd plausibly ask for after this one? The answer
-  prices every downstream decision (dependency adoption, framework vs hand-roll, test
-  depth — `rules/_generic/core.md` → Horizon); record it in the spec. If the
-  trajectory implies adopting a framework or major dependency, flag it as a direction
+  and *what are the next two features* they'd plausibly ask for after this one? Take the size as
+  numbers with dates, not adjectives: how many users, records or requests today, and what they
+  expect at three, six and twelve months. The answer prices every downstream decision (dependency
+  adoption, framework vs hand-roll, test depth — `rules/_generic/core.md` → Horizon) and fills
+  the spec's boundary/scale cells with a figure instead of "large data"; record it in the spec.
+  If the trajectory implies adopting a framework or major dependency, flag it as a direction
   decision for the user (route the choice itself to `/select-tech` in `/prepare`).
+- **Where the advantage comes from** (right after horizon, one coherent use case at a time) — ask
+  it in reverse, *"an algorithm, or relationships, contracts, craft, hiring?"*, because asked
+  directly everything is core. Differentiating earns the full model and a deep case matrix;
+  needed-but-not-distinguishing earns the cheapest thing that works; everyone-has-it earns no
+  domain model and a route to `/select-tech`. Over-classifying upward is the failure mode.
 - **Acceptance & constraints** — how we verify it works, definition of done, deadlines or
   dependencies (e.g. a ticket), and whether now is the right time.
 - **Pre-mortem & inversion** (one question each, near the end) — *"It's three months after
@@ -146,23 +156,41 @@ and skim the plans/backlog location (from `PROJECT.md`) for earlier specs on the
 **Cite `path:line` for every reuse or integration claim.** An uncited reuse/pattern claim is a
 guess — drop it or verify it before it reaches the spec's *Affected areas*.
 
+**Check the declared shape against the built one.** The profile states the intended architecture;
+the code carries the as-built one. Write a line only where an affected area diverges, with
+`path:line` — that divergence is a finding for the spec, not a repair to make inside it.
+
 ## Phase 5 — System interview
 
 Go technical, one question at a time, grounded in Phase 4 findings. Use
 `AskUserQuestion` for real either-or decisions. See `references/interview-guide.md`.
 
-- **Domain model** — new entities/concepts, attributes, relationships, scoping; place
-  them per `PROJECT.md` → "where domain logic lives".
+- **Domain model** — on an unfamiliar domain ask for the events before the entities (see the
+  guide's *Domain walk*); then new entities/concepts, attributes, relationships, scoping — placed
+  per `PROJECT.md` → "where domain logic lives".
 - **States & transitions** — lifecycle, who/what triggers each move, guards.
 - **Behavior & rules** — actions/operations, validations, side effects (jobs, events,
-  notifications), transactional needs.
+  notifications), transactional needs. Find the boundary by walking the steps and asking of each:
+  *"if only this one fails and the rest succeed, what do you do about it?"* — a step with no
+  answer is a secondary effect that belongs behind an event and fails quietly. If the whole list
+  of operations reads as create/update/delete with no verb a stakeholder would use, the domain
+  conversation has not happened: ask for their word instead of inventing one (an admin or
+  reference-data surface where CRUD *is* the domain is the exception).
 - **Authorization** — which roles do what (role × action matrix); new vs. extend
   existing enforcement, per the project's auth rules.
 - **Interface / entry points** — screens, routes, commands, or APIs the feature exposes.
 - **Data & integration** — migrations/backfills, external services (from `PROJECT.md` →
-  Integrations), performance hotspots.
+  Integrations), performance hotspots. If the change moves the shape, owner or location of stored
+  data, ask who reads it from *outside* this repository (analytics, exports, another team's
+  scripts) — the import graph cannot see them, so no answer is a named open question with an
+  owner, not an assumption.
+- **Freshness & ordering** (only when a read path can differ from the write path) — if a
+  notification travels one channel and the data another, the message can beat the write it names;
+  and ask which reads must show the user their own change immediately, in the same response.
 - **Edge cases & non-functionals** — empty states, large data, concurrency, failure
-  modes, idempotency/retries.
+  modes, idempotency/retries. Where a write is built from data read in an earlier request, detect
+  the conflict rather than lock against it — and put the choice to the user, since a late refusal
+  is theirs to price.
 
 ## Phase 6 — Write the specification
 
