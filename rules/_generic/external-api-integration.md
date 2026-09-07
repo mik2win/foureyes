@@ -21,6 +21,8 @@ documentation — never guess.
   between services); document the mapping explicitly at the boundary.
 - Check the provider's error codes and rate limits; map them into your retry policy
   (transient vs permanent — see `rules/_generic/exception-patterns.md`).
+- Parse a payload you don't own tolerantly: read the fields you use, pass the rest through,
+  and keep an unknown status opaque — a closed enum breaks on the provider's next release.
 
 ## Never
 
@@ -30,7 +32,8 @@ documentation — never guess.
 
 ## When docs are unclear
 
-1. Write a minimal probe script and observe real responses (sandbox if the provider has one).
+1. Write a minimal probe that asserts what you believe the API does and run it (sandbox if the
+   provider has one); keep it — on a dependency upgrade it runs first.
 2. Log raw responses at debug level at the boundary.
 3. Compare observed vs documented format; document any discrepancy you find.
 
@@ -46,3 +49,5 @@ instead of errors. Verifying up front is cheaper than that debugging session.
 - [ ] Enum/status semantics mapped and documented
 - [ ] Error codes and rate limits understood
 - [ ] Sandbox tested (if available)
+- [ ] Test strategy named with its trigger: patch-level mocks while trivial → an adapter with
+      integration tests once mocks mirror the client → a fake when the sandbox is slow or flaky

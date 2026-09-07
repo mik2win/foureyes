@@ -17,6 +17,10 @@ stack pack names the concrete client/library; these principles hold regardless.
   retry/fallback); a background bulk fetch can wait longer.
 - A timeout on a whole operation must be shorter than the caller's own deadline — never let an
   inner wait outlive the request that's waiting on it.
+- **Don't chain blocking calls.** A component already serving a blocking request must not make
+  another blocking call outward while handling it — the chain fails together and its latencies
+  add. Past one synchronous hop, break the chain with a message or say why the coupled failure
+  is acceptable; timeouts and breakers soften this shape, they do not fix it.
 
 ## Retry with backoff + jitter
 
@@ -73,6 +77,9 @@ total += amount                              if id not in seen: total += amount;
   whole request — and log that you degraded.
 - Decide fail-open vs fail-closed deliberately: an optional enrichment fails open (proceed
   without it); a safety/authorization check fails closed. State which and why at the boundary.
+- A stale cache is a designed degradation: allowed only once you write down which store is the
+  source of truth, that the authoritative check still runs against it on the write path, and
+  what the user sees when the two disagree.
 
 ## Health checks
 

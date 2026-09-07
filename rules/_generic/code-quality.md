@@ -12,6 +12,8 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 
 - Domain/business function: ≤ 25 lines soft, 40 hard.
 - Orchestration/glue function: ≤ 40 lines soft, 60 hard.
+- Size is three numbers, not one: add branches (start at 1, +1 per if/loop/case/ternary — ≤7)
+  and variables in play (locals + parameters + fields the body touches — ≤7).
 - A limit is a tripwire, not a verdict: past it, look for a seam where meaning and mechanics
   part ways; no seam → keep the long function and say why. Never extract to satisfy a number.
 - Litmus: describe what the function does in one sentence without "and". Can't → extract.

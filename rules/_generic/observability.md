@@ -19,6 +19,11 @@ diagnosable from the emitted signals alone, without attaching a debugger.
 - A log statement is code: nothing in tight loops — log at the boundaries (count before,
   summary after) or sample (every Nth iteration). No formatting work that still runs
   when the level is disabled.
+- Log the impure and nothing more: clock reads, generated ids, I/O results, external responses,
+  side effects — never the output of a deterministic function whose inputs are already logged.
+- Put the call where the intent is captured (the handler that decided), not in the helper that
+  computed: one line naming the business event beats three naming its steps.
+- A logger is not a dependency of domain logic — wrap the impure boundary instead.
 - Rate-limit/dedupe a warning that can repeat (same key within an interval) — a flood of
   one message hides everything else.
 - Tune noisy third-party loggers down (WARN) — your signal is your own events.

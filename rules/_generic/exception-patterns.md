@@ -11,6 +11,8 @@ paths:
 - Wrap the smallest block that can fail, not a whole function body.
 - Catch the most specific error type available; never a bare/catch-all that hides
   programmer errors.
+- A new error type is earned by a caller that handles it differently; otherwise reuse the
+  nearest existing one.
 
 ## Never swallow
 
@@ -27,6 +29,9 @@ paths:
 - An expected outcome is not exceptional: a lookup that can legitimately find nothing
   returns an empty/optional value, it doesn't raise. Reserve errors for contract
   violations and failures.
+- That optional is safe only when the caller must read it: a method called for its
+  side effect discards it, so the failure goes silent — raise instead. "Nothing
+  found" is safe only when no legitimate result is falsey (0, "", [] are).
 - Inside a framework callback that cannot propagate exceptions, honor the framework's
   error contract (its sentinel / error return) instead of raising through it.
 
@@ -36,6 +41,9 @@ paths:
   swallows the runtime's cancellation error makes the task un-cancellable. Re-raise it;
   respect abort/cancellation tokens.
 - Don't catch-all around `await` points and continue as if nothing happened.
+- Give every asynchronous failure a destination: retryable → a retry queue; rejected by
+  policy → persisted as an error at once; past the attempt cap → a dead-letter queue a
+  human reads. A detached task or a message with no owner drops its failure silently.
 
 ## Warnings & deprecations
 

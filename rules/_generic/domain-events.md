@@ -21,24 +21,30 @@ choice.
 
 ## Self-contained payload
 
-- Include everything a subscriber plausibly needs, so it doesn't have to query back for context.
-- Don't over-stuff either: carry the facts of the event, not the whole world. Reference large or
-  mutable data by id.
+- Carry the facts the event asserts, plus identifiers; reference large or mutable data by id.
+  A field added for one consumer's convenience inverts the dependency — the event's shape now
+  changes when that consumer's needs do — so name the consumer and accept versioning for them.
+- Pick state vs a bare notification by the consumer's consistency need: carry state when it can
+  live with stale data; carry ids and let it query back when it must read the producer's last
+  write, or when the data is sensitive.
 
 ```
-# DO — carries what subscribers need        # DON'T — forces a lookup
-OrderPlaced(order_id, customer_id,           OrderPlaced(order_id)
-            total, currency, placed_at)      # subscriber must re-fetch everything
+# DO — the facts it asserts + ids           # DON'T — a field for one consumer
+OrderPlaced(order_id, customer_id,           OrderPlaced(order_id, ..., invoice_pdf_url)
+            total, currency, placed_at)      # billing asked; now every change touches it
 ```
 
 ## Emit after persist
 
 - Publish an event **after** the state it describes is durably saved. Emitting first risks
   notifying subscribers about a change a crash then loses.
+- `save(x)` then `publish(E)` is a **dual write**: a crash between them loses E with no trace.
+  In-process subscribers are fine; once the event leaves the process (broker, queue, webhook),
+  write it to an outbox row **inside** the transaction and let a relay deliver it.
 
 ```
-save(order)          # 1. persist first
-publish(OrderPlaced) # 2. then announce
+save(order); publish(E)        # DON'T — dual write; a rollback would undo only the save
+tx { save(order); outbox(E) }  # DO — one transaction, a relay delivers from the outbox
 ```
 
 ## Subscriber isolation
