@@ -25,6 +25,7 @@ seam, leverage, locality* — to name what you find.
 | **Divergent change** | One module's history shows several unrelated reasons to change (bucket the commit subjects) | Two or three modules living as one; split along the reasons |
 | **Shotgun surgery** | One reason (a new currency, a new provider) forces edits across many modules | The decision has no owner; gather it — *Own the decision* |
 | **Reaching chain** | `a.b.c.d()` hops across several types, repeated at many call sites | The caller knows its collaborator's collaborators; the concept the chain fetches was never named |
+| **Ambiguous choice point** | Two modules plausibly serve the same call and an engineer given the concrete situation cannot say which to reach for; a new package the profile does not name fails the same reader test | Overlapping responsibility — the boundary is wrong, not the documentation |
 
 ## Moves (how to deepen)
 
@@ -33,7 +34,11 @@ seam, leverage, locality* — to name what you find.
 - **Pull complexity down.** Move a detail every caller handles (formatting, retry, validation)
   inside the module so callers stop knowing about it.
 - **Collapse the interface.** Merge conjoined methods; replace N special-purpose methods with one
-  general-purpose one whose parameters express the variation.
+  general-purpose one whose parameters express the variation — a variation the *domain* names, or
+  a lookup key of one kind (`getUser(field, value)`). A parameter that exists so one caller can pick
+  its branch is the first step of a wrong abstraction, not depth: ask what it would be called if
+  that caller did not exist. Nor is a shared call site shared behaviour — callers often invoke one
+  abstraction in name while each runs a nearly unique path, visible only once it is inlined.
 - **Own the decision.** Give one module sole knowledge of a leaked design decision; everyone else
   goes through its interface. That's locality — change it once.
 - **Move the seam.** Put the interface exactly where behaviour must vary, so a fake satisfies it

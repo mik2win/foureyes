@@ -98,3 +98,4 @@ the bug with it.
   deeper module (small interface, more behaviour hidden), not merely more files.
 - **New technology → a decision, not a step.** A dependency, datastore, queue or service the
   project does not run yet enters as its own priced line, never through an implementation diff.
+- **Two prices per option:** build cost and carrying cost (`docs/decision-craft.md` §13), or unpriced.

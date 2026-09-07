@@ -138,6 +138,12 @@ Design rules earn their keep by having an edge, and a rule quoted with no edge i
 - **Masking a failure** is wrong when the caller needs the failure to stay correct. Swallowing it, defaulting past it or retrying it away is legitimate only when the caller's job is unchanged by its having happened.
 - **Consistency** is wrong when the things really are different. Forcing one shape onto two different cases hides the difference at exactly the place a reader needs to see it.
 
+## 13. Two prices — to build it, and to carry it
+
+An option priced once is half-priced. Beside the one-time cost of building it, state what it charges on every later change, run and onboarding: each line of code, each feature, and each thing a person must remember to do is rent, and a plan where every step is upside has not been priced. A design pattern or a scaling mechanism is named only together with the pressure that makes it necessary, what it costs (the indirection, the extra type, the new class of failure it introduces) and the knob that trades between them — a recommendation with no named cost is an incomplete answer.
+
+Three choices multiply the rent rather than add to it: distributing what could run in one process, hand-built concurrency where the platform offers its own, and a paradigm gap the code must translate across on every call (objects to rows, sync to async). Each buys real capability; each is a recurring bill, so it enters the plan as a priced line with the pressure that justifies it, never as a default.
+
 ---
 
 ## Using this page
@@ -156,5 +162,6 @@ Design rules earn their keep by having an edge, and a rule quoted with no edge i
 | Build time vs run time | `/select-tech` (the tie-break between equal results), `/prepare` §2.5.1 (alternatives table), this page §10 |
 | Compensation vs rollback | `rules/_generic/resilience.md` (pointer), `/prepare` (the failure branch of a multi-step flow), this page §11 |
 | The limit of a principle | `codebase-design` (where the principles are stated), `/arch-health` + `/code-review` (findings that cite one), this page §12 |
+| Two prices per option | `rules/_generic/planning-artifacts.md` §Persistence & new seams (every option, two prices), `/prepare` §2.5.1 (alternatives table), `/select-tech` (§9 is the carried half of a technology), this page §13 |
 
 **The meta-rule:** every section is one economic move — **price the decision before paying for it**. Reversibility sets the price of wrong; probes buy information at the cheapest vendor; predictions and calibrated language keep the books honest; pre-mortems price the failure before it's bought; decomposition and invariants decide what's load-bearing before weight lands on it. Process is not virtue — process is spend, and the craft is spending it where wrong is expensive and skipping it where wrong is cheap.

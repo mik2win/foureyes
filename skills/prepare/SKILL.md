@@ -179,7 +179,8 @@ behaviour hidden) — invoke `/codebase-design` for that lens, not just "more fi
 `/codebase-design` **before** committing to the decomposition, per the Artifact-Continuity
 Contract (`rules/_generic/planning-artifacts.md`) — a new abstraction is justified as a deeper
 module, not accepted as more files.
-Whether that seam is due yet, and along which axis, is `skills/codebase-design/WHEN-TO-CUT.md`.
+Whether that seam is due yet, and along which axis, is `skills/codebase-design/WHEN-TO-CUT.md`;
+when the alternatives differ in *shape* (function or class, a subtype, a pattern), `SHAPE.md` beside it.
 
 **Row A is the least-machinery option** — extend what exists, a config change, the framework
 default, or do not build it. A row above A is earned by naming the point at which A fails: the

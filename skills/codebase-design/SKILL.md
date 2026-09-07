@@ -92,6 +92,7 @@ Shallow modules, leaky interfaces, and misplaced seams are where a codebase rots
 mud. [DEEPENING.md](DEEPENING.md) lists the smells and the moves that deepen a module. `/arch-health`
 runs that hunt across a whole codebase; `/refactor` and `/prepare` apply it to the change at hand.
 [WHEN-TO-CUT.md](WHEN-TO-CUT.md) comes first when the move is a *new* seam: is it due, on which axis.
+[SHAPE.md](SHAPE.md) when the question is the form behind it: function or class, a subtype, a pattern's price.
 
 ## How the kit uses this
 
@@ -109,4 +110,5 @@ runs that hunt across a whole codebase; `/refactor` and `/prepare` apply it to t
 - [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) — generate two genuinely different designs, compare, synthesize.
 - [DEEPENING.md](DEEPENING.md) — shallow-module smells and the moves that fix them.
 - [WHEN-TO-CUT.md](WHEN-TO-CUT.md) — is a new seam due yet, along which axis, and what proves it.
+- [SHAPE.md](SHAPE.md) — function, class or transform; when a subtype is legal; what a pattern costs.
 - `rules/_generic/code-quality.md` — the size/naming/composition floor this design lens sits on.

@@ -12,11 +12,20 @@ the payoff is a deeper module you won't fight for months.
 
 ## The move
 
-1. **Sketch design A** — the obvious approach. Just the *interface*: methods, parameters, what's
-   hidden, where the seam sits. Don't implement it.
-2. **Sketch design B — deliberately different.** Not a tweak of A. Move the seam, invert who owns
-   the state, collapse two methods into one, make it general where A was special-purpose (or the
-   reverse). If B feels forced, that's fine — the point is contrast, not a second favourite.
+1. **Sketch design A** — the obvious approach. Write the *call* first: the literal lines a caller
+   will type and what comes back, judged on the caller's experience alone — knowing how you would
+   build it pulls the interface toward the one easy to build. Then the interface behind the call:
+   what's hidden, where the seam sits. The only feasibility check at this step is whether the call
+   carries enough input to produce its output. Don't implement it.
+2. **Sketch design B — deliberately different.** Not a tweak of A. At the interface: move the
+   seam, invert who owns the state, collapse two methods into one, make it general where A was
+   special-purpose (or the reverse), or change the metaphor of the central thing (`SHAPE.md`
+   §Objects and their interface). When the open decision is where to cut a *feature set*, run the
+   six operators over it instead — split it along another line, substitute one module, augment,
+   exclude one part, invert (lift a capability every module reimplements into a first-class one),
+   port one in from elsewhere — and score each cut by how many of those a future change could
+   still apply: a decomposition where nothing can be excluded on its own is the weaker one. If B
+   feels forced, that's fine — the point is contrast, not a second favourite.
 3. **Compare on the axes that matter:**
 
    | Axis | Ask |
@@ -26,6 +35,9 @@ the payoff is a deeper module you won't fight for months.
    | **Seam fit** | Which puts the seam exactly where behaviour must vary (test/prod/vendor)? |
    | **Error surface** | Which defines more errors out of existence? |
    | **Generality** | Which is general enough to serve the next caller without gold-plating? |
+   | **Change cost** | How many files does a routine "add one field" touch under each — and under the framework's default shape? |
+   | **Prevention vs detection** | Which makes the mistake impossible to express, and which merely catches it? A shape that can't be built wrong needs no inspection; a check must be run, kept and trusted. Take the passive one unless it costs disproportionately more — and label each alternative. |
+   | **What it makes hard** | Which awkward cases does each metaphor create, and which does it dissolve? |
 
 4. **Synthesize.** Often the best design is neither A nor B but takes A's seam and B's collapsed
    interface. Name the winner and *why* it wins on the axes above.
