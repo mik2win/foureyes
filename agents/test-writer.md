@@ -57,8 +57,8 @@ following the project's conventions and `rules/_generic/testing.md`:
 
 - Reuse the project's factories/fixtures — don't create parallel setup from scratch.
 - AAA structure: Arrange, Act, Assert, visually separated.
-- One behaviour per test; descriptive names (`test_<unit>_<scenario>_<expected>` or the
-  project's local convention — copy the neighbours).
+- One behaviour per test; the name states a behaviour fact in domain words
+  (`delivery_with_a_past_date_is_invalid`, or the project's local convention — copy the neighbours).
 - Test through the module's public interface (its seam), not by reaching into internals;
   if a test can only work by mocking internals, record that as "needs refactoring"
   instead of forcing the test.

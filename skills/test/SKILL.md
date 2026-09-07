@@ -141,8 +141,8 @@ the project's factory location.
 naming, AAA, parametrize, fixture scope, mock discipline, fakes, assertion quality, isolation).
 Refactor-only runs skip it except its §Refactoring conversions (Phase 6).
 
-- **Naming:** `test_<unit>_<scenario>_<expected>` (or the stack idiom). A failing name
-  must say what broke without opening the file. No `test_works`, `test_case_1`.
+- **Naming:** a statement of fact about behaviour in domain words (`delivery_with_a_past_date_is_invalid`);
+  method-name template only for utility code; an enforced stack shape wins. No `test_works`, `test_case_1`.
 - **AAA:** Arrange → Act → Assert, no interleaving. One logical assertion target per test
   (several `assert` lines for the same outcome are fine). Never call the unit inside the
   assertion — store the result first. Delete arrange that the act doesn't use.
@@ -242,7 +242,7 @@ touching now.
 
 ## Phase 7 — Self-review checklist
 
-- [ ] Every test name follows `test_<unit>_<scenario>_<expected>` (or stack idiom).
+- [ ] Every test name states a behaviour fact in domain words (method-name template only for utility code / enforced stack shape).
 - [ ] No test without at least one real assertion / expected-exception.
 - [ ] No domain logic or same-module internals mocked — boundaries only.
 - [ ] Randomness seeded; time frozen/injected; no hardcoded paths; no real sleeps.
