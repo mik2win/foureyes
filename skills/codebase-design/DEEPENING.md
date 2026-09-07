@@ -22,6 +22,9 @@ seam, leverage, locality* — to name what you find.
 | **Special-purpose-itis** | A new near-identical method per caller (`getUserByEmail`, `getUserByName`, …) | A slightly more general interface would serve all of them |
 | **Exception soup** | Callers wrap every call in error handling for errors the module could have prevented | Errors not defined out of existence |
 | **Mock-the-internals tests** | Tests can only be written by patching the module's private collaborators | The seam is in the wrong place / too deep |
+| **Divergent change** | One module's history shows several unrelated reasons to change (bucket the commit subjects) | Two or three modules living as one; split along the reasons |
+| **Shotgun surgery** | One reason (a new currency, a new provider) forces edits across many modules | The decision has no owner; gather it — *Own the decision* |
+| **Reaching chain** | `a.b.c.d()` hops across several types, repeated at many call sites | The caller knows its collaborator's collaborators; the concept the chain fetches was never named |
 
 ## Moves (how to deepen)
 
@@ -37,6 +40,14 @@ seam, leverage, locality* — to name what you find.
   for tests without reaching inside. A module testable through its seam is, by construction, deep.
 - **Delete the wrapper.** A pure pass-through earns its keep only if it *will* hide variation
   soon; if not, remove it and let callers use the real interface.
+- **Cut by field use.** To split an oversized unit, map which fields each method touches and cut
+  where the clusters are: the edges the cut crosses are the new unit's interface, and a cut that
+  crosses many is wrong however good its name sounds. Draw the map in the transcript, don't commit it.
+- **Break the cycle.** Two modules that import each other are one module: extract the shared part
+  into a third, add a coordinator, or invert one dependency — never hide the import inside a function.
+- **Name what the caller wanted.** Replace a reaching chain with a method on the immediate neighbour
+  named for the need, not a forwarder named after the path; judge a chain by the types it hops
+  across, not by its dots, and never wrap it: a delegator hides the coupling without removing it.
 
 ## Not deepening
 
