@@ -179,6 +179,7 @@ behaviour hidden) — invoke `/codebase-design` for that lens, not just "more fi
 `/codebase-design` **before** committing to the decomposition, per the Artifact-Continuity
 Contract (`rules/_generic/planning-artifacts.md`) — a new abstraction is justified as a deeper
 module, not accepted as more files.
+Whether that seam is due yet, and along which axis, is `skills/codebase-design/WHEN-TO-CUT.md`.
 
 **Row A is the least-machinery option** — extend what exists, a config change, the framework
 default, or do not build it. A row above A is earned by naming the point at which A fails: the
@@ -380,8 +381,8 @@ the complexity estimate, flag blocked dependencies.
 | Principle | Check | Issue? |
 |-----------|-------|--------|
 | **Open/Closed** | Can we ADD code without modifying working code? | |
-| **Single Responsibility** | Will any unit gain a second job or exceed the project's size limits? | |
-| **Dependency Inversion** | Does new code depend on abstractions or concretions? | |
+| **Single Responsibility** | Will any unit gain a second *actor* — another role asking for its changes — or exceed the project's size limits? | |
+| **Dependency Inversion** | Does new code depend on abstractions — declared in the caller's module, not beside the implementation — or on concretions? | |
 | **Interface Segregation** | Will any interface/component grow fat with unrelated members? | |
 | **Liskov Substitution** | Do existing implementations/consumers still conform? | |
 

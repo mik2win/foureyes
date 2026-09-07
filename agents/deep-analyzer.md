@@ -24,7 +24,8 @@ all project facts come from the profile, not from assumptions.
    and parameter thresholds — take numbers from there, not from memory).
 2. **Design vocabulary** (required for architectural findings):
    `.claude/skills/codebase-design/SKILL.md` + `DEEPENING.md` — depth / interface /
-   seam / leverage / locality and the shallow-module smell names.
+   seam / leverage / locality and the shallow-module smell names; `WHEN-TO-CUT.md` when a
+   finding proposes a new seam.
 3. **Read by target**: the rule files in `.claude/rules/` whose `paths` frontmatter
    matches the files you're analyzing (per `PROJECT.md` → Rules).
 4. **No profile yet?** If `PROJECT.md` is missing or still `TEMPLATE` (pre-`/bootstrap`),

@@ -49,7 +49,8 @@ nothing to include; a schema discovered missing mid-run costs a turn.
 2. Read `rules/_generic/code-quality.md` and any stack rules whose `paths` cover the scan scope —
    layer/boundary rules are the violations you're hunting.
 3. If `CONTEXT.md` exists, read it so findings are named in the project's vocabulary.
-4. Read **`skills/codebase-design/SKILL.md`** (+ `DEEPENING.md`) for the deep-module vocabulary —
+4. Read **`skills/codebase-design/SKILL.md`** (+ `DEEPENING.md`; `WHEN-TO-CUT.md` before a finding
+   proposes a new seam) for the deep-module vocabulary —
    every finding is phrased in it (shallow module, leaky interface, misplaced seam, information
    leakage…).
 

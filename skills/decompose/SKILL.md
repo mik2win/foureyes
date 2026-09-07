@@ -63,7 +63,8 @@ A name already loaded costs nothing to include; a schema discovered missing mid-
    boundary means **start at `/revisit`**, not here: reopening it requires a broken
    assumption, not a second opinion.
 4. Read `skills/codebase-design/SKILL.md` for the seam/interface vocabulary — every
-   boundary statement uses it.
+   boundary statement uses it — and `WHEN-TO-CUT.md` for the tests a boundary must pass
+   (axis of change, writer census, next feature).
 
 ## Phase 1 — Evidence, not vibes
 

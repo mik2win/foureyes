@@ -91,6 +91,7 @@ When designing an interface, ask:
 Shallow modules, leaky interfaces, and misplaced seams are where a codebase rots into a ball of
 mud. [DEEPENING.md](DEEPENING.md) lists the smells and the moves that deepen a module. `/arch-health`
 runs that hunt across a whole codebase; `/refactor` and `/prepare` apply it to the change at hand.
+[WHEN-TO-CUT.md](WHEN-TO-CUT.md) comes first when the move is a *new* seam: is it due, on which axis.
 
 ## How the kit uses this
 
@@ -107,4 +108,5 @@ runs that hunt across a whole codebase; `/refactor` and `/prepare` apply it to t
 
 - [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) — generate two genuinely different designs, compare, synthesize.
 - [DEEPENING.md](DEEPENING.md) — shallow-module smells and the moves that fix them.
+- [WHEN-TO-CUT.md](WHEN-TO-CUT.md) — is a new seam due yet, along which axis, and what proves it.
 - `rules/_generic/code-quality.md` — the size/naming/composition floor this design lens sits on.
