@@ -53,9 +53,9 @@ actions on *observed* evidence):
       third parties depend on, names published. Everything else is two-way and needs no
       ceremony. If **no one-way component exists and no old/new coexistence is needed**,
       say so and route to `/prepare` — don't stage what doesn't need staging.
-- [ ] **Who reads/writes the thing being changed?** Inventory the call sites / consumers
-      (grep; for external consumers, what the repo can prove — logs, API docs, contract
-      tests) — the coexistence window exists exactly for them.
+- [ ] **Who writes it, and who only reads it?** Inventory both, counted separately (grep; for
+      external consumers, what the repo can prove — logs, API docs, contract tests): writers are
+      the blocking set, readers may not have to move at all. The window exists exactly for them.
 - [ ] **What signal proves each stage healthy?** Tests, metrics, error rates, row counts —
       from PROJECT.md → Integrations/Commands. **A stage without a checkable signal cannot
       be in the plan** — find the signal or add the instrumentation as its own prior stage.
@@ -66,13 +66,21 @@ actions on *observed* evidence):
 
 | Situation | Pattern |
 |---|---|
-| Schema/data shape changes under live readers+writers | **Expand–contract** (parallel change): expand (add new alongside old) → migrate writers → backfill → migrate readers → verify adoption is total → contract (drop old) |
-| Replacing a system/module/library wholesale | **Strangler fig**: route through a seam, move one slice at a time behind it, old path stays alive until the new one has eaten everything |
-| Behavior change with product/user risk | **Flag + progressive exposure**: dark launch (run hidden, compare outputs) → canary (small %) → ramp → 100% → remove the flag |
+| Schema/data shape changes under live readers+writers — including a **rename of a value stored as data** (status strings, event/message type names, discriminators, routing keys, graph edge types) | **Expand–contract** (parallel change): expand (add new alongside old) → migrate writers → backfill → migrate readers → verify adoption is total → contract (drop old). Expansion is **only what the running code cannot see** — a new table, view, *nullable* column, alias, procedure, or data copied aside; anything today's version would touch belongs in a later stage. |
+| Replacing a system/module/library wholesale — a MERGE verdict arriving from `/decompose` lands here too | **Strangler fig**: route through a seam, move one slice at a time behind it, old path stays alive until the new one has eaten everything |
+| Behavior change with product/user risk | **Flag + progressive exposure**: dark launch (new path runs hidden and unused) → canary (a small % of real users) → ramp → 100% → remove the flag. *Parallel run* — both paths called per request, one answer served, the two diffed — is a fourth, dearer option, not a synonym for either. |
 | External contract change (API/message consumers you don't control) | **Versioned coexistence**: publish v2 alongside v1, migrate consumers, deprecate with evidence of zero v1 traffic, then remove |
-| One-shot data fix (backfill/correction) | **Rehearse–snapshot–apply**: dry-run against a copy with row-count expectations stated first (predict-before-peek), snapshot/backup, apply, verify counts |
+| One-shot data fix (backfill/correction) | **Rehearse–snapshot–apply**: dry-run against a copy **of real production data** with row-count expectations stated first (predict-before-peek), snapshot/backup, apply, verify counts |
 
 Combine when the change spans rows (a strangler slice may itself need expand–contract).
+When the old side can stay, **replicate back** instead of migrating readers: redirect the writes, make
+the old fields read-only — enforced by grant, trigger or model guard, not by convention — and feed them
+from the new owner. State the lag, and still move the one reader that writes then reads in one request.
+
+Reach for **parallel run** only when being *silently* wrong costs money, records or safety — it doubles
+compute and needs a diff harness. Compare latency and error rate as well as outputs, and budget for
+mismatches that turn out to be defects in the old path, which you will then have to prove.
+
 Present the chosen pattern and *why the situation's facts select it* — one paragraph, plus
 the rejected runner-up with the fact that killed it.
 
@@ -94,10 +102,22 @@ Sequencing rules (hard):
 - **The contract/destructive stage comes last** and is gated on *observed* evidence of zero
   dependence on the old path (traffic counts, log queries — not on "should be fine").
 - **Every stage before the one-way stage must be safe to stop at** — the system runs
-  indefinitely in any intermediate state (that's what makes the sequence abortable).
+  indefinitely in any intermediate state (that's what makes the sequence abortable). Safe to stop
+  at is not safe to stay in: name the intermediate states that must never become the final one.
 - **Old and new must not silently diverge during coexistence**: name the mechanism that
   keeps them consistent (dual-write, sync job, comparison shadow-read) and the check that
   would catch drift.
+- **Behaviour diverges on purpose too.** While a slice is mid-migration, a fix or a feature goes into
+  **both** paths or waits — patching only the new one turns the rollback into a regression for users
+  who already have the fix. If that is impossible, the stage is too big: shrink it until it is days.
+- **When code and its data both move, fix the order and write it down.** Schema first when you fear
+  the latency or consistency cost — it shows early and rolls back cheaply; code first otherwise, and
+  then splitting the data is a numbered stage of *this* plan with Verify/Bake/Rollback, not a follow-up.
+- **Ship the code before migrating the data, never after** — an old instance meeting a new row is the
+  failure this ordering prevents. Prefer trickle-then-batch to one big backfill: migrate each row as
+  it is touched, sweep the remainder once the old version is gone, then ship the release that deletes
+  the check. While both shapes are live the sync must cover insert, update and delete in *both*
+  directions without looping, and only one trickle runs per table at a time.
 - **A kill switch is not a rollback.** State both when they differ (a flag flips fast; a
   dropped column comes back slow — from the snapshot named in the plan).
 
@@ -119,7 +139,9 @@ then flows through `/prepare` → `/implement` as normal work.
 - **No stage without a Verify signal and a Rollback.** "Monitor closely" is not a signal;
   "revert if needed" is not a rollback.
 - **The destructive step is gated on observed zero-dependence evidence**, never on
-  schedule ("after two weeks") alone — time is a proxy, traffic is the fact.
+  schedule ("after two weeks") alone — time is a proxy, traffic is the fact. An in-process caller
+  has no traffic metric: the deprecation warning is the counter, and it counts only if it names the
+  *caller's* location rather than the old path's own, and if its category is not muted by default.
 - **If nothing is one-way, say so and stand down** to `/prepare` — ceremony where wrong is
   cheap is waste (`core.md`).
 

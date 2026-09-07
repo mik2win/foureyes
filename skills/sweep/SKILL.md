@@ -46,6 +46,9 @@ Pin the recipe as a contract:
   need a human-style decision (changed semantics, error handling differences, incompatible
   signatures). Judgment sites are *flagged and proposed*, never auto-applied.
 - **Out of scope** — generated files, vendored code, lockfiles, the old library's own tests.
+- **Stored as data?** If the old name also lives outside the repo — status strings in rows, event or
+  message type names, discriminators, routing keys, graph edge types — that half is a data migration,
+  not a rename: route it to `/rollout` (expand/contract), and a clean re-scan does not close it.
 
 Confirm the recipe with the user via `AskUserQuestion` if any of the three is uncertain.
 

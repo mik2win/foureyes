@@ -215,6 +215,7 @@ then present it:
 - **`/codebase-design`** — the seam/interface vocabulary; MODULARIZE work is designed in it.
 - **`/arch-health`** — finds the rot that often masquerades as an extraction driver.
 - **`/revisit`** — start there when a prior ADR already covers this boundary.
-- **`/rollout`** — the strangler-fig staged execution of an EXTRACT verdict.
+- **`/rollout`** — the staged execution of an EXTRACT or MERGE verdict, and the behaviour freeze
+  that keeps its stages reversible.
 - **`/domain-model`** — bounded contexts in; the verdict ADR out.
 - **`/select-tech`, `/spike`** — infra component choice / feasibility unknowns.
