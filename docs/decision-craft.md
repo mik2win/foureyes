@@ -13,10 +13,11 @@ Decisions are not equal and should not get equal process. The only property that
 - **Two-way doors** — an edit, a local rename, a design you can swap next week. Wrong is cheap: you walk back through the door. The correct process is *fast*: decide on current evidence, act, learn from the result. Deliberating a two-way door at one-way-door depth is pure waste — the analysis costs more than the mistake would.
 - **One-way doors** — a published API, a data migration that rewrites rows, a name in the wild, a message sent, dropped data, a dependency the ecosystem will build on. Wrong is expensive or permanent. The correct process is *slow*: evidence requirements go up (observed, not inferred — `core.md` tiers), a second opinion is worth its cost, and plan mode / a written plan is justified.
 
-Two systematic misjudgments to correct for:
+Two systematic misjudgments to correct for, and the tiebreak for when neither settles it:
 
 - **Fear inflates.** Most decisions that *feel* irreversible are two-way doors wearing a costume — code can be reverted, configs restored, designs re-cut. When you notice paralysis on a decision, first re-check the door type; usually the door is two-way and the right move is to just decide.
-- **Momentum deflates.** The genuinely one-way component hides inside a reversible-looking task: the *code* of the migration is revertible, the *rows it rewrote* are not; the endpoint is easy to delete, the client that started calling it is not yours to delete. Audit a task for its one-way **components**, not its overall shape.
+- **Momentum deflates.** The genuinely one-way component hides inside a reversible-looking task: the *code* of the migration is revertible, the *rows it rewrote* are not; the endpoint is easy to delete, the client that started calling it is not yours to delete. Audit a task for its one-way **components**, not its overall shape. The one-way elements are nameable: a public name, a callback or block parameter, the shape of what you yield, who owns a piece of data, a schema — each is a single slot with a single meaning, chosen once and owned forever; the additive ones — an optional keyword argument, a private helper, a new plugin — stay cheap, so spend the design time on the first list. A choice is also one-way when it **propagates**: a cheap local convention mirrored into thirty call sites is irreversible however small it looked at the one site, so price reversibility by blast radius — say how many places will copy it, and whether you get back out one tidying at a time. And when the device that would change the door is itself expensive — a flag that has to be checked in thirty places — shrink the mirroring first, then decide.
+- **The two errors are not symmetric.** Misreading a two-way door as one-way costs slowness and the experiments you did not run; misreading a one-way door as two-way costs the thing itself. So when you have tried to change the door and could not, and you still cannot name the concrete undo — the command, the flag, the migration back, and roughly what it costs — price it as one-way. Slow is recoverable; gone is not.
 
 **The senior move is a third option: change the door, not the decision.** Before accepting one-way-door process costs, ask what would make this decision reversible — a backup taken first, a feature flag around it, an expand-contract sequence instead of in-place mutation, an abstraction seam so the choice is swappable. Buying reversibility is almost always cheaper than buying certainty. This is the principle behind `/rollout`, the kit's bootstrap/teardown backups, and `/prepare` routing irreversible steps to plan mode — one mechanism, many wearings.
 
@@ -99,7 +100,7 @@ Both mis-pricings are real and symmetric. Under-pricing: the hand-rolled trio of
 
 - **The horizon is the operator's fact, not your inference.** It lives in their roadmap, not in the request text — so it's a legitimate, high-value question, not an admission of confusion: *"Is this a one-off, or the start of something we'll grow? What's the next feature after this one?"* One question at the start re-prices every decision downstream (`audience-altitude.md`: direction is exactly what only the user can answer).
 - **The trajectory test.** Before hand-building, name the next two features the user would plausibly ask for. If each would be a config line in an ecosystem tool but a rewrite in your hand-rolled version, the horizon is telling you to adopt (route the choice through `/select-tech`).
-- **Direction decisions are operator-confirmed.** Adopting a framework, a major dependency, or an architectural style sets direction for everything after — recommend with reasoning, then get explicit confirmation (one `AskUserQuestion`, your default stated). Never adopt silently; never hand-roll silently past the trajectory test. Between confirmations, don't overfit: build for the confirmed horizon, not the imagined one (speculative generality is the same waste at a different altitude).
+- **Direction decisions are operator-confirmed.** Adopting a framework, a major dependency, or an architectural style sets direction for everything after — recommend with reasoning, then get explicit confirmation (one `AskUserQuestion`, your default stated). Never adopt silently; never hand-roll silently past the trajectory test. Between confirmations, don't overfit: build for the confirmed horizon, not the imagined one (speculative generality is the same waste at a different altitude). The positive branch is narrow but real: build the flexibility now only when adding it later would be substantially harder — a published contract, a stored shape, a migration you would have to run twice — and test that against the callers you actually have. If the variation is already visible in two of them, the hook is warranted; if you are imagining the second caller, it is not.
 - **Record the horizon in the artifact** (spec/plan) so downstream stages inherit the pricing instead of re-guessing it.
 
 ## 9. The operating list — what a new technology actually costs
@@ -118,6 +119,25 @@ When two options produce the same result they are rarely the same decision, and 
 
 Name the phase before choosing. Build-time cost is paid by the people building, is visible in the pipeline, and shrinks as the work stabilizes; run-time cost is paid by whoever is on call, is invisible until it fires, and grows with traffic. Two options that tie on a feature matrix can be a week apart in build cost and a year apart in operating cost — and it is the second number that decides who carries the option for the rest of its life.
 
+## 11. Compensation is not a rollback
+
+A flow that touches more than one system in sequence — charge the card, reserve the stock, dispatch the courier — has no rollback, only compensation, and "we undo the earlier steps on failure" is a plan with three unnamed risks inside it. Say them before the plan is accepted:
+
+- **There is no isolation.** Everything the earlier steps published was already visible and may already have been acted on — a confirmation sent, a webhook delivered, a consumer that has already counted the row. The compensating write cannot reach those effects, and the systems holding them may have no undo of their own.
+- **The compensation is a write like any other, and can fail** — often against the very system that is already failing. When it does, the data is worse off than at the start (money taken, nothing shipped) with no third party left to repair it, so the honest end of that branch is manual intervention: say who performs it and how they are told.
+- **The user is made to wait for, and care about, someone else's business step.** Holding the request open until every downstream system has agreed makes the slowest partner the response time, and turns a failure that is not the user's problem into the user's error message.
+
+Where the business can tolerate it, prefer recording workflow **state** over compensating: mark the flow partially complete, answer the user immediately, and let retries or a person close it out. That costs a state machine and somewhere to see stuck flows; it buys a response time you control and a failure that has an owner.
+
+## 12. A principle cited without its limit is not an argument
+
+Design rules earn their keep by having an edge, and a rule quoted with no edge is a preference in uniform. When a design move rests on one of these, state in the same breath the condition under which it would be the wrong move here, and why that condition does not hold:
+
+- **Hiding information** is wrong when the information is genuinely needed outside the module. Hiding it there does not produce depth, it produces a false abstraction: callers work around it, and the workaround becomes the real interface.
+- **Pulling complexity downward** is wrong unless three things hold together — the detail is close to what the module already does, absorbing it simplifies something else, and it simplifies the interface. A detail that arrives as new parameters fails the third: it has been moved, not absorbed.
+- **Masking a failure** is wrong when the caller needs the failure to stay correct. Swallowing it, defaulting past it or retrying it away is legitimate only when the caller's job is unchanged by its having happened.
+- **Consistency** is wrong when the things really are different. Forcing one shape onto two different cases hides the difference at exactly the place a reader needs to see it.
+
 ---
 
 ## Using this page
@@ -131,8 +151,10 @@ Name the phase before choosing. Build-time cost is paid by the people building, 
 | Pre-mortem | `/prepare` (plan-level ritual), `core.md` → pre-mortem-your-own-answer (turn scale) |
 | Decomposition sizing | `/prepare` waves + `/to-issues` slices (how to split), this page §6 (when not to) |
 | Invariants | `codebase-design` (interface invariants), `/test` (property tests), `/domain-model` (record them), `code-reviewer` (review lens) |
-| Horizon pricing | `rules/_generic/core.md`, `/analyst` (horizon interview question), `/prepare` (horizon row + direction-confirm), `/select-tech` (horizon as constraint) |
+| Horizon pricing | this page §8, `/analyst` (horizon interview question), `/prepare` (horizon row + direction-confirm), `/select-tech` (horizon as constraint) |
 | The operating list | `/select-tech` Phase 4 (per finalist), `/incident` (the component nobody priced), this page §9 |
 | Build time vs run time | `/select-tech` (the tie-break between equal results), `/prepare` §2.5.1 (alternatives table), this page §10 |
+| Compensation vs rollback | `rules/_generic/resilience.md` (pointer), `/prepare` (the failure branch of a multi-step flow), this page §11 |
+| The limit of a principle | `codebase-design` (where the principles are stated), `/arch-health` + `/code-review` (findings that cite one), this page §12 |
 
 **The meta-rule:** every section is one economic move — **price the decision before paying for it**. Reversibility sets the price of wrong; probes buy information at the cheapest vendor; predictions and calibrated language keep the books honest; pre-mortems price the failure before it's bought; decomposition and invariants decide what's load-bearing before weight lands on it. Process is not virtue — process is spend, and the craft is spending it where wrong is expensive and skipping it where wrong is cheap.
