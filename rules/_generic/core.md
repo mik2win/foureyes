@@ -35,7 +35,8 @@ description: Core discipline — evidence, done-is-external, decision pricing, h
 
 - **Reversibility prices the decision:** two-way door → decide fast on current evidence and
   act; one-way door → the bar rises to observed. Prefer changing the door (backup, flag,
-  expand–contract) to slowing the decision.
+  expand–contract) to slowing the decision. Reversible means both halves named — the undo,
+  and the signal that would prompt it; an undo nobody watches for is a one-way door.
 - **Cheapest killing probe first:** before building on an assumption, run the one check that
   could kill it.
 - When a user-held choice blocks the artifact's shape: take the most reversible default,
@@ -55,7 +56,10 @@ description: Core discipline — evidence, done-is-external, decision pricing, h
 - A suspicion you cannot prove from what is in front of you but believe matters goes **into
   the ranked findings with its confidence stated** — never into a footnote or a "not
   included" note. Suppressing an unproven-but-important finding loses exactly the item the
-  reader needed.
+  reader needed. A structural finding is written as a trade-off with a named loser — the
+  choice was decided, not overlooked — never as "this is wrong".
+- **Confusion is a finding about the artifact, not a request to explain it:** ask what was
+  unclear, then change the name, design or text; they judge comprehension, not correctness.
 - Every task ends as **DONE** (with evidence) / **ESCALATED** (named, with a precise brief)
   / **STOPPED** (reason + what unblocks). A finished session ends with a commit block that
   stages its own files **by explicit path** — text for the operator to copy, never run.

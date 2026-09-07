@@ -53,6 +53,7 @@ Decide retry vs fail from the error class, not by retrying everything:
   possible) so a retried submit is deduplicated server-side rather than duplicated.
 - For local state, prefer upsert/set over blind increment; guard accumulation with a processed-id
   set so a replay doesn't double-count.
+- Compensation is not a rollback: read `docs/decision-craft.md` §11 before a multi-step flow.
 
 ```
 # DON'T — replay doubles the total          # DO — idempotent on id
