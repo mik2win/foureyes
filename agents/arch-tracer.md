@@ -62,6 +62,10 @@ Compare every dependency against the **valid direction in `PROJECT.md`**. Flag:
 - Sibling imports where siblings must not couple.
 - Logic in the wrong layer (e.g. business logic where the profile says there should be
   none; I/O in a pure layer).
+- Calls between two nodes of the *same* outer tree that never pass through the domain — a
+  controller reaching a repository directly, skipping the service where the record-level checks
+  live. The arrow points downward and the graph stays acyclic, so a direction check alone
+  returns CLEAN.
 
 **Documented exceptions are not violations.** Before flagging, check whether the
 dependency is sanctioned — in `PROJECT.md` → Architecture, a matched rule file, an ADR,

@@ -154,6 +154,10 @@ If the requirements shift slightly, how much has to change?
 - Count it: **how many files change to add one more variant** of the thing this module is about?
   The healthy answer is usually two — the new file, and the registry that lists it.
 - Would swapping one external dependency touch more than its adapter?
+- Ask first whether a second variant is coming. A module with one provider in two years is not
+  weakly extensible: an absent extension point is a finding only when the variation is real.
+- A finding whose fix would remove, move or collapse a seam carries an `ignore-if` line — the
+  condition under which the shape is deliberate, and the check that ruled it out.
 
 ### Check 8 — Error handling
 

@@ -28,6 +28,9 @@ seam, leverage, locality* — to name what you find.
 | **Ambiguous choice point** | Two modules plausibly serve the same call and an engineer given the concrete situation cannot say which to reach for; a new package the profile does not name fails the same reader test | Overlapping responsibility — the boundary is wrong, not the documentation |
 | **Logic in the shell** | A rule or a comparison decided in a view, serializer or request handler | Bolt a second delivery channel onto it and you would duplicate the rule — return the decision from a domain method and leave the shell the rendering |
 
+*Read the two history smells from the co-change probe in `/arch-health` Phase 1 — and skip them
+where the history is squash-merged per PR or the commit subjects carry no topic: there both are noise.*
+
 ## Moves (how to deepen)
 
 - **Absorb the order.** Fold a required call sequence into one method, or make later methods
