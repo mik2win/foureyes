@@ -12,7 +12,8 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 
 - Domain/business function: ≤ 25 lines soft, 40 hard.
 - Orchestration/glue function: ≤ 40 lines soft, 60 hard.
-- Past the hard limit, extract — don't add a comment apologising for length.
+- A limit is a tripwire, not a verdict: past it, look for a seam where meaning and mechanics
+  part ways; no seam → keep the long function and say why. Never extract to satisfy a number.
 - Litmus: describe what the function does in one sentence without "and". Can't → extract.
 
 ## Naming
@@ -20,6 +21,7 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 - Functions are `verb + object` (`load_config`, `build_query`), not nouns.
 - Names state intent, not type (`active_users`, not `users_list`).
 - Booleans read as predicates (`is_valid`, `has_access`, `can_retry`); collections are plurals.
+- `first`/`last` inclusive, `begin`/`end` half-open — not `start`/`stop` for both; units in names.
 - One word per concept, project-wide: pick one of `fetch`/`load`/`get`, one of
   `compute`/`calculate`, and stick to it.
 - No noise words (`data`, `info`, `Manager`, `Helper`, `Utils`) — name by what it does.
@@ -27,24 +29,32 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 - Short names for short scopes; long, descriptive names for long-lived scopes.
 - No abbreviations that aren't already domain vocabulary (keep the project's accepted
   list in `PROJECT.md`).
+- Name an option by its effect, not its usual use; a name covering two behaviours is two options.
 
 ## Parameters
 
 - More than 3 positional params → introduce a parameter object / struct / options
   hash, named per the project's stack.
-- No boolean flag parameters that switch behaviour — split into two functions.
-  (A flag for a minor variation of the same behaviour is fine; one that selects a
-  different code path is not.)
+- A flag argument is one where every caller passes a literal AND the body branches on it —
+  enums and strings count, not only booleans; split into named functions. A value computed or
+  threaded from config is not a flag. Two flags in one signature: split the function, don't
+  name four combinations.
+- Mirror on exit: >3 returned values → a named result; same-typed tuple slots swap silently.
 
 ## Composition
 
 - One function = one level of abstraction. Don't mix high-level orchestration with
   low-level detail in the same body.
-- Guard clauses over nested conditionals. Return early.
+- Guard clauses with an early return when one leg is the unusual case; both legs normal → keep
+  `if/else`, equal weight is the point. "One exit point" is not a rule; clarity is.
+- `&&` mixed with `||`, or a buried call/negation → name one value per idea, then test the names.
+- A second fix to one condition → restate it (write the negation, invert it), never a third patch.
 - Command/query separation: a function either does something or returns something,
   not both (exception: atomic get-and-set style operations where splitting would race).
-- Extract when logic is reused, complex enough to deserve a name, or worth testing in
-  isolation. Don't extract trivial one-liners or single-caller functions with obvious logic.
+- Extract when logic is reused, worth testing alone, or needs a sentence to be understood —
+  a comment inside a body is an extraction address; name it from the comment. Not
+  single-caller blocks with obvious logic. Split test: the piece reads without its caller,
+  the caller without opening the piece or redoing its work (return the parsed value, not a bool).
 
 ## Pure core, thin shells
 
@@ -52,7 +62,8 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
   I/O lives in thin shells at the edges: load → compute → save.
 - Entry points (CLI command, HTTP handler, job) are thin wrappers that delegate to the
   layer owning the logic.
-- Pass configuration explicitly to what needs it — never a module-level mutable global.
+- Pass configuration explicitly to what needs it — never a module-level mutable global. Inject
+  only the seam a named test or variant needs; derive the rest, or injected inputs can disagree.
 
 ## Dead code
 
@@ -60,6 +71,7 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 - But "unused" ≠ "legacy" — classify before deleting. An unwired, not-yet-used feature
   should be wired in or raised with the user, not deleted; only confirmed legacy is
   removed (together with its shims). Can't tell which? Ask rather than delete.
+- Removing an override or shadowing field reroutes calls to the base, builds green: not cleanup.
 
 ## Module depth
 
@@ -68,6 +80,9 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
   earn the indirection or delete it.
 - When *designing or restructuring* a module's interface or seam, invoke `/codebase-design`
   for the vocabulary (depth, seam, adapter, leverage) and the deepening moves.
+- A new member gets the narrowest visibility; export it only for a caller outside the module
+  that needs it now (name it). Widening later is additive; narrowing is a break.
+- Modularity is a property of the import graph, not the folder tree: mutual imports = one module.
 
 ## Constants & magic values
 
@@ -91,8 +106,10 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 Name the **problem** first, the pattern second — a pattern reached for by name ("let's use
 Strategy here") instead of by pressure (three interchangeable algorithms actually exist) is
 ceremony. A pattern must delete net complexity, and half a pattern is fine: take the part
-that pays, skip the scaffolding. Reach for one only past its threshold — below it, the
-plain construct is clearer:
+that pays, skip the scaffolding. Before any pattern-shaped structure, name the language
+feature that already does it (a function, a closure, a dict of callables, a protocol) and ship
+that if it covers the case. Count the threshold on three axes — variants today, how often
+they change, whether a hierarchy already exists — and below it the plain construct is clearer:
 
 | Pattern | Use when | Not when |
 |---|---|---|
@@ -100,13 +117,16 @@ plain construct is clearer:
 | Factory | construction varies by type/config | a plain constructor call would do |
 | Observer / events | many decoupled reactions to one fact | one known caller — call it directly |
 | Singleton | genuinely global state | you just want easy access |
-| Repository | isolate/swap persistence | one trivial query site |
+| Repository | a mapping layer already exists below it, plus many domain types × heavy querying or a second object source (in-memory for tests, a feed) | three `find_by` over one ORM — that is the mapper twice; one primary mechanism per table |
 
 ## Duplication
 
-- Two copies is a signal, three is a rule: extract shared logic to the lowest layer
-  both callers can reach (per the project's dependency direction in `PROJECT.md`).
+- Two copies is a signal, three is a rule — for base classes and shared modules too: two cases
+  don't show the axis of variation. Extract only what changes for the same reason: identical
+  code encoding two rules is coincidence, not duplication; one rule in code and in a schema,
+  doc or fixture is duplication with no matching line. Lowest layer both reach (`PROJECT.md`).
 - Extract toward existing utilities before writing new ones — search first.
+- "Reuse" is a guess, not an outcome: name what it buys (speed, cost, consistency) and measure that.
 - **An exemplar you copy is a hypothesis, not a template.** Before templating new code on an
   existing site, corroborate that the site is the convention and not an accident: a second
   independent site that agrees with it, or the declared convention (`PROJECT.md`, stack pack).
@@ -121,9 +141,10 @@ How a change should read, not just what the code should be:
 - **Read the neighborhood before writing.** Match the file's idiom, naming, comment density,
   and error style — the diff should read as if the file's author wrote it. Where local style
   contradicts these rules, flag the conflict; don't silently freelance a third style.
-- **Smallest diff that fully solves.** No drive-by refactors, opportunistic renames, or
-  reformatting of untouched lines — they bloat review and hide the real change. Cleanup is
-  its own pass (`/refactor`), on its own diff.
+- **Smallest diff that fully solves, judged by the state it leaves.** No drive-by refactors,
+  renames or reformatting of untouched lines — cleanup is its own pass (`/refactor`) — and,
+  symmetrically, a move-or-rename diff carries no behaviour change; where they meet, the second
+  starts a new diff. Insertion pushing nesting past ~3 levels → flatten to guards in that diff.
 - **No defensive bloat.** Don't guard against states the system cannot reach — an
   impossible-case handler is noise that obscures the real contract. Validate at trust
   boundaries (`code.md`); inside them, trust the types and invariants.

@@ -33,9 +33,15 @@ paths:
 
 ## Comments
 
-- Default: none. A comment earns its place only for a non-obvious **why** — decision,
-  trade-off, invariant, external quirk. Never restate what code does, never commented-out
-  code or journal entries (git remembers), no TODOs without an owner.
+- Default: none. A comment earns its place only for a non-obvious **why** — decision, trade-off,
+  invariant, external quirk — or as one line over an expression the language hides (a regex, bit
+  arithmetic, slice math). Never restate what code does, never commented-out code or journal
+  entries (git remembers), no TODOs without an owner.
+- A comment that explains or excuses a name you own in this diff is a rename. A public function
+  that does I/O, blocks, locks or is superlinear says so at the signature (`# external, 30 s`).
+- **Mandatory, the exception to none:** a deviation you made (an overridden default, a pinned
+  or capped version, a disabled check) says why at the site and, if temporary, what retires it
+  — a condition, never a date. A tuned constant states its origin: rule, arbitrary, or measured.
 - Read as human-written: no decorative glyphs, banners, or filler ("Note that", "simply");
   terse coworker's note, not documentation prose.
 - **No internal planning labels** — spec/session/wave/finding IDs (`US-2`, `B-2`, `BUG-17`) and
@@ -61,6 +67,8 @@ paths:
   indexed blind.
 - A read that decides and a write that acts are two statements, and another writer fits between
   them: guard the pair with a store-enforced constraint, one statement, or an explicit lock.
+- Enforce a rule where its churn says: stable or corrupts-on-breach → the strongest point nothing
+  bypasses (constraint, type, key); likely to change → code. An app check is UX, not integrity.
 
 ## Security
 
