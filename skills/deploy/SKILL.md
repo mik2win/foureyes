@@ -102,7 +102,8 @@ Hand this over with the command, as steps the user runs after it:
 - [ ] **New configuration** — if environment variables or config keys were *added*, they must
       exist on the target before the deploy is meaningful. Say which ones, by name.
 - [ ] **State/schema change** — if the change touches persisted structure, name the migration or
-      the state check that proves it applied.
+      the state check that proves it applied — and, where something outside this repository reads
+      that structure, the check that those readers still work.
 - [ ] **Rollback line** — the exact command that returns to the previous version, stated *before*
       the deploy, not after something goes wrong.
 

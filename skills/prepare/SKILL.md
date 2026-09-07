@@ -196,6 +196,12 @@ legitimate after a post-mortem of what the old code does well and two cheaper op
 peak requests/s · the working set that must stay hot — and name the fattest real row. The
 estimate has veto power: if it all fits one server, drop the cache and leave the number.
 
+**At most three driving characteristics, unranked** — ranking the full list never converges. Cap
+the drivers at three and demote every other quality the user named into ordinary requirements,
+never drop them. Two tests each: if one had to go, which; and does it force a module, service or
+seam that hygiene inside the existing shape would not? If the winning approach is a day of CRUD
+while the spec calls the area differentiating, that mismatch is a finding, not a step to take.
+
 | Approach | Effort | Risk | Reversibility | Fit-to-architecture | Notes |
 |----------|--------|------|---------------|---------------------|-------|
 | A — <name> | low/med/high | low/med/high | easy/hard to undo | aligns / strains layers (per PROJECT.md) | <key trade-off> · prerequisite: <what must already hold, or none> |
@@ -328,6 +334,9 @@ boundary rules) — do not assume any particular framework's layout.
 6. **Moving parts**: for each queue, cache, worker pool, replica or external provider the
    change introduces or leans on, write one line — what the system does while it is down. A
    part you cannot write that line for is the single point of failure you just found.
+7. **Readers outside this repository**: when the change alters the shape, owner or location of
+   stored data, name who else reads it — analytics, exports, another team's scripts — and how
+   that was checked; the import graph cannot see them.
 
 ---
 
