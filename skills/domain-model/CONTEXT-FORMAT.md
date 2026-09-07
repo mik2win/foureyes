@@ -20,6 +20,7 @@ A one-paragraph orientation: what this project/context is, in plain language.
 **<Canonical Term>**:
 <One or two sentences defining it precisely, in terms of other canonical terms.>
 _Avoid_: <synonyms or near-misses this term replaces — so they don't creep back in>
+_Same word, other context_: <the other business function> — <what the word means there>
 
 **<Next Term>**:
 <definition>
@@ -41,6 +42,10 @@ _Avoid_: <...>
 
 - **One term per concept.** If two words mean the same thing, pick one and list the other under
   `_Avoid_`. Ambiguity is the enemy you're removing.
+- **A homonym is not a synonym.** `_Avoid_` is two words for one concept; one survives. One word
+  meaning different things to different business functions is the opposite — both readings stay,
+  each under `_Same word, other context_`. Prefixing the type to disambiguate (`AdminUser`,
+  `BillingOrder`) is the symptom of two contexts merged into one; the context does the scoping.
 - **Define in terms of other canonical terms**, so the glossary is internally consistent and a
   reader can follow the web of meaning.
 - **Concision is the payoff.** A good glossary lets "there's a problem with the materialization

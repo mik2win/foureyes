@@ -85,6 +85,8 @@ For each principle: state OK/VIOLATION, the signal, and the refactoring.
 Generic smells: Long Method, Large Class, Feature Envy, Data Clumps, Primitive
 Obsession, Type-switch conditionals, Shotgun Surgery, Divergent Change, God Object,
 N+1 / repeated I/O in loops. Size/parameter thresholds: `rules/_generic/code-quality.md`.
+Probe a Data Clump before reporting one: delete a member — if the rest still make
+sense they merely co-occur, and bundling them manufactures a dependency.
 
 Also apply **stack-specific smells** from the installed rule packs (the `paths`-matched
 rules name the framework anti-patterns to check).

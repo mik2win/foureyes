@@ -30,9 +30,21 @@ What forces are at play — the problem, constraints, and the domain terms invol
 ## Decision
 The choice, stated plainly and actively: "We will <do X>." One decision per ADR.
 
+## Assumptions
+The one or two ways this requirement is most likely to shift within a year, each falsifiable, and
+what the shift would cost this choice — a code change, a data migration, or a different store.
+
 ## Consequences
-What becomes easier and what becomes harder as a result. Name the trade-off you accepted and the
-options you rejected (and why). This is the part that stops the decision being relitigated.
+What becomes easier, what becomes harder, and what the choice now **obliges**. Name the trade-off
+accepted and the options rejected (and why) — that is what stops the decision being relitigated.
+Owed work is not a drawback: a drawback you live with, an owed item is a task with an owner, and
+it lands as a named plan step or an explicit deferral, never as a caveat in prose; "none" is a
+valid answer. Add one line of business ground — cost, time to market, users, strategic position;
+if none of the four can be written, reopen the decision rather than document it worse.
+
+## Compliance
+How this is checked — a test/lint/CI rule cited as `path::name`, a guard not yet written and filed
+as a follow-up, or a review at a named cadence. Manual is acceptable, empty is not.
 ```
 
 ## Rules of thumb
@@ -45,11 +57,14 @@ options you rejected (and why). This is the part that stops the decision being r
 - **Supersede, don't edit.** A reversed decision gets a new ADR whose Status links back; the old
   one stays as history with `Status: Superseded by NNNN`.
 - **Status is a lifecycle**, not decoration: Proposed → Accepted, later maybe Superseded/Deprecated.
+- **An unguarded decision is quietly undone.** Fill Compliance while the guard is still obvious.
 
 ## When to write one
 
 Write an ADR when: choosing a datastore or persistence pattern; introducing or removing a major
-dependency; setting a boundary/seam that other code will depend on; picking between two designs
-with lasting consequences; or any decision where "why didn't they just do X?" is a question a
-future reader will ask. Skip it for routine, local, easily-reversed choices — those belong in the
-code and its comments, not in the decision log.
+dependency; setting a boundary/seam that other code will depend on; picking a technology or a
+setting to hold up a nonfunctional characteristic (latency, durability, concurrency — "it names a
+technology, so it's merely technical" is not an exemption); picking between two designs with
+lasting consequences; or any decision where "why didn't they just do X?" is a question a future
+reader will ask. Skip it for routine, local, easily-reversed choices — those belong in the code
+and its comments, not in the decision log.

@@ -78,6 +78,8 @@ immediately. *"Your glossary defines 'cancellation' as X, but you seem to mean Y
 When the user uses a vague or overloaded term, propose a precise canonical one. *"You're saying
 'account' — do you mean the Customer or the User? Those are different things."* Pick one term per
 concept and an `_Avoid_` list of the synonyms it replaces.
+A word that names both a kind and one of its instances (a `Product` that is also the catalogue
+entry) is the same error a level up — split the kind from its instances before any hierarchy.
 
 ### Discuss concrete scenarios
 When a relationship is being discussed, stress-test it with a specific scenario that probes the
@@ -116,6 +118,13 @@ After the session, report:
 - **Write inline, not later.** Capture each term/decision the moment it's settled; an unrecorded
   model decays back into jargon.
 - **One term per concept.** Canonical term + `_Avoid_` synonyms. Consistency is the whole payoff.
+- **One model per context; rename the slices.** When one word carries the whole domain — the class
+  everything hangs off, its fields and status enum drawn from four concerns — the fix is not one
+  definition wide enough to cover them all. Give each context its own model with only the fields
+  its rules need, and rename each to what it is there: fulfilment sees a `Ticket`, the courier
+  side a `Delivery`. **The name is the test** — a slice you cannot name on its own is not a
+  separate context, and collapses back. Record the price under Relationships: those models must
+  now be kept consistent with each other.
 - **Lazy files.** No empty `CONTEXT.md`/`docs/adr/` — create on first real content.
 - **Don't touch app code.** This skill writes `CONTEXT.md` and ADRs only; renaming code to match
   the glossary is `/refactor`'s job.
