@@ -79,7 +79,8 @@ When designing an interface, ask:
 - **Define errors out of existence.** The best error handling is an interface where the error
   can't arise (an operation that's a no-op on the empty case beats one that throws on it).
 - **Put the seam where behaviour must vary.** Place the interface exactly at the point you'll need
-  to swap implementations (real vs fake, prod vs test, vendor A vs B) — not one layer off.
+  to swap implementations (real vs fake, prod vs test, vendor A vs B) — not one layer off. The
+  fake/test swap alone earns it: "we will never change the provider" does not retire the seam.
 - **Design it twice.** The first design that works is rarely the best. See
   [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md).
 - **Testable through the interface.** A deep module is tested by exercising its interface with a

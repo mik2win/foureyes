@@ -69,6 +69,31 @@ seam exists and the work is filling it in: `SKILL.md` says *where* and *how deep
   by distance (a page, another file; no visible call site is `code.md` §Greppability's end), exempt
   declared framework idioms, and count the files a reader opens to answer "what does this do".
 
+## Data, freshness and coordination
+
+- **Size a consistency boundary by the staleness deadline.** Ask the domain side, per pair
+  reacting to one fact, whether B must be correct immediately or within N seconds/minutes/hours;
+  offer an absurd number first ("would a week hurt?") to get a real one. Immediate merges the
+  pair into one transactional unit, the rest updates by event — then name the cross-boundary
+  read, its read model and the staleness it tolerates. All-immediate is a storage-shaped view.
+- **Say which of three ways the reactions are joined.** *Orchestration* — one coordinator, a
+  one-way graph — when the caller needs the result before it can answer, the steps have an order,
+  or the domain is still moving. *Shared data* only where the domain is settled and its data
+  genuinely one thing: extension is cheap, every schema change reaches every reader. *Events*
+  only for weakly coupled parts, few flows, nobody waiting — cost grows with the flow count, and
+  a subscriber publishing back builds a cycle no call graph shows. Name the coupling first:
+  ordering between consumers, two building one projection, one reading another's internals.
+- **Split the data into primary and derived, and justify it.** Derived — caches, projections,
+  aggregates, snapshots, indexes — earns a written rebuild procedure, not a durability guarantee,
+  and the rebuild runs the production path from another source, never a second script. A number
+  that must be explained (a balance, credits, a quota) makes the journal of movements primary and
+  the total derived; replay reproduces a result only where producing it involved no clock, random
+  value or remote call.
+- **State living in two places needs the job that compares them.** Name the source of truth, how
+  often the comparison runs, and the policy per class of mismatch — repaired automatically,
+  queued for a human with a known fix, queued as unexplained. Idempotency keys on the far side do
+  not retire it, and no such job decides that a customer will find the divergence first.
+
 ## When not to cut
 
 - **Co-location is a real move.** When two things change together and you cannot afford to

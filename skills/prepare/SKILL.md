@@ -187,6 +187,10 @@ default, or do not build it. A row above A is earned by naming the point at whic
 input, load, or requirement it cannot carry ("it won't scale" is not that point). A minimal
 recommendation ships labelled: its failure point and the number at which it stops being enough.
 
+**Complex reads climb one step at a time, each with its price named:** the repository you have →
+a query through the mapper → hand-written SQL on the read path (legitimate; the mapper is
+justified per path, not per project) → a denormalised table → a store fed by events.
+
 **The two rungs that get skipped.** *Delegate to a layer you already run* — a proxy, gateway or
 broker that can log, throttle, retry or route for you, often by configuration and no code; when
 it does not fit, write the line saying why. *Cordon off* — when the plan must touch code too
@@ -195,8 +199,15 @@ through one named interface, and record where the pile now lives. A "rewrite it 
 legitimate after a post-mortem of what the old code does well and two cheaper options priced.
 
 **Size the problem before you name a component.** Write the arithmetic first — rows · bytes ·
-peak requests/s · the working set that must stay hot — and name the fattest real row. The
-estimate has veto power: if it all fits one server, drop the cache and leave the number.
+peak requests/s · the working set that must stay hot — and name the fattest real row. Settle the
+shape of the stored data and its access patterns before the module layout. The estimate has veto
+power: if it all fits one server, drop the cache and leave the number.
+
+**Before you add a hop, multiply.** Four synchronous dependencies at 99.5% are 97.5% together,
+and it is blocking on the answer that costs — request/response over a queue multiplies the same
+way, and a timeout changes the failure mode, not the product. Answer first and finish the rest
+behind an outbox when the promise can be weakened. Price the hop in the same breath: p95/p99
+round-trip (never the average), hops per user action, bytes crossing versus bytes actually used.
 
 **At most three driving characteristics, unranked** — ranking the full list never converges. Cap
 the drivers at three and demote every other quality the user named into ordinary requirements,

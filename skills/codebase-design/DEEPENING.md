@@ -26,6 +26,7 @@ seam, leverage, locality* — to name what you find.
 | **Shotgun surgery** | One reason (a new currency, a new provider) forces edits across many modules | The decision has no owner; gather it — *Own the decision* |
 | **Reaching chain** | `a.b.c.d()` hops across several types, repeated at many call sites | The caller knows its collaborator's collaborators; the concept the chain fetches was never named |
 | **Ambiguous choice point** | Two modules plausibly serve the same call and an engineer given the concrete situation cannot say which to reach for; a new package the profile does not name fails the same reader test | Overlapping responsibility — the boundary is wrong, not the documentation |
+| **Logic in the shell** | A rule or a comparison decided in a view, serializer or request handler | Bolt a second delivery channel onto it and you would duplicate the rule — return the decision from a domain method and leave the shell the rendering |
 
 ## Moves (how to deepen)
 
@@ -33,6 +34,9 @@ seam, leverage, locality* — to name what you find.
   no-ops/auto-init when the precondition isn't met — *define the error out of existence*.
 - **Pull complexity down.** Move a detail every caller handles (formatting, retry, validation)
   inside the module so callers stop knowing about it.
+- **Answer the knob yourself.** Before exposing a parameter, ask whether a caller can pick a better
+  value here than the module can. If not, decide it inside from what the call site already knows —
+  not from new measurement machinery. A value that really differs between deployments stays exposed.
 - **Collapse the interface.** Merge conjoined methods; replace N special-purpose methods with one
   general-purpose one whose parameters express the variation — a variation the *domain* names, or
   a lookup key of one kind (`getUser(field, value)`). A parameter that exists so one caller can pick
@@ -40,7 +44,10 @@ seam, leverage, locality* — to name what you find.
   that caller did not exist. Nor is a shared call site shared behaviour — callers often invoke one
   abstraction in name while each runs a nearly unique path, visible only once it is inlined.
 - **Own the decision.** Give one module sole knowledge of a leaked design decision; everyone else
-  goes through its interface. That's locality — change it once.
+  goes through its interface. That's locality — change it once. When the decision is an invariant
+  every write must honour (tenant scoping, auditing, locking), route the writes through one point
+  that cannot be skipped: an extracted helper still has to be remembered, and the omission is
+  invisible to grep and to the tests.
 - **Move the seam.** Put the interface exactly where behaviour must vary, so a fake satisfies it
   for tests without reaching inside. A module testable through its seam is, by construction, deep.
 - **Delete the wrapper.** A pure pass-through earns its keep only if it *will* hide variation
