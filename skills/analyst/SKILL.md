@@ -116,7 +116,7 @@ are always in the budget; the rest earn their turn. See `references/interview-gu
   and *what are the next two features* they'd plausibly ask for after this one? Take the size as
   numbers with dates, not adjectives: how many users, records or requests today, and what they
   expect at three, six and twelve months. The answer prices every downstream decision (dependency
-  adoption, framework vs hand-roll, test depth — `rules/_generic/core.md` → Horizon) and fills
+  adoption, framework vs hand-roll, test depth — `docs/decision-craft.md` §8) and fills
   the spec's boundary/scale cells with a figure instead of "large data"; record it in the spec.
   If the trajectory implies adopting a framework or major dependency, flag it as a direction
   decision for the user (route the choice itself to `/select-tech` in `/prepare`).

@@ -58,7 +58,7 @@ Before any candidate is named:
   envelope, operational limits (self-hosted vs SaaS, data residency).
 - **Horizon** (from the spec, or one question to the operator): a throwaway probe biases
   hard toward the zero option / stdlib; a living surface with a feature trajectory biases
-  toward adopting the ecosystem (`core.md` → Horizon prices the build).
+  toward adopting the ecosystem (`docs/decision-craft.md` §8 — horizon prices the build).
 - **Tier the candidate by invasiveness; match the ceremony to the tier.** Special-purpose (one
   narrow job, easily replaced) → decide and move on with a one-line note. General-purpose (a
   wrapper over the language or stdlib) → overlap check against what the repo carries, then

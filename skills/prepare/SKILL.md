@@ -42,7 +42,7 @@ end the run at "tell me (a)/(b)/(c)". Sort every unknown into one of two buckets
 
 - **Material / irreversible / direction choice** — adopting a framework or major dependency,
   a one-way data migration, changing architectural style, anything expensive to undo
-  (`core.md` → Horizon). → confirm via `AskUserQuestion`, **one at a time, each with your
+  (`core.md` → Decisions). → confirm via `AskUserQuestion`, **one at a time, each with your
   recommended answer**, before finalizing. (Unchanged.)
 - **Undertold but cheap-reversible** — a threshold value, a default mode, a reject-vs-reprice
   behavior that can hide behind a flag, a config default. → **do NOT halt.** Adopt a sensible
@@ -204,7 +204,7 @@ while the spec calls the area differentiating, that mismatch is a finding, not a
 
 | Approach | Effort | Risk | Reversibility | Fit-to-architecture | Notes |
 |----------|--------|------|---------------|---------------------|-------|
-| A — <name> | low/med/high | low/med/high | easy/hard to undo | aligns / strains layers (per PROJECT.md) | <key trade-off> · prerequisite: <what must already hold, or none> |
+| A — <name> | low/med/high | low/med/high | undo: <mechanism, cost> | aligns / strains layers (per PROJECT.md) | <key trade-off> · prerequisite: <what must already hold, or none> |
 | B — <name> | | | | | |
 | C — <name> | | | | | |
 
@@ -221,7 +221,7 @@ genuinely the user's (cost vs. flexibility, speed vs. correctness), surface it v
 `AskUserQuestion` rather than deciding silently. **Direction decisions are always the
 user's**: adopting a framework/major dependency, hand-rolling past the trajectory test,
 or changing architectural style gets recommended + explicitly confirmed, never taken
-silently (`core.md` → Horizon).
+silently (`docs/decision-craft.md` §8).
 
 **Judge panel (Complex tier, wide solution space — design-it-N-times).** When the change is
 Complex AND the approaches genuinely diverge (different seams, different data models — not

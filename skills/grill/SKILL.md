@@ -97,6 +97,8 @@ design, that question goes last or not at all.
 
 - **Problem & value** — what pain/gap, for whom, what happens if we *don't* build it.
 - **Scope** — the smallest useful slice; what is explicitly out; what is deferred.
+- **Shape vs scope** — when a small request needs a large edit, say which of the two drives the
+  cost. A cost set by the system's shape is a defect to name and price, not one to absorb quietly.
 - **Decisions & their dependencies** — each real fork in the design, in dependency order (a
   choice that constrains later choices comes first). Design arguments are usually about WHEN, not
   WHAT: ask which class of change is observably hard to make today, and design only until that
@@ -160,7 +162,7 @@ A short **alignment summary** the caller (or the user) can act on:
 ## Alignment — <subject>
 
 ### Resolved
-- <decision> → <answer> (<why>)
+- <decision> → <answer> (<why>; on a material fork, the tripwire that would reverse it)
 
 ### Assumptions confirmed
 - <assumption> — <user-confirmed | verified at path:line>
