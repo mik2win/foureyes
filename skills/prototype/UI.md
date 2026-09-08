@@ -31,6 +31,21 @@ in the abstract.
   persistence, no auth. The question is the *interface*, not the plumbing.
 - **Use domain vocabulary** from `CONTEXT.md` for labels and entities, so the screens read true.
 
+## Check each variation before you show it
+
+A defect you ship becomes the variable the user reacts to, so run these before Phase 3.
+
+- **The hierarchy has to be true.** Compare what the eye groups — whitespace, background blocks,
+  rule lines, column position — against what the markup nests: the markup alone always passes, and
+  a heading that only looks like it spans a sibling block is a defect, not a preference.
+- **Nothing lives only on hover.** Reveal-on-hover actions, tooltip-only explanations and
+  colour-on-point are absent on touch, not degraded — build without them, and if a variation still
+  needs one, name it under *Constraints discovered*. Same for state (selected, disabled, error):
+  carry it on two dimensions, never colour alone.
+- **Two absolutes**, both readable off the CSS: never small *and* low-contrast type, and no label
+  inside its own field unless every escape condition holds at once (trivial form; returns when the
+  field empties; never mistakable for, or submitted as, a value; still accessible) — else a label.
+
 ## What to probe (with `/grill`)
 
 - Which **layout** lets the user do the main task fastest?
