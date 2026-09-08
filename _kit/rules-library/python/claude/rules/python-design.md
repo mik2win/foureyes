@@ -27,6 +27,7 @@ class DataSource(Protocol):
 ### Composition over inheritance
 
 Inject collaborators; don't subclass to reuse. Decompose a complex state manager into components behind a Protocol with `to_dict()`/`from_dict()`/`reset()`.
+The hierarchy is wrong, not merely deep, when a subclass uses a fraction of what it inherits and overrides the rest to `raise NotImplementedError` or to do nothing — replace with delegation, or lift only the genuinely shared part into a new base. A `Protocol` or an ABC declaring an unimplemented method is a contract, not this smell.
 
 ---
 
@@ -40,7 +41,7 @@ Inject collaborators; don't subclass to reuse. Decompose a complex state manager
 - Test: "describe it in one sentence without 'and'?" If no → extract.
 - **Single level of abstraction** per function — don't mix high-level steps with low-level I/O calls.
 - 0–2 args ideal, 3 acceptable, **4+ → parameter object** (a dataclass).
-- No boolean flag args that switch behavior — write two functions. (OK for a minor variation.)
+- A flag argument is one where every caller passes a literal AND the body branches on it — enums and strings count, not only booleans; split into named functions. A value computed or threaded from config is not a flag. Two flags in one signature: split the function, don't name four combinations.
 - Command/Query separation: a function either does something or returns something, not both (except atomic ops where splitting would race).
 
 ---
@@ -123,8 +124,14 @@ def run_check(config: Config, transform: Transform) -> Report:
 - Catch **specific** types; never bare `except:` (swallows `KeyboardInterrupt`/`SystemExit`). Multiple types: `except (ValueError, KeyError):`.
 - Include offending values in the message: `raise ValueError(f"unknown strategy: {name!r}")`.
 - **Chain**: `raise DomainError(...) from e` to preserve cause; `from None` only to deliberately suppress.
-- Don't use exceptions for expected flow — return `T | None` / a sentinel for "not found", raise for genuine errors (bad input, impossible state).
+- Don't use exceptions for expected flow — return `T | None` / a sentinel for "not found", raise for genuine errors (bad input, impossible state). `T | None` only where `None` cannot collide with a legitimate falsey result: when `0`, `""` or `[]` are valid values, `if not result:` silently merges "empty" with "absent" — return an explicit sentinel, or raise.
 - Pick the right type: `ValueError` (bad params), `TypeError` (wrong type at public API), `FileNotFoundError`, `RuntimeError` (impossible state).
+- **A generator's `finally` is not a cleanup guarantee.** It runs on exhaustion or on `close()`, and CPython calls `close()` only when the abandoned generator is finalized — promptly for a sync generator in the common case, but for an async generator not until the event loop's asyncgen hook runs, which a long-lived process may never reach.
+- What makes the unwind reliable is a consumer *obliged* to close: `@contextmanager` / `@asynccontextmanager` consumed under `with` / `async with`, `contextlib.closing()` / `aclosing()`, or an explicit `.close()`. A bare generator driven by a `for` loop carries no such obligation, and an early `break` leaves the `finally` pending.
+- So a bare generator does not open the file, lock, socket or connection it uses — the caller opens it in a `with` block and passes it in. A generator that must own its resource ships as a decorated context manager, not as a plain `yield`.
+- **A root exception class belongs at a package boundary, not in every module.** Where a subsystem is called across one (an adapter/port package), give it one root that subclasses the built-in its failures already map to — `class ExchangeError(RuntimeError)`, not a bare `Exception` root, so callers already catching the built-in keep working — and raise only its subclasses from there.
+- Callers catch the specific subclass first and the subsystem root second; a plain built-in escaping past the root means the failure came from a dependency, not from that subsystem's contract. Inside a package with no cross-boundary caller, keep raising the built-in from the list above.
+- **Never `assert` for validation, authorization or flow control** — `python -O` strips every assertion and takes the guard with it. The test: if deleting all assertions leaves the program equally correct, they are documentation; if recovery or control flow depends on one, it is a check and belongs in an `if` + `raise` at the trust boundary.
 - **Async**: always re-raise `asyncio.CancelledError` — never swallow it.
 
 ```python
