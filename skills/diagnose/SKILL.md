@@ -88,6 +88,11 @@ determine which one owns the failure. For each candidate layer: verify its input
 at the boundary, then verify its outputs. The first layer whose output is wrong while its
 inputs are right is the culprit. Use the layer's logs/test command from PROJECT.md to confirm.
 
+**Isolate by dimension when the failure is partial** — 3 of 40 jobs, 2 of 60 tenants, this box and
+not that one. Confirm the change is real, diff every dimension you can name (OS, version, shard,
+seed, tenant, route, release) between the failing set and the passing baseline, rank by
+difference, filter to the top and repeat. It stays correlation until a mechanism explains it.
+
 ## Phase 3 — Root-Cause
 
 Now that you know WHERE, understand WHY:

@@ -54,6 +54,8 @@ having the right command ready, not from the agent firing it.
       are changes; the most recent change is the prime suspect — *as a hypothesis to check
       against the timeline, not a verdict* (failure mode #11): does symptom onset match
       the change time?
+      If nothing changed and the burning component is one nobody priced, read the operating list
+      backwards (`docs/decision-craft.md` §9) — the unanswered entry is usually where it lives.
 - [ ] **Is it spreading?** Corrupting data, filling a disk, cascading retries → containment
       (stop the writer, disable the job) may outrank diagnosis of anything.
 
@@ -116,6 +118,10 @@ variants, go back to Phase 1's "what changed" with the assumption audit from
 - [ ] Each contributing cause gets a defense at a named altitude (`core.md`): detection
       (alert earlier), prevention (the `/rollout` stage or check that would have caught it),
       or mitigation (faster rollback path). Recurring patterns feed `/retro`.
+      An alert earns that altitude on two conditions — it reliably indicates that user experience
+      is degraded, and a responder has a systematic way to act on it. Fail either and delete it.
+      Anything the system already heals (autoscale, failover, breaker) is a business-hours
+      investigation, never a page.
 - [ ] Offer to Write the review to the **Plans location**
       (`<plans>/<YYYY-MM-DD>-<slug>-incident.md`).
 

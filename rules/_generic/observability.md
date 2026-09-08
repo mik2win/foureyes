@@ -17,6 +17,8 @@ diagnosable from the emitted signals alone, without attaching a debugger.
   system worked) · ERROR (**an operator must act**: a tripped breaker, an unreachable store, work
   that stops until a person does) · CRITICAL/FATAL (system unusable — reserve it).
 - Log the context that makes the line actionable (ids, counts, durations) — not "it failed".
+- One canonical name per attribute, defined once in the repo (telemetry constants or an attribute
+  schema) with a one-line description; catalogue and event-based SLIs: `docs/observability.md`.
 - A log statement is code: nothing in tight loops — log at the boundaries (count before,
   summary after) or sample (every Nth iteration). No formatting work that still runs
   when the level is disabled.
@@ -54,8 +56,8 @@ diagnosable from the emitted signals alone, without attaching a debugger.
 
 - Prefer a few meaningful signals over vanity counters: for a request path the RED trio —
   Rate, Errors, Duration; for a resource, USE — Utilization, Saturation, Errors.
-- Name metrics consistently (`noun.verb.unit`, e.g. `http.request.duration`) and keep label
-  cardinality low — never put ids/emails in tag values.
+- Name metrics consistently (`noun.verb.unit`) and keep **metric label** cardinality low — an id
+  there is a cost incident. Events invert it — never drop an id to protect a metric.
 - A metric exists to drive an alert or a decision. If no one would act on it, don't emit it.
 
 ## Health & readiness

@@ -578,6 +578,10 @@ executes it row by row and writes the observed values back beneath it.
       the baseline could not be taken. A block with no blocking row fails this gate.
 - [ ] **The plan's file name matches its shape** (Phase 6.3) — `00-overview.md` only when ≥2
       subtask files index under it.
+- [ ] **Production visibility**: the plan names the attributes or events the change adds and the
+      exact query you will run after deploy — is it doing what I expected, how does it compare to
+      the previous release, is anyone using it, is anything abnormal. A change nobody can see in
+      production is not planned; if the attribute does not exist yet, adding it is a step.
 
 ### Plan challenge — the implementation that hasn't happened yet
 **Mandatory for Complex tier (recommended for Medium):** launch the **`plan-challenger`**

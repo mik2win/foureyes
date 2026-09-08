@@ -59,6 +59,11 @@ actions on *observed* evidence):
 - [ ] **What signal proves each stage healthy?** Tests, metrics, error rates, row counts —
       from PROJECT.md → Integrations/Commands. **A stage without a checkable signal cannot
       be in the plan** — find the signal or add the instrumentation as its own prior stage.
+      A canary, a flag, or an automated rollback is worth exactly as much as the signal under it:
+      a comparison on pre-aggregated metrics with no per-build or per-flag dimension is a
+      deployment ritual, not a guardrail — say so plainly. Name what the canary cannot see
+      (thresholds that only bite past 50%, an unrepresentative slice, retry storms, corruption
+      that reaches no metric), and check the monitor does not share fate with the path it watches.
 - [ ] **Blast radius if the worst stage fails anyway** — who/what is affected, for how long,
       recovered how.
 
@@ -93,6 +98,8 @@ For **every stage**, all four fields — a stage missing one is not a stage:
 **Change**: what ships (code/schema/config), and whether it's two-way or one-way.
 **Verify**: the signal that proves it healthy, with the expected value stated
   BEFORE looking (e.g. "v1 endpoint traffic: expect 0 over 7 days").
+  Event-based where the signal allows: name the events that count, the ones excluded
+  (probes, synthetics), and what makes one good — slow-but-200 is a failure.
 **Bake**: how long / what volume the stage must survive before the next one.
 **Rollback**: the concrete undo for THIS stage (command/flag/revert) — and its limits.
 ```
