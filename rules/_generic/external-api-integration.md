@@ -21,8 +21,9 @@ documentation — never guess.
   between services); document the mapping explicitly at the boundary.
 - Check the provider's error codes and rate limits; map them into your retry policy
   (transient vs permanent — see `rules/_generic/exception-patterns.md`).
-- Parse a payload you don't own tolerantly: read the fields you use, pass the rest through,
-  and keep an unknown status opaque — a closed enum breaks on the provider's next release.
+- Parse a payload you don't own tolerantly: read the fields you use, pass the rest through, and
+  keep an unknown status opaque — a closed enum breaks on the provider's next release. Check what
+  arrived before parsing it: an HTML error page or nothing can come back where JSON was promised.
 
 ## Never
 

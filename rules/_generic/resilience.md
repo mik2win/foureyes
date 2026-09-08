@@ -1,5 +1,5 @@
 ---
-description: Stack-agnostic resilience at external boundaries — timeouts, retry+backoff, error classification, circuit breaker, idempotency, bulkhead, degradation, health checks. Loaded on file read (code work).
+description: Stack-agnostic resilience at external boundaries and blocking waits — timeouts, retry+backoff, error classification, circuit breaker, idempotency, bulkhead, back pressure, degradation, health checks. Loaded on file read (code work).
 paths:
   - "**/*"
 ---
@@ -11,12 +11,12 @@ stack pack names the concrete client/library; these principles hold regardless.
 
 ## Timeouts
 
-- **Every external call has an explicit timeout.** A call without one is an unbounded wait that
-  can hang the whole caller.
+- **Every blocking wait has an explicit bound** — not only the network hop: pool checkout, lock
+  acquire, queue take, `future.get()`, thread join. An unbounded wait can hang the whole caller.
 - Set the budget by criticality: a user-facing critical path fails fast (small timeout, then
   retry/fallback); a background bulk fetch can wait longer.
-- A timeout on a whole operation must be shorter than the caller's own deadline — never let an
-  inner wait outlive the request that's waiting on it.
+- Budget the chain, not one call: timeout × attempts + backoff, summed over every hop, must fit
+  inside the caller's deadline — two waits each under your own timeout are not safe in series.
 - **Don't chain blocking calls.** A component already serving a blocking request must not make
   another blocking call outward while handling it — the chain fails together and its latencies
   add. Past one synchronous hop, break the chain with a message or say why the coupled failure
@@ -26,7 +26,8 @@ stack pack names the concrete client/library; these principles hold regardless.
 
 - Retry **only** transient failures, with exponential backoff (`base · 2^attempt`, capped) and
   random jitter so many clients don't retry in lockstep (thundering herd).
-- Cap attempts; on the last failure, raise — don't retry forever.
+- Cap attempts, and fit the whole loop inside the caller's remaining deadline: when it doesn't
+  fit, return the failure now rather than hold the connection for a retry no one is waiting for.
 - Never retry a non-idempotent operation blind (see Idempotency) — a "timed-out" write may have
   succeeded server-side.
 
@@ -44,10 +45,10 @@ Decide retry vs fail from the error class, not by retrying everything:
 
 ## Circuit breaker
 
-- After N consecutive failures to a dependency, **open** the circuit: fail fast for a cooldown
-  instead of hammering a service that's down. Probe after the cooldown; close on success.
-- Use for a **repeatedly failing dependency** (external API/service down). Don't circuit-break a
-  single must-succeed operation — retry that instead.
+- Open on **fault density**, not a consecutive count — a rate over a rolling window or a leaky
+  bucket a timer drains: a dependency erroring on 40% of calls never fails N in a row, so a
+  consecutive counter never opens. Fail fast for the cooldown, then probe; close on success.
+- Keep the counter in-process; don't circuit-break a single must-succeed operation — retry that.
 - Emit the open/recover transitions once (edge-triggered) for alerting, not on every blocked call.
 
 ## Idempotency
@@ -56,11 +57,11 @@ Decide retry vs fail from the error class, not by retrying everything:
 - For remote writes, send a **caller-generated idempotency/request key** (deterministic where
   possible) so a retried submit is deduplicated server-side rather than duplicated.
 - For local state, prefer upsert/set over blind increment; guard accumulation with a processed-id
-  set so a replay doesn't double-count.
+  set — and bound that set (size cap or TTL), or you have traded a double-count for a leak.
 - Compensation is not a rollback: read `docs/decision-craft.md` §11 before a multi-step flow.
 
 ```
-# DON'T — replay doubles the total          # DO — idempotent on id
+# DON'T — replay doubles the total          # DO — idempotent on id, guard bounded
 total += amount                              if id not in seen: total += amount; seen.add(id)
 ```
 
@@ -68,8 +69,9 @@ total += amount                              if id not in seen: total += amount;
 
 - Isolate independent units so one's failure can't sink the rest: run them concurrently and
   collect per-unit results/exceptions instead of aborting the batch on the first error.
-- Bound concurrency to a shared resource (semaphore / pool size) so one caller can't exhaust
-  connections or rate limit for everyone.
+- Bound concurrency *and* queue depth on a shared resource (semaphore, pool size, `maxsize`) so
+  one caller can't exhaust connections or rate limit for everyone. Say what a full queue does —
+  block the producer inside your process, refuse at a public entry point — and count the drops.
 
 ## Graceful degradation
 

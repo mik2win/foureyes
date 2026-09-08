@@ -12,9 +12,10 @@ diagnosable from the emitted signals alone, without attaching a debugger.
 ## Structured logs
 
 - One event = one log line, key/value or JSON — not prose a human greps by eye.
-- Consistent levels, one meaning each: DEBUG (diagnostics) · INFO (significant expected
-  event) · WARN (recoverable / unusual, e.g. retry triggered, fallback used) · ERROR
-  (needs attention) · CRITICAL/FATAL (system unusable — reserve it).
+- Consistent levels, one meaning each: DEBUG (diagnostics) · INFO (significant expected event) ·
+  WARN (recoverable / unusual — a retry, a fallback, rejected input, a business-rule refusal: the
+  system worked) · ERROR (**an operator must act**: a tripped breaker, an unreachable store, work
+  that stops until a person does) · CRITICAL/FATAL (system unusable — reserve it).
 - Log the context that makes the line actionable (ids, counts, durations) — not "it failed".
 - A log statement is code: nothing in tight loops — log at the boundaries (count before,
   summary after) or sample (every Nth iteration). No formatting work that still runs

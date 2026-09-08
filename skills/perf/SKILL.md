@@ -41,6 +41,10 @@ running without a kit profile; only if *neither* has them, STOP, `/bootstrap` fi
   optimization becomes a hobby** — don't start without one.
 - **Realistic load shape**: the N, the data skew, the concurrency this must hold at
   (`code-quality.md` → algorithmic sizing). Measuring at toy N is measuring nothing.
+- **Rank the outcomes the budget implies**: fast success > fast failure > slow success > slow
+  failure. Past the budget a slow answer is not a partial success — it holds resources on both
+  sides, and from outside "very slow" and "down" look the same. Say what the path does when it
+  exceeds the number: refuse, degrade, or take the work off the caller's clock.
 
 ## Phase 2 — Baseline, reproducibly
 
@@ -78,7 +82,9 @@ attribution destroyed. Correctness stays gated: the suite runs after each kept c
 
 **Caching is a liability, declared**: every cache added names its invalidation trigger,
 staleness bound, and memory ceiling — an uninvalidated cache is a scheduled `/diagnose`
-session (and often a security bug: per-user data in a shared cache).
+session (and often a security bug: per-user data in a shared cache). The same question is
+owed by everything else a change accumulates — rows, log files, files on disk, an in-memory
+seen-set: name what reclaims it, in this change. An unbounded key space is not yet a cache.
 
 ## Phase 5 — Stop at the budget
 
