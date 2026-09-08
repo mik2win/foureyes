@@ -48,13 +48,14 @@ The most impactful schema decision. Wrong types cause bugs, waste space, and pre
 
 ## 2. Index Types
 
-Indexes speed reads, slow writes. Add deliberately based on query patterns.
+Indexes speed reads, slow writes. Add deliberately based on query patterns — and check the write side first: any index that references a column (full, partial, expression or `INCLUDE`) disables HOT updates for it, so every UPDATE of that column then writes to every index on the table. Before indexing a column the hot path writes, compare `n_tup_hot_upd` with `n_tup_upd` in `pg_stat_user_tables`; BRIN is the one index type that never blocks HOT.
 
 ### B-tree (default)
 
 Supports `=`, `<`, `>`, `<=`, `>=`, `BETWEEN`, `IN`, `IS NULL`, `LIKE 'prefix%'`.
 
 **Composite index rule:** equality columns first, then range/inequality, then ORDER BY columns. The planner uses a leftmost prefix; it cannot skip columns before PG 18 (18+ can skip-scan a low-cardinality leading column, but correct ordering is still preferred). Covering indexes (`INCLUDE`) enable index-only scans (PG 11+).
+**Direction and NULLS placement are part of the key.** Declare the index exactly as the query's ORDER BY: `(a ASC, b ASC)` serves `a, b` and `a DESC, b DESC` (backward scan) but not a mixed order or a different NULLS placement — that leaves an Incremental Sort or a full Sort above the scan. Keyset pagination on `created_at DESC, id ASC` needs an index in exactly that shape; expect no Sort node above it.
 
 ### GIN — multi-value types (arrays, JSONB, full-text `tsvector`)
 
@@ -68,12 +69,12 @@ Required for exclusion constraints. Supports range overlap `&&`, containment `<@
 
 ### BRIN — very large, naturally ordered tables
 
-Stores min/max per range of physical blocks. ~1000x smaller than B-tree on billion-row tables, but only efficient when the indexed column correlates with physical insertion order (timestamps, sequential IDs). Useless on randomly ordered columns (e.g. email).
+Stores min/max per range of physical blocks. ~1000x smaller than B-tree on billion-row tables — a seq-scan accelerator for append-only data, not a lookup index. Two preconditions, checked together: high `pg_stats.correlation` **and** enough `n_distinct`; size `pages_per_range` from how many pages one query's range actually spans. UPDATE/DELETE scatter row versions and destroy the correlation — on a mutated table use `minmax_multi` (PG 14+) or a B-tree. Useless on randomly ordered columns (e.g. email).
 
 ### Partial & Expression Indexes
 
 - **Partial** — index only relevant rows (smaller, faster) for soft-delete / active subsets (`WHERE deleted_at IS NULL`).
-- **Expression** — case-insensitive search + uniqueness (`LOWER(email)`), date truncation (`DATE_TRUNC('month', created_at)`).
+- **Expression** — case-insensitive search + uniqueness (`LOWER(email)`), date truncation (`DATE_TRUNC('month', created_at)`). Every query must spell the expression identically; when the ORM injects `lower()` for you, prefer `citext` or a case-insensitive collation over an expression index.
 
 ### Index Maintenance
 
@@ -90,10 +91,10 @@ Stores min/max per range of physical blocks. ~1000x smaller than B-tree on billi
 | `@@` full-text | GIN (or GiST) | `WHERE tsv @@ to_tsquery(...)` |
 | Range overlap `&&` | GiST | `WHERE dates && daterange(...)` |
 | Geometric containment | GiST | `WHERE point <@ box(...)` |
-| Time-series, huge table | BRIN | `WHERE created_at > NOW() - '1d'` |
+| Append-only time-series, huge table | BRIN | `WHERE created_at > NOW() - '1d'` |
 | Subset of rows | Partial (any type) | `WHERE deleted_at IS NULL` |
 | Case-insensitive match | Expression (B-tree) | `WHERE LOWER(email) = ...` |
-| Eliminate heap access | Covering (INCLUDE) | `SELECT a, b WHERE c = ...` |
+| Eliminate heap access (visibility map clean) | Covering (INCLUDE) | `SELECT a, b WHERE c = ...` |
 
 ---
 
@@ -105,7 +106,7 @@ Stores min/max per range of physical blocks. ~1000x smaller than B-tree on billi
 
 - **Seq Scan** — reads whole table. Fine for small tables or when most rows match. If table is large and few rows match → add an index.
 - **Index Scan** — index finds rows, heap read for other columns. Good for few rows from a large table.
-- **Index Only Scan** — reads index only, never the heap. Fastest; needs all columns in the index (INCLUDE/composite) and a clean visibility map.
+- **Index Only Scan** — reads the index and skips the heap only for pages the visibility map marks all-visible; on a hot-updated table it degrades to heap fetches, so check `Heap Fetches` in `EXPLAIN (ANALYZE)` before promising the win. Needs all columns in the index — `INCLUDE` only for columns that cannot be key columns (a unique index, no operator class).
 - **Bitmap Index/Heap Scan** — medium selectivity, or combining multiple indexes. Used when too many rows for Index Scan but too few for Seq Scan.
 
 ### Join Strategies
@@ -119,6 +120,7 @@ Stores min/max per range of physical blocks. ~1000x smaller than B-tree on billi
 - Seq Scan on large table + selective filter → `CREATE INDEX`.
 - Estimate vs actual rows wildly different → stale stats → `ANALYZE table`.
 - After creating an index, re-run `EXPLAIN ANALYZE` to confirm it's used.
+- Rewrote a query for speed → prove equivalence before timing it: `(old EXCEPT ALL new)` and `(new EXCEPT ALL old)` both empty, and equal `COUNT(*)`.
 
 ### Scan Type Decision Table
 
@@ -145,7 +147,7 @@ Compute across related rows without collapsing them (unlike `GROUP BY`).
 
 - `ROWS BETWEEN n PRECEDING AND CURRENT ROW` — physical row count (last n rows regardless of gaps).
 - `RANGE BETWEEN INTERVAL '7 days' PRECEDING AND CURRENT ROW` — logical value range (handles gaps correctly).
-- Default for `ORDER BY` is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
+- Default for `ORDER BY` is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` — peers with an equal ORDER BY value are inside the frame. The window is computed **after** WHERE: the filter narrows the window before it is evaluated — same class of trap as `NOT IN` with NULLs.
 
 **Use a window function, not a correlated subquery, for running totals** — the subquery `(SELECT SUM(amount) FROM payments p2 WHERE p2.id <= p1.id)` is O(n²); the window version is a single pass.
 
@@ -176,28 +178,34 @@ Chain DML in one statement: `INSERT ... RETURNING` feeds another `INSERT`; `DELE
 
 - **READ COMMITTED** (default) — each statement sees latest committed data; values can change between statements in the same transaction.
 - **REPEATABLE READ** — snapshot taken at first query; reads stay stable. An UPDATE to a row modified concurrently fails: `could not serialize access due to concurrent update`.
-- **SERIALIZABLE** — transactions appear to run sequentially; if the result would differ from serial execution → serialization failure. **Must be prepared to retry.**
+- **SERIALIZABLE** — transactions appear to run sequentially; if the result would differ from serial execution → serialization failure. **Must be prepared to retry.** It is a property of the whole workload, not of one transaction: if any concurrent transaction runs at a lower level, SERIALIZABLE silently behaves as REPEATABLE READ — no error, no log line. Set it as `default_transaction_isolation` for the application or do not claim it; it does not run on hot-standby replicas.
+- **Function volatility is part of statement consistency.** A `VOLATILE` function called from a query takes its own snapshot per call, so under READ COMMITTED one statement can return internally inconsistent data. Mark SQL/PL/pgSQL functions that only read `STABLE` (touches tables) or `IMMUTABLE` (touches nothing external); both defaults — READ COMMITTED and VOLATILE — point the wrong way, and `IMMUTABLE` on a function that reads a table corrupts expression indexes silently.
 
 ### Retry Pattern (SERIALIZABLE / REPEATABLE READ)
 
 Loop: BEGIN at the isolation level, do work, COMMIT, break on success; on serialization failure ROLLBACK and retry with backoff.
+Under SERIALIZABLE a sequential scan takes a predicate lock on the whole table: a rising serialization-failure rate after a release is an index-coverage signal before it is a load signal, and read-only transactions should say `READ ONLY` (`DEFERRABLE` for reports). Mechanics and the diagnostic order: `postgres-reference` → `references/universal.md` §6.
 
 ### MVCC Internals
 
 Each row version has `xmin` (creating txid) and `xmax` (deleting/updating txid; 0 = live). A transaction sees a row when `xmin` is committed before its snapshot AND `xmax` is 0 or not yet committed in its snapshot. This is why DELETEs don't immediately free space — old versions persist until VACUUM removes them.
+**A long transaction holds the vacuum horizon for the whole database**, not only the tables it touched: a transaction kept open across an HTTP call, a report or user think-time makes every table bloat, and autovacuum cannot clear it while the horizon is held. Keep transactions short, move long reads to a replica, and cap them with `idle_in_transaction_session_timeout` and (PG 17+) `transaction_timeout`; a provider call goes outside the transaction (commit per unit, or an outbox row dispatched after).
 
-### Deadlock Prevention
+### Deadlocks, Locks & the Lock Queue
 
-- **Always lock rows in a consistent order** (e.g. by `id ASC`). Two transactions updating ids 1 and 2 in opposite orders will deadlock.
-- Use **advisory locks** for app-level locking: `pg_advisory_xact_lock(...)` auto-releases at transaction end.
+- **Always lock rows in a consistent order** (e.g. by `id ASC`). Two transactions updating ids 1 and 2 in opposite orders will deadlock — and "one statement is atomic" is no ordering guarantee: a multi-row UPDATE locks rows one at a time in plan order, so two such statements deadlock when their plans disagree (seq scan vs index scan, which flips with statistics). For any batch write fix the order explicitly: `SELECT ... ORDER BY id FOR UPDATE`, then update.
+- Use **advisory locks** for app-level locking: `pg_advisory_xact_lock(...)` auto-releases at transaction end. Never the session-scoped `pg_advisory_lock` in pooled application code: it survives COMMIT and returns to the pool still held, so the next borrower inherits it — flag it in review and switch to the `_xact_` form.
+- A lock protects only while its transaction lives. If the critical section outlives it (a job, a lease with a TTL, a Redis key), a paused holder or a delayed packet yields two writers: carry a monotonically increasing fencing token that the store rejects when stale, or use the store's own conditional write / unique constraint — a TTL plus good intentions is a corruption bug.
+- **The lock queue is fair.** Any step that takes ACCESS EXCLUSIVE (`ALTER TABLE`, `DROP`, `TRUNCATE`, `VACUUM FULL`, a non-concurrent index build) must state that mode, set `lock_timeout` and retry on failure, and name what it blocks: a DDL waiting behind one long transaction also blocks every SELECT that arrives after it, although they are compatible with the holder. `pg_blocking_pids(pid)` names the holder; `CREATE INDEX CONCURRENTLY` sidesteps the queue but cannot run inside a transaction.
+- Never `SELECT ... FOR SHARE` in application code — compatible modes skip the wait queue, so a stream of shared locks starves a waiting UPDATE indefinitely; use `FOR UPDATE` / `FOR NO KEY UPDATE`, or `SKIP LOCKED` for queues.
 
 ### Isolation Level Decision Table
 
 | Level | Protects Against | Use When |
 |-------|------------------|----------|
 | READ COMMITTED | Dirty reads | Default. Most OLTP. |
-| REPEATABLE READ | + Non-repeatable & phantom reads | Reports needing a consistent snapshot |
-| SERIALIZABLE | + Serialization anomalies (full ACID) | Financial, inventory (must retry on failure) |
+| REPEATABLE READ | + Non-repeatable & phantom reads — **not write skew**: a check on one row followed by a write to another still races | Reports needing a consistent snapshot; writers need a retry loop |
+| SERIALIZABLE | + Serialization anomalies (full ACID) | Financial, inventory — the whole application on this level, every transaction retries, no read replicas |
 
 ---
 
@@ -213,7 +221,7 @@ Default triggers at `dead_tuples > 50 + 20% of rows` — too late for hot tables
 
 - `VACUUM` — marks dead tuples reusable; does NOT return disk to the OS.
 - `VACUUM ANALYZE` — vacuum + update statistics. Run after bulk INSERT/UPDATE.
-- `VACUUM FULL` — rewrites table, reclaims disk, but takes an **AccessExclusive lock (blocks all reads/writes)**. Prefer **pg_repack** (online rewrite, minimal locks).
+- `VACUUM FULL` — rewrites table, reclaims disk, but holds an **AccessExclusive lock for its entire run** — never plan it (or `CLUSTER`) against a live table; `lock_timeout` bounds the wait, not the hold. Offer the fork: **pg_repack** when there is spare disk for a full copy, a dummy-update compactor (pgcompacttable — dormant since 2023, test it first) when there is not but time is, and say which constraint decided.
 - `VACUUM VERBOSE` — reports what it did.
 
 ### VACUUM Decision Table
@@ -221,7 +229,7 @@ Default triggers at `dead_tuples > 50 + 20% of rows` — too late for hot tables
 | Variant | Lock | Disk Reclaim | When |
 |---------|------|-------------|------|
 | `VACUUM` | ShareUpdateExclusive (non-blocking) | No — marks reusable | Routine (autovacuum) |
-| `VACUUM FULL` | AccessExclusive (blocks all) | Yes — rewrites | Emergency bloat only; prefer pg_repack |
+| `VACUUM FULL` | AccessExclusive (blocks all) | Yes — rewrites | Downtime window only; prefer pg_repack |
 | `VACUUM ANALYZE` | Same as VACUUM | No | After bulk INSERT/UPDATE |
 | pg_repack | Minimal | Yes | Scheduled maintenance |
 
@@ -240,6 +248,7 @@ Each connection costs ~5-10MB RAM + one OS process (postmaster fork) + kernel re
 | Statement | Conn returned after each statement | No | No | Simple read-heavy, rare |
 
 Use PgBouncer in **transaction mode** for web apps: 10 instances × 5 threads = 50 client connections sharing ~20 real DB connections. Keep `default_pool_size` modest (e.g. 20), `max_client_conn` high (e.g. 400).
+`LISTEN`/`NOTIFY` is not a queue: a notification sent while the listener is disconnected is gone, and it does not pass through transaction-mode pooling. Use it only as a wake-up hint over a durable table (the job row, not the notification, is truth) or to invalidate a cache.
 
 ---
 
@@ -340,7 +349,7 @@ Monitor lag via `pg_stat_replication` (on primary, `pg_wal_lsn_diff`) or `pg_las
 
 ### Normalization
 
-Default to 3NF — no duplicated data (a copied `user_email`/`user_name` in `orders` goes stale on change). **Denormalize only with reason** (materialized views for reporting, counter columns for hot counts, JSONB for read-heavy semi-structured data) and document WHY.
+Default to 3NF — no duplicated data (a copied `user_email`/`user_name` in `orders` goes stale on change). **Denormalize only with reason** — and only after a benchmark on prod-shaped data puts p95/p99 against the budget with the queries already rewritten; name where truth lives and the invalidation path, and document WHY. Materialized views for reporting; JSONB for read-heavy semi-structured data; counter columns for hot counts — but an in-place counter serializes every writer on one row: at high write rates it is a lock queue, not a cheap count, and a safe upsert removes the error, not the queue.
 
 ### Naming Conventions
 
@@ -400,6 +409,7 @@ PG 12+ STORED (computed on write, stored on disk — **can be indexed**). PG 18 
 - **Skipping ANALYZE after bulk load** — stale stats → bad plans → run `ANALYZE table` after `COPY`.
 - **Indexes you don't need** — slow every write, waste disk, confuse the planner → only index real query patterns; monitor `pg_stat_user_indexes`.
 - **Ignoring bloat** — dead tuples grow the table → slow seq scans → monitor `n_dead_tup`, tune autovacuum, pg_repack.
+- **One unbounded UPDATE as a backfill** — can double the table on disk before vacuum catches up → batches: `SELECT ... WHERE <not yet done> ORDER BY id LIMIT n FOR UPDATE SKIP LOCKED`, update, COMMIT per batch (Rails: `disable_ddl_transaction!`), a progress filter so a failed run resumes instead of restarting; state the expected row count and batch only when it is large or unbounded.
 - **Multiple booleans for mutually-exclusive states** (`is_pending`/`is_shipped`/`is_cancelled` can all be TRUE) → single `status` column with CHECK.
 
 ### Production Checklist
@@ -407,7 +417,7 @@ PG 12+ STORED (computed on write, stored on disk — **can be indexed**). PG 18 
 | Category | Check |
 |----------|-------|
 | Data Types | TEXT not VARCHAR; TIMESTAMPTZ not TIMESTAMP; NUMERIC for money; IDENTITY not SERIAL |
-| Indexes | Every FK column indexed; unused indexes removed; correct types (GIN for JSONB/arrays, BRIN for time-series) |
+| Indexes | Every FK column indexed; unused indexes removed; correct types (GIN for JSONB/arrays, BRIN only for append-only time-series) |
 | Constraints | NOT NULL by default; FK on every reference; CHECK for domain rules |
 | Queries | NOT EXISTS not NOT IN; half-open ranges `>= AND <` not BETWEEN |
 | VACUUM | Autovacuum tuned for hot tables; alert when dead_pct > 20% |

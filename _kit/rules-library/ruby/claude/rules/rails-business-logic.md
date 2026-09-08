@@ -65,6 +65,7 @@ Service object fundamentals (Pattern 1: single `#call`, Pattern 2: multi-method 
 Structure (single `#call`, multi-method facade) is in `ruby-oop.md` section 13. Rails extensions:
 
 - **Transactions** — wrap multi-model writes in `ActiveRecord::Base.transaction`. Return meaningful results on failure (e.g. rescue `ActiveRecord::RecordInvalid` and return `e.record`, which carries its errors).
+- **A check-then-write inside the transaction is a race, not a guard.** `exists?`/`find` then `create!` lets two requests pass the same check and both write — snapshot isolation does not catch it, and `.lock` on the overlap query locks nothing because the conflicting row does not exist yet. Enforce an absence invariant ("no overlapping reservation") with a unique or exclusion constraint and rescue `ActiveRecord::RecordNotUnique`; a presence invariant with `lock` (`FOR UPDATE`) on the rows read; or run the path `isolation: :serializable` with a retry — and say which in the plan.
 - **Module organization** — group related services under a domain namespace (`Orders::Creator`, `Orders::Fulfiller`). Avoid flat, verbose `XxxService` names.
 - **Dependency injection** — pass collaborators in (`ruby-oop.md` section 2). Common Rails injectables: mailers, job classes, external clients. Lets tests swap in fakes.
 

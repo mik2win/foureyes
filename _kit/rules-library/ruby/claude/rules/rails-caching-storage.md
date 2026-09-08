@@ -54,7 +54,7 @@ Based on Rails Guides (Caching, Active Storage), Solid Cache documentation.
 
 ## 5. Counter Caches
 
-- Use `counter_cache: true` on `belongs_to` with a `*_count` integer column to eliminate `COUNT(*)` queries — reads the pre-computed column instead of firing SQL each time.
+- Use `counter_cache: true` on `belongs_to` with a `*_count` integer column to eliminate `COUNT(*)` queries — reads the pre-computed column instead of firing SQL each time. Not on a hot parent: every child insert/delete updates the same parent row, so at high write rates the counter is a lock queue, not a cheap count — a safe upsert removes the error, never the queue; count those asynchronously or shard the counter.
 - Custom column via `counter_cache: :total_comments`; fix drift after bulk ops with `Model.reset_counters(id, :assoc)`.
 
 ## 6. ActiveStorage

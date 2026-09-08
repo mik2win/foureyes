@@ -407,17 +407,17 @@ Order.transaction do
   order.update!(total: order.total + 50)
 end
 
-# Advisory locks (PostgreSQL) — application-level mutual exclusion
-ActiveRecord::Base.connection.execute("SELECT pg_advisory_lock(12345)")
-# ... critical section ...
-ActiveRecord::Base.connection.execute("SELECT pg_advisory_unlock(12345)")
+# Advisory locks (PostgreSQL) — transaction-scoped; never pg_advisory_lock in pooled code (survives COMMIT, leaks via the pool)
+Order.transaction do
+  ActiveRecord::Base.connection.execute("SELECT pg_advisory_xact_lock(12345)")  # ... critical section ...; released at COMMIT/ROLLBACK
+end
 ```
 
 | Locking | Use When | Mechanism |
 |---------|----------|-----------|
 | Optimistic | Low contention, conflict is rare | `lock_version` column, raises on conflict |
 | Pessimistic | High contention, must guarantee exclusive | `FOR UPDATE`, blocks others |
-| Advisory | Application-level (cron, migrations) | `pg_advisory_lock`, lightweight |
+| Advisory | Application-level (cron, migrations) | `pg_advisory_xact_lock` (released at COMMIT); the session-scoped `pg_advisory_lock` survives COMMIT and leaks through the pool |
 
 ---
 

@@ -21,7 +21,7 @@ CREATE INDEX idx_orders_user_date ON orders (user_id, created_at DESC);
 -- Used:     WHERE user_id=1; WHERE user_id=1 AND created_at>...; WHERE user_id=1 ORDER BY created_at DESC
 -- NOT used: WHERE created_at>...  (leftmost column absent)
 
--- Covering index → index-only scan (PG 11+); query never touches the heap
+-- Covering index → index-only scan (PG 11+) only for pages the visibility map marks all-visible; check Heap Fetches
 CREATE INDEX idx_orders_covering ON orders (user_id) INCLUDE (status, total);
 ```
 
@@ -48,6 +48,8 @@ CREATE INDEX idx_articles_search_gist ON articles USING GIST (search_vector); --
 
 ```sql
 CREATE INDEX idx_events_created_brin ON events USING BRIN (created_at);
+-- Gate first: SELECT correlation, n_distinct FROM pg_stats WHERE tablename='events' AND attname='created_at';  -- both must hold
+-- pages_per_range (default 128): measure how many pages one query's range spans; mutated table → USING BRIN (created_at timestamptz_minmax_multi_ops)
 ```
 
 ### Partial & Expression Indexes
@@ -130,6 +132,20 @@ INSERT INTO orders_archive SELECT * FROM archived;
 
 ---
 
+## 6. Transaction Isolation
+
+```sql
+-- SERIALIZABLE (SSI) detects read/write dependency cycles with predicate locks, and the PLAN sets their granularity:
+-- Seq Scan          → predicate lock on the WHOLE table: every concurrent writer conflicts, even on rows the filter rejects
+-- B-tree Index Scan → the tuples read plus the leaf pages visited (the read range, not only the values seen)
+-- SP-GiST / BRIN    → the entire index; escalation: max_pred_locks_per_page → page lock, max_pred_locks_per_relation → relation lock
+BEGIN ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE;  -- reports: waits for a safe snapshot, then takes no predicate locks and never aborts
+```
+
+- `could not serialize access` rising after a release → `EXPLAIN (ANALYZE, BUFFERS)` the reads of the aborting transaction first; a Seq Scan means a dropped or unused index is the suspect before load growth. A READ COMMITTED transaction takes no predicate locks, so SERIALIZABLE peers cannot see a cycle through it — the guarantee degrades silently (rule §6).
+- Row locks never escalate: the number of locked rows is not a cost. `FOR SHARE` from application code is — compatible modes skip the queue and starve a waiting `UPDATE` (rule §6).
+
+---
 ## 7. VACUUM & Maintenance
 
 ### Autovacuum Tuning
@@ -356,6 +372,10 @@ CREATE TABLE orders (
   CONSTRAINT chk_orders_status CHECK (status IN ('pending','paid','shipped','cancelled')),
   CONSTRAINT chk_orders_total_positive CHECK (total_cents >= 0)
 );
+-- Truth as a plain view first, then the cache: drift is one EXCEPT away, and the cache is disabled by swapping a name
+CREATE VIEW v_daily_totals AS SELECT ...;
+CREATE MATERIALIZED VIEW mv_daily_totals AS SELECT * FROM v_daily_totals;
+-- drift check: (SELECT * FROM v_daily_totals EXCEPT ALL SELECT * FROM mv_daily_totals) and the reverse both empty, COUNT(*) equal
 ```
 
 ---

@@ -131,7 +131,7 @@ Wrap related writes in `ActiveRecord::Base.transaction`.
 |---------|----------|-----------|
 | Optimistic | Low contention, conflict is rare | `lock_version` column, raises on conflict |
 | Pessimistic | High contention, must guarantee exclusive | `FOR UPDATE` (`Order.lock.find`), blocks others |
-| Advisory | Application-level (cron, migrations) | `pg_advisory_lock`, lightweight |
+| Advisory | Application-level (cron, migrations) | `pg_advisory_xact_lock` (released at COMMIT); the session-scoped `pg_advisory_lock` survives COMMIT and leaks through the pool |
 
 ---
 

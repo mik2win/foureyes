@@ -203,6 +203,8 @@ This becomes the BASE for the next `/update-kit`, so subsequent updates stay qui
 Output:
 - **File merge:** a table per class-A path — `unchanged · updated · merged · added · deleted ·
   kept-yours · skipped(project-owned)`.
+- **New paths-scoped rules:** any rule that arrived new with template `paths:` (`sql.md` is the
+  first) needs the narrowing `/bootstrap` does — name it and this project's DB directories.
 - **Re-adapt:** what bootstrap regenerated (settings/hooks/CLAUDE.md/.gitignore) and the
   reconciliation summary.
 - **To upstream:** the adapted skills you chose to keep that are worth contributing back to the kit repo.
