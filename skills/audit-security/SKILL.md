@@ -97,6 +97,9 @@ the fix shape of each.
   directory. Safe shape: resolve to a real absolute path, confirm it stays under the base,
   reject `..` and absolute escapes. `#path-traversal`
 - **Template / eval** — input reaching an `eval`/exec/render-string sink.
+- **Output encoding** — input reaching a rendered document. Either the output site escapes by
+  default, or safety is a property the value itself carries — and the second is invisible in the
+  template, so audit where values are *marked* safe, not the templates. `#xss`
 
 ```bash
 # Triage — adapt the sink names to the stack (from PROJECT.md → Stack)

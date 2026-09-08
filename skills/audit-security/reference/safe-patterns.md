@@ -56,3 +56,14 @@ data = yaml_load_unsafe(untrusted_text)
 data = parse_json(untrusted_text)      # or the format's safe/data-only loader
 # code-capable serializers: only on data this process produced, never network/user input
 ```
+
+## Cross-site scripting / output encoding {#xss}
+
+Escape at the output site and keep "this value is safe" a deliberate decision: when safety travels
+with the value instead, the template looks innocent and the marking site is the only place to audit.
+Stored data is untrusted too — it was someone's input before it was a row.
+
+```
+render(mark_as_safe(user_input))                 # WRONG — the value carries its own exemption
+render(sanitize(row.body, allow=["b", "i"]))     # CORRECT — escaped at output, allowlisted
+```

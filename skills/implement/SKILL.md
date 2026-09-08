@@ -86,6 +86,9 @@ Before writing code, confirm context is gathered. Skip rows that don't apply.
 - [ ] **External APIs** (per PROJECT.md → Integrations): docs fetched, schema verified.
 - [ ] **Bug fixes**: related tests + doc comments read and understood.
 - [ ] **Features**: existing patterns in the target module reviewed.
+- [ ] **Depending on untested code**: for each unit the plan's steps *call*, check for tests; with
+  none, pin only the behaviour this change depends on — direct callees, one level deep, never
+  transitive. Unreachable without a seam change, or >2 units → a *Flagged — NOT fixed* row.
 - [ ] **Runtime/ops issues**: logs read, the error identified.
 - [ ] Check the **Archive location** (PROJECT.md) for prior plans on related work.
 - [ ] **Plan stage gate** (`rules/_generic/planning-artifacts.md` → Stage gates): every step
@@ -200,6 +203,18 @@ For each step, in order:
 - Exact paths/names when files moved or were renamed.
 - Minor technical adjustments (imports, types, error handling).
 
+### Choosing what the plan left open
+- **Where an error is handled.** Count the sites before choosing how — a declared error is part of
+  the interface. In order: restate the operation so the condition is normal ("ensure X is absent",
+  not "delete X"); mask it inside the module when callers can do nothing with it; let it reach one
+  handler at the top of the request loop, carrying its own message. Throwing to the caller is last.
+  Sites, not `try`-block width: `exception-patterns.md` §Scope still wants the smallest block.
+- **Any schedule many processes share.** Jitter is not only for retries: a cron on the round hour,
+  TTLs written in one burst, reconnects after a deploy, a fixed poll interval — all fire as one
+  pulse and make you provision for a peak you created. Add a random offset, or hash a key in.
+- **Two implementations that pass the same tests.** The shorter does not win on length: say what
+  each asserts about the domain, and reject one that works only by knowing its caller's shape.
+
 ### What you CANNOT do without asking FIRST (use AskUserQuestion)
 - Skip any step (even one that looks unnecessary).
 - Change the business logic or core idea of a step.
@@ -209,6 +224,9 @@ For each step, in order:
 - You want to skip a step; a step is impossible/contradictory; the plan assumes code
   that doesn't exist and you find no alternative; implementing as written would break
   existing functionality.
+- **The third deviation row of one run.** Resistance is feedback about the design, not about your
+  effort: files the plan never named, your own edits reverted, mocks piling up for one test. Before
+  step N+1 answer which is true — wrong structure, wrong slice, accumulating breakage — or stop.
 
 ### Classify every finding before you act on it
 
@@ -267,6 +285,9 @@ real branch — **stop before it lands** and pick ONE out loud
 - **(b) Ship the symptom patch DECLARED** — only when (a) is out of scope: name the cause at
   `path:line`, say why the patch is a stopgap, and file it as a *Flagged — NOT fixed* row so it
   is not lost.
+- **The cheap-but-correct choice is the same move.** Name the input at which it stops working and
+  write the condition beside it — *fine while N < X, because <the limit and where enforced>*;
+  that line is also the revisit trigger. No nameable input, no comment — then it is just correct.
 - **(c) Escalate** — the cause is structural (needs a new seam, or ripples across steps): route
   per the tactical-vs-structural rule above.
 
@@ -293,14 +314,15 @@ You have a bias to "close the task". To counter it, spawn a **separate subagent*
 
 ```
 Use Agent (subagent_type: "quality-auditor") with prompt:
-"Review these files I just modified: [list files].
+"Review the change at these paths: [paths + changed line ranges].
 Task context: [one line — what the plan/change was]."
 ```
 
 (`quality-auditor` is the kit's purpose-built post-implementation auditor: it classifies each
 file SOUND / SHORTCUT / HACK as a counter to the implementer's close-the-task bias, and reads
 `.claude/rules/` + PROJECT.md → Architecture itself — its verdicts feed the Architecture Audit
-table directly. `deep-analyzer` / `code-reviewer` stay available for a second opinion.)
+table directly. `deep-analyzer` / `code-reviewer` stay available for a second opinion. Name the
+diff by path and range, never as work of your own — #23 in `docs/agent-failure-modes.md`.)
 
 If the audit flags issues:
 1. **Route each one through the finding table above** before touching anything — an audit finding
@@ -451,7 +473,8 @@ No-deviation form:
 
 If you skipped a step, explain why and confirm user approval was obtained.
 State the ledger count — `Steps: N/N accounted for` (done / deviated / skipped, no row
-left at `todo`); a short count is an unfinished build, not a formatting slip.
+left at `todo`); a short count is an unfinished build, not a formatting slip. A minimal
+edit still has a price: name which unit grew and what the change leaves untested.
 Confirm this table + Changes Made were appended to the plan file, or note
 "no plan file — log skipped".
 

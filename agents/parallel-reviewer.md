@@ -88,8 +88,8 @@ handlers): thin entry → delegation to the layer where logic belongs (per `PROJ
 shapes in sibling files is itself a finding (which shape does a newcomer copy?).
 
 **Style & hygiene** (per generic + matched rules) — no debug output; naming; no
-commented-out code; no magic numbers; no boolean flag parameters; new code has a
-corresponding test or a stated reason why not.
+commented-out code; no magic numbers; no flag parameters (a literal at every caller AND
+a branch in the body); new code has a corresponding test or a stated reason why not.
 
 ## Plan/epic target (fold-back)
 

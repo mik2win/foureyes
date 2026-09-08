@@ -102,7 +102,7 @@ finding; a surprise is signal either way.
 |---------|---------|--------|
 | **HOLDS** | load-bearing assumptions verified true today | re-affirm: note "revisited YYYY-MM-DD — holds" on the ADR; no further work |
 | **STRAINED** | an assumption is weakening but not false | set a **tripwire** — a measurable condition ("p95 > Xms", "library goes 12 months without a release", "second team forms") recorded on the ADR; do NOT reopen now |
-| **BROKEN** | a named load-bearing assumption is false today, with evidence | reopen — route in Phase 4 |
+| **BROKEN** | a named load-bearing assumption is false today, with evidence — an accumulated list of the tool's defects is not one unless a named defect blocks a named requirement | reopen — route in Phase 4 |
 
 The **anti-relitigation gate**: a BROKEN verdict must cite the assumption verbatim and
 the evidence that falsifies it. If you cannot fill both slots, the verdict is HOLDS or
@@ -152,6 +152,9 @@ policy) — tripwires are worthless if they die with the session — then presen
 
 - **Assumption audit, not preference audit.** Reopen only on a named broken assumption
   with evidence; taste is never grounds.
+- **Frustration is knowledge, not a verdict on the tool.** A list of a tool's defects is what
+  operating it produces; a replacement looks clean because nobody has operated it yet. Reopen on a
+  named defect blocking a named requirement — a list of learned defects is a tripwire, not a break.
 - **HOLDS requires checking.** Re-affirming without testing the assumptions is
   ossification wearing a checkmark.
 - **External facts verified live** — recalled library/ecosystem knowledge is dated by

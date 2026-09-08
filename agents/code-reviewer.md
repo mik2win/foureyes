@@ -40,7 +40,9 @@ Every issue you report MUST carry all of:
    add a new variant here, and why.
 
 An observation failing 1–3 is not a finding — drop it silently. "Cleaner" or "more
-idiomatic" without a scenario is taste, not a finding.
+idiomatic" without a scenario is taste, not a finding. The one feeling that *is* a
+finding: *I cannot hold this in my head* — report it with what defeated you (files,
+hops, the invariant you could not locate).
 
 ## How to review
 

@@ -62,6 +62,14 @@ Pin the experiment down before writing anything:
 - **Pass / fail signal** — the *observable* result that settles it, decided **up front**.
 - **Time-box** — the rough budget ("~15 min, then stop and report"). A spike is small;
   if it's growing into a feature, stop and route to `/prepare`.
+- **Hard cases** — name the two or three uses that fit *worst* and build at least one; write the
+  assumed volumes and concurrency as agreed numbers. A few hard cases are no veto, an unnamed one is.
+
+**When the hypothesis carries concurrency** — retries, webhooks, background jobs, two processes on one
+row — list the timelines and the resources they share *before* writing code, then walk the ladder in
+order: fewer timelines · shorter timelines · no shared resource · a safe sharing primitive · explicit
+coordination. Stop at the first rung that answers the question, and say in the report which rung the
+experiment stood on — a mechanism proved on one timeline proved nothing about the shape you will ship.
 
 If the hypothesis is unclear or hides several questions, ask **one** focused question
 via `AskUserQuestion` (the `/grill` one-at-a-time discipline) and narrow to a single testable claim.
@@ -136,6 +144,7 @@ session. Whether it's committed or kept local follows `PROJECT.md` → Artifact 
 **Setup**: <what the scratch experiment did, where it lived>
 **Verdict**: WORKS | DOESN'T | PARTIAL
 **Evidence**: <command + observed output/measurement>
+**Hard case**: <which one was built and what it cost — or why none was>
 **Caveats**: <what it did NOT prove>
 **Recommendation**: <route: /prepare | /implement | /analyst | abandon> — <why>
 **Report saved**: <plans path — the durable finding>
@@ -150,6 +159,7 @@ session. Whether it's committed or kept local follows `PROJECT.md` → Artifact 
   under the Architecture source paths from PROJECT.md.
 - **Time-boxed.** If the spike outgrows its budget or needs production changes to
   validate, STOP and route to `/prepare` — that's a planning task, not a spike.
+- **One hard case built.** A spike that exercised only the convenient path measured convenience.
 - **Facts from PROJECT.md.** Run/test commands and source layout come from the profile.
 
 ## Cross-reference

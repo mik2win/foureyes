@@ -134,15 +134,18 @@ For each hit, say *why* it is a hack and what the correct pattern is:
 - **Defensive masking** — catch-all handlers, silent fallbacks that hide the bug instead of
   handling a real failure mode (`rules/_generic/exception-patterns.md`).
 - Copy-paste: 3+ lines duplicated with minor variation where a helper belongs.
-- Boolean flag parameters that select between two behaviours (should be two functions).
+- A flag parameter (a literal at every caller AND a branch in the body; enums count) — two functions.
 - Deep nesting past ~3 levels where guard clauses would flatten it.
 - **Explanatory hack comments** — `# workaround for …` is the code telling you the finding.
 
 ### Check 6 — Composition over inheritance
 
-- Inheritance used for anything other than a true IS-A relationship.
-- Mixins (usually a hack — prefer composition through an interface plus delegation).
-- Inheriting from a **concrete** class rather than an interface.
+- Inheritance for anything but a true IS-A: a supertype method that does not apply to the subtype, or
+  a subtype instance invalid where the supertype is valid (Liskov substitution, the `/prepare` SOLID
+  row) — name the condition, not the slogan. Tells: an override raising "not implemented"; callers
+  branching on the concrete type; inputs narrowed or outputs widened against the parent.
+- Callers normalising the result (cast, null-coalesce, type check) — the callee broke the contract.
+- A second axis of variation in the hierarchy, or a class modelling both a type and its instances.
 - `super()` chained through several levels — fragile; prefer explicit delegation.
 
 ### Check 7 — Extensibility
@@ -189,11 +192,16 @@ For every state-mutating path in scope (persist, accumulate, finalize, publish, 
 
 - **Fires twice** — replay, restart, retry, a re-delivered event: same end state, or a doubled
   one? A blind `+=` on a counter or a balance with no processed-id guard is the canonical defect.
+- **Fires a day later** — by the time the retry runs, the state it read has moved: a token expired, a
+  price changed, the row was deleted. A decision recomputed from live state then does nothing, or the
+  wrong thing, and "same end state" still passes — so the check above cannot see it. A decision that
+  depends on a value at trigger time is *passed* that value. Partial idempotency is fine when named.
 - **Two racing paths reach the same write** — a normal path and its timeout/cleanup twin, a
   reconciliation loop overlapping the live handler.
 - **The guard is real, not conventional** — a predicate in the UPDATE, a unique constraint, an
-  upsert on a stable key, a deterministic idempotency key, a processed-id set. **"The caller only
-  calls it once" is not a guard.**
+  upsert on a stable key, a deterministic idempotency key, a processed-id set. It has to be
+  *enforced at the write* — a duplicate key raised and caught — not a `SELECT`-then-`INSERT` check,
+  which passes this audit today and still races. **"The caller only calls it once" is not a guard.**
 - **The transaction boundary matches the invariant** — a multi-step write that commits per step
   is a partial apply on crash.
 

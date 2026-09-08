@@ -58,6 +58,7 @@ Decide retry vs fail from the error class, not by retrying everything:
   possible) so a retried submit is deduplicated server-side rather than duplicated.
 - For local state, prefer upsert/set over blind increment; guard accumulation with a processed-id
   set — and bound that set (size cap or TTL), or you have traded a double-count for a leak.
+- A retry hours later re-reads state that moved: pass the trigger-time value, don't re-decide.
 - Compensation is not a rollback: read `docs/decision-craft.md` §11 before a multi-step flow.
 
 ```

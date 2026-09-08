@@ -24,6 +24,11 @@ history (`git log -p -- <file>`), and check it isn't a **sanctioned exception** 
 decision record, or a `paths`-matched rule that explicitly blesses the pattern. A pattern
 with a logged reason is intent, not a defect. No evidence, no finding.
 
+**Name the mechanism, not the feeling.** "Cleaner", "more idiomatic", "too complex" precedes a
+finding: restate it as the property of this code that makes it hard and what that costs — a wrong
+call invited, a change broken, a reader misled — or drop it. One feeling *is* a finding:
+*I cannot hold this in my head*; rank it, and say what defeated you (files, hops, the invariant).
+
 ## Phase 0 — Load profile
 
 **Tooling preflight — one call, before step 1.** Some tools this skill relies on are **deferred**
@@ -82,6 +87,9 @@ to fill it. The block is context for *why the code looks like this*, never estab
 press `[AGENT]` decisions hardest, because an agent's own choice re-labelled "the requirement"
 is how a review walks past its own author. A `[USER]` decision that looks wrong is not silently
 accepted either — raise it for discussion rather than reviewing around it.
+**Legibility is judged before the explanation.** Before collecting the block, write down where
+the code alone did not tell you what it does — an unnamed load-bearing order, a value whose
+origin you had to trace. Not a second pass: in Phase 2 a note lands on an anchor or is dropped.
 
 ## Phase 2 — Review workflow
 
@@ -99,7 +107,15 @@ Examine every changed file in this focus order; stop chasing once a category is 
    framework's specific anti-patterns.
 4. **Readability / convention** — naming, function size, duplication, dead code,
    wrong-layer logic and dependency-direction violations, magic values. Judge against
-   `code-quality.md` and the matched stack packs.
+   `code-quality.md` and the matched stack packs. Four checks that list does not reach:
+   - **One name, two concepts** — naming rules check a name in isolation, so a parameter reused
+     for two concepts at two call sites passes all of them. Does it mean one thing everywhere?
+   - **Each conditional, classified** — picking which object handles the case is fine; inspecting
+     a value and supplying behaviour on its behalf means a type is missing.
+   - **An abstraction that does not pay** — which error can the code no longer raise? If that
+     list outweighs the code it simplifies, the duplication was cheaper.
+   - **A public entry point, misread** — an ignored return value, or a flag assumed to raise:
+     misreading that fails open is a finding, misreading that fails closed is not.
 
 **Mandatory when the change writes state: the write-path check.** For every state-mutating
 path in the diff (persist, accumulate, finalize, publish), check idempotency and races
@@ -125,6 +141,10 @@ behaviour* (STRUCTURAL).
 `.claude/rules/_generic/code.md` — restating the code, commented-out code,
 debug/TODO leftovers, wrong language, multi-idea or unterminated comments. Report each
 as STYLE.
+**A notice is not a mitigation.** A risk answered with a comment, a `NOTE:`, a README line or a
+log warning is unmitigated — "it was documented" is no defence; a mitigation is a mechanism, or
+it sits where it cannot be walked past. Code that was hard to read is fixed by subtraction first,
+then by explaining only what survived the deletion.
 
 For a complex or high-risk module (intricate logic, security-sensitive, large refactor),
 delegate a deeper pass to the **`deep-analyzer`** agent (or the **`security-reviewer`**

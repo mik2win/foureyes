@@ -350,6 +350,10 @@ boundary rules) — do not assume any particular framework's layout.
 7. **Readers outside this repository**: when the change alters the shape, owner or location of
    stored data, name who else reads it — analytics, exports, another team's scripts — and how
    that was checked; the import graph cannot see them.
+8. **Autonomy, priced and bounded**: for any loop the design lets decide its own next move — a retry,
+   a self-correcting re-ask — name the price (latency, cost, and errors compounding as attempt N
+   builds on N−1), the stopping condition (max iterations, a budget, a timeout — a bound, not a hope),
+   and what it can reach while it runs. A refinement loop is legitimate; an unbounded one is a wager.
 
 ---
 
