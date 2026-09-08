@@ -10,6 +10,7 @@ installs:
   - react-conventions.md
   - fsd.md
   - react-testing.md
+  - ui-visual-hierarchy.md
   - rule: inertia-react.md
     when: "project uses Inertia.js"
     probe: "grep -Eq '@inertiajs|inertia' package.json 2>/dev/null"

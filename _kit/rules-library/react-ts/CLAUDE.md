@@ -51,6 +51,7 @@ No upward imports. Public API only via each slice's `index.ts`. See `fsd.md`.
 | `src/**`, `app/frontend/**` | fsd |
 | `pages/**` | inertia-react (if using Inertia) |
 | `*.test.*`, `*.spec.*`, `e2e/**` | react-testing |
+| Any `.tsx` / `.css` | ui-visual-hierarchy |
 
 For project context, read `.claude/rules/project-overview.md` first (if present).
 
