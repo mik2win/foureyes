@@ -264,7 +264,7 @@ research    spec        plan        build
 | "Review my changes / this PR" | `/code-review` |
 | "Tidy / simplify / de-dup this code" | `/refactor` |
 | "Where's the tech debt / what's rotting" | `/arch-health` |
-| "Monolith or microservices / should we split X into a service" | `/decompose` (→ `/rollout` on EXTRACT) |
+| "Monolith or microservices / should we split X into a service — or merge two back" | `/decompose` (→ `/rollout` on EXTRACT) |
 | "Is X still the right choice / we decided this long ago / why do we even use Y" | `/revisit` |
 | "Make the code consistent / extract our conventions into rules / what patterns do we have" | `/distill` (unification → `/sweep`) |
 | "New/inherited repo — разберись, как это устроено" | `/onboard` (then `/bootstrap` to write the profile) |

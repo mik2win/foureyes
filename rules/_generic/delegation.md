@@ -110,6 +110,10 @@ files instead of rediscovering, and can check any claim without this session's t
   silence means re-run or escalate, never "clean".
 - A verdict worth acting on at scale (delete list, release gate, CRITICAL finding) passes an
   adversarial check first — `finding-verifier`, or a second agent briefed to refute.
+- **A report is also evidence about the brief that produced it.** Judging an agent or skill you
+  just wrote, count what the run did before believing it: a call histogram and an error count
+  over `~/.claude/projects/*/*/subagents/agent-*.jsonl` — counts, never the transcript. Calls far
+  past the task's need are a scope gap in your brief; parameter errors, an unclear tool contract.
 
 ## Orchestration
 

@@ -109,6 +109,10 @@ Nothing lands without the user confirming the batch. Placement follows
   generator template (greppable codegen, per `rules/_generic/code.md` — never
   runtime magic); a UNIFY/BAN verdict hands `/sweep` a ready codemod spec (the FROM → TO
   pair + suggested tool), not prose.
+- **Automation, when the convention is mechanically decidable**: a rule a script,
+  generator, or template can enforce belongs there, and the document shrinks to a
+  pointer at the command — prose alone is not followed reliably, at any level of
+  seniority. Then test the automation: silent partial failure is its failure mode.
 - **Report**: `Write` the full inventory to the Plans location
   (`<plans>/<YYYY-MM-DD>-distill.md`) so verdicts survive the session (git policy per
   `PROJECT.md` → Artifact git policy).

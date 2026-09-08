@@ -18,7 +18,9 @@ Attention over a long prompt peaks at the start and the end. The kit's skill sha
 
 ## 3. One worked example beats three paragraphs
 
-An example is executable specification: a GOOD/BAD pair pins the interpretation that prose leaves open, and weaker models copy structure far more reliably than they follow descriptions. Where behavior matters, show it (`/sweep`'s FROM→TO pair, `/prepare`'s vague-vs-specific table, the spec template's concrete AC examples). Choose examples with **diverse edge cases** — the executor generalizes from the span of examples, not from the adjectives around them.
+An example is executable specification: a GOOD/BAD pair pins the interpretation that prose leaves open, and weaker models copy structure far more reliably than they follow descriptions. Where behavior matters, show it (`/sweep`'s FROM→TO pair, `/prepare`'s vague-vs-specific table, the spec template's concrete AC examples). Choose a few **diverse, canonical** examples of the behaviour you want rather than an enumeration of every edge case — a laundry list of exceptions makes the prompt longer and the behaviour less clear, and the executor generalizes from the span of examples, not from the adjectives around them.
+
+Two properties of the set are themselves instructions. **Order:** normal cases first and errors last teaches "things start fine and then go wrong", and that is the order a systematic sweep produces by default — shuffle unless the sequence is the lesson. **Proportion:** one example per class says the classes are equally likely, so on ambiguous input the executor drifts to the middle; either match the real rate or state it in words beside the examples, because a balanced GOOD/BAD pair reads as 50/50.
 
 ## 4. Positive instruction + targeted prohibition
 
@@ -32,9 +34,13 @@ Treat both as hypotheses about your prompt, not as facts about models — and se
 
 A mandatory output section is a checkpoint the executor cannot skip silently: the Deviation Report's mandatory no-deviation row, the gate tables, "Searched but absent". If you need a check to *happen*, give its result a required slot — and demand evidence in the slot (`path:line`, counts, verbatim output), because slots invite padding (failure mode #13). Allow honest "n/a — <reason>" so the template never forces fabrication.
 
+A verdict slot names its levels **in words**, not as labels: each level says what has to be true to earn it (`quality-auditor`'s three, `plan-verifier`'s five), because a bare CRITICAL / STRUCTURAL / STYLE list floats between runs — two instances of the same reviewer then return incomparable verdicts, and the aggregator reads a difference in bar as a finding about the code. Name the aspects being judged too (intent vs execution at the minimum), and split any "was it just right?" into "was it enough?" and "was it too much?", which are answerable separately.
+
 ## 6. Fresh context gets a total brief
 
 Subagents and next-session executors share nothing with you (failure mode #6 is the flip side: sharing *everything* poisons). No "as discussed", no pronouns pointing outside the text; file paths over descriptions; every needed fact in the brief or in a file the brief names. The five-part brief in `delegation.md` is this pattern's checklist; the Artifact-Continuity Contract is it applied to plans.
+
+Assume every snippet you include will be **used**, not merely available: an irrelevant one is not ignored, it is read as significant and produces a confident wrong decision rather than noise. Before adding a file, a log, or an earlier artifact to a brief, say in one line which decision in *this* phase it is meant to change; if you cannot, drop it. When the context genuinely is optional, give it its own frame — "prior art, for comparison, not necessarily relevant" — so it can be consulted without demanding to be used; unframed background is read as a requirement.
 
 ## 7. Name the executor's bias to its face
 
@@ -43,6 +49,8 @@ Telling the executor its predicted failure — "You have a bias to close the tas
 ## 8. STOP gates interrupt momentum
 
 Weak models comply with momentum: once moving, they keep moving past the point where they should have asked. Place explicit STOPs where continuing wrongly is expensive: STOP-if- TEMPLATE, confirm-before-creating-files, STOP-and-ask before skipping a plan step. A STOP is a *structural* pause — "be careful here" is not (exhortation decays; structure survives).
+
+A STOP is structure only where something outside the model can enforce it. A prompt-level prohibition on a destructive action leaks a fraction of the time by construction — the sentence competes with everything else in the context, and some share of runs does exactly the forbidden thing. Treat such a line as a *reminder* and name the structural gate that actually holds: a hook, a permission denial, a write scope narrowed to one directory, a human confirmation. Where no structural gate exists, write that down in the plan instead of trusting the sentence.
 
 ## 9. Write steps as checkable states, not actions
 

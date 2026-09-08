@@ -107,6 +107,11 @@ Closest to the per-skill cap: `epic-status` at 1 450 (86 characters of headroom)
 `close-epic` at 1 327. Recount whenever you make a skill model-invocable — the next one starts
 truncating the rare skills, and `close-epic` is exactly where the kit has measured misroutes.
 
+**A skill name lives in a listing you do not own.** `code-review`, `test`, `deploy`, `implement`
+and `discover` collide name-for-name with built-in commands shown in the same listing. Name a
+skill so its owner is readable from outside the name, and check a new name against the built-in
+list before shipping it.
+
 **And the budget is shared with the built-ins — but the truncation is not.** Measured with
 `/context all` in a consumer project (2026-08-04, `claude -p "/context all"` works outside the
 TUI): the Skills table lists **built-in and project skills together** — ~1.8k tokens of built-ins
@@ -175,6 +180,12 @@ reference you pull when relevant?"* → skill. When a rule grows heavy, split it
 pointer in the rule + the bulk in an on-demand skill (that's how the deep-module line in
 `code-quality.md` points to `/codebase-design`).
 
+**Before the altitude call, the existence call.** Name the closest existing skill and say in one
+sentence what separates them — a sentence a router could apply. Overlap is not free breadth: a
+caller facing two plausible entries picks the wrong one or stops early, and every added entry
+spends listing budget that pushes a rare sibling out of reach (§Platform caps). "Considered X,
+did not add it — Y already covers it" is a result worth recording, not a non-event.
+
 ## House conventions every kit skill follows
 
 - **Phase 0 — Load profile.** Read `.claude/PROJECT.md` first. If it's missing or still `TEMPLATE`,
@@ -227,7 +238,10 @@ or one throwaway subagent per run, on the smallest prompt that reproduces the fa
    does not produce the failure you are writing against, there is nothing to fix: drop the
    guidance instead of tuning it. Most candidate lines die here, and that is the protocol paying
    for itself — every line that dies is always-on context the kit does not spend.
-2. **5+ runs per variant.** One run shows the wording is *possible*, not that it *binds*.
+2. **5+ runs per variant, and name what that count can detect.** One run shows the wording is
+   *possible*, not that it *binds*. Resolution scales with the inverse square of the gap: ~10 runs
+   per arm separate a 30-point difference, ~100 a 10-point one. A margin inside your resolution is
+   "not shown to bind", not a win — the default at that outcome is to drop the line, as in step 1.
 3. **Read every hit by hand.** Grepping for the forbidden token counts strings, not behaviour;
    the failures worth finding are the ones that comply with the letter.
 4. **Score the variance, not only the rate.** Five runs that read the line five different ways
@@ -235,6 +249,10 @@ or one throwaway subagent per run, on the smallest prompt that reproduces the fa
    Convergent-wrong is better than divergent-right: it is fixable.
 5. **Change one thing per round**, and record the losing variants (backlog note or commit body) —
    otherwise the next author re-runs the experiment you already paid for.
+6. **State the scenario the way a user would.** A prompt that names the file, the id, or the tool
+   has handed over the answer; the run must find the entities itself, or it measures nothing.
+7. **Hold back a case you never tune against** and re-run it before claiming a win — tuning
+   against every case you own is how a wording that fits your examples stops working on the next.
 
 Two results worth knowing before the first draft (measured by `obra/superpowers` on their own
 skills; re-test rather than inherit, but do not start from the losing side):
@@ -253,7 +271,8 @@ skills; re-test rather than inherit, but do not start from the losing side):
 - [ ] Phase-0 profile load + `TEMPLATE` guard (or an explicit "optional" note).
 - [ ] No hardcoded commands/paths/frameworks — all via `PROJECT.md`/rules/`CONTEXT.md`.
 - [ ] Cross-references resolve to skills that exist; neighbours' DO-NOT-TRIGGER blocks point back.
-- [ ] If you added a skill: update the "What's in it" table **and** the Layout tree in
+- [ ] If you added a skill: you named the closest existing one and what separates them (§Rule vs
+      skill), then updated the "What's in it" table **and** the Layout tree in
       `guide/en/reference.md` + `guide/ru/reference.md` **and** `/which-skill`'s catalog (parity).
 - [ ] If you renamed or deleted one: `grep -rn '<old-name>'` across `skills/ agents/ rules/ docs/
       guide/ README.md settings.template.json _kit/` and fix every hit — a stale route is worse
