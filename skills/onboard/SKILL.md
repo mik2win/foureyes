@@ -70,21 +70,29 @@ entry → validation → domain logic → persistence → response/effects, citi
 at each hop. One deep vertical teaches the architecture's *dialect* — layering, error
 style, DI wiring, naming — better than ten shallow horizontals. Where the repo is large,
 fan out **Explore** agents in parallel with distinct lenses (by-entry-points, by-tests,
-by-config), but trace the spine yourself: the spine is judgment, not sweep.
+by-config), but trace the spine yourself: the spine is judgment, not sweep. Reconcile the
+trace against the Phase 2 run and mark each hop **observed** or **inferred**: reading
+misses the frames a framework injects — middleware, inherited callbacks, ORM hooks.
 
 **Read the tests as documentation**: test names are the behavior vocabulary; fixtures
 show the domain objects' real shapes; what has *no* tests is the first danger-zone entry.
+
+**When re-reading a method stops paying, frame it**: on paper, name each field it touches
+as a parameter, each mutation as a return value. A field overwritten before any read was
+never an input; a parameter you cannot name is a glossary candidate, not an "unclear" note.
 
 ## Phase 4 — History archaeology (the part files can't tell you)
 
 ```bash
 git log --format="%an" | sort | uniq -c | sort -rn | head   # who holds the knowledge (bus factor)
-git log --since="6 months ago" --name-only --format= | sort | uniq -c | sort -rn | head -20   # churn hotspots
+git log --since="6 months ago" --diff-filter=M --name-only --format= | sort | uniq -c | sort -rn | head -20   # churn hotspots
 git log --format="%ad" --date=short -1 -- <dir>             # per-area last-touched
 ```
 
 - **Churn hotspots** = where the business actually lives (and where bugs cluster —
   churn × complexity is the best bug predictor available without running anything).
+  Drop generated files, lockfiles and locale dumps, then say WHY each survivor churns —
+  feature work, repeated fixing, or a mass edit that orients nobody.
 - **Recent activity** = the current front: what the team is building now.
 - **The untouched old code** = either finished-and-stable or feared — `git log --grep`
   for revert/hotfix language around it tells you which.
@@ -115,7 +123,7 @@ list — that is what the user folds back into the profile and rules. Structure:
 ## Drift vs docs (verification mode only — each claim in PROJECT.md / CONTEXT.md / project
 ##   rules that the code contradicts: the claim, the `path:line` that disproves it, and which
 ##   of the two is now right. Omit this section entirely in cold mode.)
-## Hotspots (churn top-10) · Current front · Bus factor
+## Hotspots (churn, filtered — with why each churns) · Current front · Bus factor
 ## Danger zones (untested / feared-old / weird-with-unknown-reason)
 ## External surface (integrations, storages, queues)
 ## Glossary candidates (domain terms → /domain-model)
