@@ -194,6 +194,8 @@ Report concisely:
 - **Never hunt bugs here.** Correctness/security/crash analysis is `/code-review`'s job.
 - **Confirm destructive removals.** Don't silently delete exported symbols or back-compat
   shims callers may rely on.
+- **Never trade structure for a guessed cost.** A cleanup that "looks slower" still ships —
+  finish it, then take the doubt to `/perf` with a baseline, not to a watered-down move.
 - **Verify, never publish.** Run `format` + `test`; never `git add`/`commit` — suggest the
   command, the user runs it.
 
@@ -207,6 +209,7 @@ Report concisely:
   counterpart of `/simplify`. When both passes run on the same diff, quality findings
   belong HERE and correctness findings there — never report the same issue from both.
 - **`/test`** — add coverage BEFORE attempting a risky refactor so behavior is pinned.
+- **`/perf`** — where a suspected performance cost goes, after the structure is clean.
 - **`/arch-health`** — scans the WHOLE codebase for shallow modules & ball-of-mud
   hotspots and routes the one you pick here; this skill cleans the current diff on demand.
 - **`/codebase-design`** — the deep-module vocabulary D2's architecture hygiene draws on

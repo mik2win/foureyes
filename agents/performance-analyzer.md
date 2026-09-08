@@ -131,6 +131,7 @@ process vs async vs event loop differ sharply. Generic issues:
 | Serial independent I/O that could overlap | Run concurrently, bounded fan-out | wall-time ≈ slowest, not sum |
 | Blocking call on an async/event-loop thread | Offload to a worker / use the async API | unblocks the loop |
 | Lock held across I/O or heavy work | Shrink the critical section; copy-then-release | less contention |
+| Counter updated in place on a hot shared row | Append an activity row + roll it up; a race-free upsert removes the error, not the queue | writers stop serializing on one row |
 | Over-fine parallelism (task overhead > work) | Batch/chunk the unit of work | overhead amortized |
 | Nested parallelism oversubscribing cores | Parallelize one level; keep inner serial | avoids thrash |
 | Unbounded queue / concurrency | Apply backpressure / a bounded pool | bounded memory & latency |

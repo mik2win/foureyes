@@ -77,6 +77,17 @@ PROJECT.md → Architecture and the installed `.claude/rules/*`.
 
 Narrow from "something is wrong" to "this specific function/line is wrong":
 
+**Isolate by variation before isolating by reading.** The traceback names a line, not the
+condition. Re-run the Phase 1 reproduction with deliberate variations — one TINY (nearest
+simpler input, one flag off, ten rows instead of ten thousand), one LARGE (a distant config,
+an adjacent feature). Name the hypothesis a variation would delete before running it; one that
+deletes nothing is not worth the round trip. A run that still fails deletes a hypothesis; a run
+that stops failing names the difference. Treat every condition in the report as the reporter's
+hypothesis, never as observed fact: strip one at a time — an unnecessary condition deletes a
+whole module from the search. Read code only where the variations pointed. If the case cannot
+be varied here (prod-only, no repro env, timing-dependent), say so and read instead — never
+report a run you did not make.
+
 - [ ] Read the full traceback — identify the failing file and line.
 - [ ] Read that file; understand the function's purpose, inputs, and assumptions.
 - [ ] Trace the call chain backward: who calls it? What data does it receive?
@@ -112,6 +123,8 @@ Now that you know WHERE, understand WHY:
 - **Stale cache** — cached value no longer matches current inputs.
 - **Config mismatch** — code and config (or two configs) disagree.
 - **Type mismatch** — wrong type/coercion (e.g. float where int expected).
+- **Manual step** — the trail ends at a person's action: the cause is the information that was
+  missing, late or unusable, or the tool that made a routine action this destructive.
 
 Plus the stack-specific pitfalls documented in the installed `.claude/rules/*` — consult them.
 
@@ -120,10 +133,14 @@ Plus the stack-specific pitfalls documented in the installed `.claude/rules/*` �
 Apply the minimal, correct fix at the true cause:
 
 - [ ] Fix the root cause, not the symptom — no symptom masking.
+- [ ] Carry "delete code" as a hypothesis before adding any: a defect that looks like a missing
+      special case is often a symptom of an implementation that is too complicated.
 - [ ] Change as few lines as possible — surgical.
 - [ ] If a refactor is needed to fix cleanly, do it as a separate, prior step.
 - [ ] Does the fix handle all edge cases, or just the reported one?
-- [ ] Could the same bug exist elsewhere? `grep` for the pattern and note hits.
+- [ ] Name the defect class from the Phase 3 list (boundary/warmup, stale cache, race,
+      type mismatch) — a sibling spelled differently is invisible to a text search.
+- [ ] Could the same bug exist elsewhere? `grep` for the pattern and for other sites of that class.
 - [ ] Add a regression test that fails before the fix and passes after — use `/test`.
 
 ## Phase 5 — Verify
@@ -143,11 +160,11 @@ Confirm the fix works and nothing else broke:
 
 **Symptom**: [what the user reported — expected vs actual]
 **Hypothesis**: [initial theory before evidence]
-**Evidence**: [reproduction command + output, traceback, logs]
+**Evidence**: [reproduction command + output, traceback, logs, variation → result → hypothesis deleted]
 **Root Cause**: [fundamental reason — file:line, 1–2 sentences]
 **Fix**: [what changed and why — minimal, at the true cause]
 **Verification**: [reproduction re-run + test results]
-**Related Risk**: [could this exist elsewhere? grep results]
+**Related Risk**: [defect class; could this exist elsewhere? grep results]
 ```
 
 The durable products of a diagnosis are the **fix + the regression test**. If the user wants a

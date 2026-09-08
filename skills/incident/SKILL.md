@@ -114,7 +114,8 @@ variants, go back to Phase 1's "what changed" with the assumption audit from
       memory** (self-anchoring bends recollection toward the story where responders were
       right): detection → decisions → mitigation → recovery, each with a timestamp and
       source. **Blameless as a hard rule** — causes are systems and defenses, never people;
-      a review that names a culprit teaches everyone to hide the next incident.
+      a review that names a culprit teaches everyone to hide the next incident. Where the trail
+      ends at a person, name the missing or late information, or the tool that made it easy.
 - [ ] Each contributing cause gets a defense at a named altitude (`core.md`): detection
       (alert earlier), prevention (the `/rollout` stage or check that would have caught it),
       or mitigation (faster rollback path). Recurring patterns feed `/retro`.
