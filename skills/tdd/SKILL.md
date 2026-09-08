@@ -84,16 +84,21 @@ exactly what behaviour matters and how to verify it.
 
 - [ ] Confirm the **public interface** the change needs (signatures + the invariants/errors behind
       them). Ask: *"What should the interface look like?"*
-- [ ] List the **behaviours** to test, as capabilities — not implementation steps. Use `CONTEXT.md`
-      vocabulary in their names.
-- [ ] **Prioritize** — you can't test everything. Confirm with the user which behaviours matter
-      most (critical paths and complex logic, not every edge case).
+- [ ] List the **behaviours** to test, as capabilities — not implementation steps, in `CONTEXT.md`
+      vocabulary. Seed the list with three kinds of row: an example of every operation the feature
+      needs, the degenerate variant of every operation that does not exist yet (empty input, zero,
+      null, the no-op call), and the refactorings this session already owes.
+- [ ] **Prioritize what stays; order by cost.** Confirm which behaviours matter most — that decides
+      the list, not its sequence. Run the degenerate slice first: it answers only *where does this
+      operation live* and gets to green in minutes. Take each next slice on two conditions at once
+      — it teaches you something and you are sure you can pass it; if none does, one is missing.
 - [ ] Identify **deep-module opportunities** (small interface, deep implementation) via
       `/codebase-design` — a testable seam now saves mock-heavy tests later.
 - [ ] Get the user's approval on the slice list, then **write it to a scratchpad file** — one
-      row per slice, status `todo` / `green` / `dropped` — and update the row at the end of each
+      row per slice, status `todo` / `done` / `dropped` — and update the row at the end of each
       cycle. The loop below runs one slice at a time over many turns; a slice list held only in
-      the conversation is a slice list that quietly loses its tail.
+      the conversation is a slice list that quietly loses its tail. Keep the file open through the
+      loop — a case or a refactoring that surfaces mid-cycle is appended as a row, never chased now.
 
 For a bug fix, the first slice is a test that **reproduces the bug** (RED for the right reason)
 before any fix — see `/diagnose`, then come here to lock it in.
@@ -111,24 +116,57 @@ import error) proves nothing. See [tests.md](tests.md) for what a good test look
 [mocking.md](mocking.md) for the boundary-only mock rule.
 
 ### GREEN — minimal code to pass
-Write the **least** code that makes the test pass — even something blunt. Don't build for tests you
-haven't written yet (that's outrunning your headlights). Re-run `test:targeted` → green.
+Write the **least** code that makes the test pass — even something blunt. Blunt means shamelessly
+concrete: spelled-out cases and duplicated strings are a deliverable at this step, not a draft, and
+a first version caches nothing and shares no mutable state. Don't build for tests you haven't
+written yet (that's outrunning your headlights). Re-run `test:targeted` → green.
+
+GREEN has two gears. Default to typing the real code when you know what to type; **the moment a red
+bar surprises you, do not guess again** — back the change out to the last green and downshift to
+returning the constant the test expects, then let REFACTOR eat it.
+
+### When the bar stays red — pick the move
+Never write a new test while the bar is red, and never change production code that no currently-red
+test authorises. **Two consecutive failed GREEN attempts on one slice** is the counter that stops
+you editing: repeated struggle is design feedback, not a call to try harder. Before a third attempt
+answer which is true — wrong structure, wrong slice, or breakage piling up underneath — then pick
+the move by what is actually broken.
+
+- **You need a production change no test covers** → revert to the last green, write that test
+  there, make it pass, then replay the original change. Never stack a second unverified change on
+  a failing one.
+- **The slice will not go green in one small change** → revert the edits, record why it was too big
+  in the slice list, park its test with the stack's skip idiom and leave the row `todo`, then take
+  a smaller slice for the part that is actually broken green before restoring the parked test. A
+  parked test is a blocking debt: the suite is not green and Phase 3 is closed while one exists.
 
 ### REFACTOR — clean up, stay green
 Now improve the design with the test as a safety net: deepen the module, remove duplication, apply
 `code-quality.md`. Re-run after each change. See [refactoring.md](refactoring.md). Refactor the
 *test* too if it's coupling to internals.
 
-Then move to the next slice. Commit-sized increments; keep the suite green between slices.
+Then move to the next slice — but the row moves to `done` only after REFACTOR, once the duplication
+this slice's fake introduced between the test's data and the code is gone (`refactoring.md`). A row
+closed on a green bar alone is how a temporary constant becomes permanent. Commit-sized increments;
+keep the suite green between slices.
 
 ---
 
 ## Phase 3 — Finish
 
 1. Run the **full** `test` command (PROJECT.md → Commands) — no new failures.
-2. Self-review against `rules/_generic/testing.md`: every test asserts real behaviour, no domain
+2. **Play devil's advocate before calling the tests sufficient.** In a scratch buffer you never
+   save, write the dumbest wrong implementation that still passes every test of this feature —
+   branch on a literal, return the first element, hard-code the answer — then restore the real one
+   before anything else. A cheat that survives means the suite is underspecified: add the slice
+   that kills it, where its false premise lives. Stop when the surviving cheat is one that
+   generalising the code defeats rather than another test.
+3. **Re-aim at where the code turned out hard.** The slice list was written before the code existed
+   and covers intended usage, not actual difficulty — re-read what you wrote and add a slice
+   wherever it got complex: a branch you had to think about, an interaction the list never named.
+4. Self-review against `rules/_generic/testing.md`: every test asserts real behaviour, no domain
    logic mocked, names say what broke, no implementation-coupled tests.
-3. If new domain terms or a design decision surfaced during the loop, hand off to `/domain-model`
+5. If new domain terms or a design decision surfaced during the loop, hand off to `/domain-model`
    to record them in `CONTEXT.md` / an ADR.
 
 ---
@@ -141,7 +179,7 @@ Then move to the next slice. Commit-sized increments; keep the suite green betwe
 ### Slices (red→green→refactor)
 | # | Behaviour (what) | Test name | Status |
 |---|------------------|-----------|--------|
-| 1 | <capability>     | test_...  | green  |
+| 1 | <capability>     | test_...  | done   |
 
 ### Files
 - tests:  <paths>
@@ -151,7 +189,8 @@ Then move to the next slice. Commit-sized increments; keep the suite green betwe
 <targeted per slice> · <full suite: pass/fail>
 
 ### Follow-ups
-<deferred behaviours, /domain-model terms to record, or "none">
+<deferred refactorings, /domain-model terms to record, or "none" — a slice you can name and
+suspect will fail is not a follow-up; it runs in this session>
 ```
 
 ---

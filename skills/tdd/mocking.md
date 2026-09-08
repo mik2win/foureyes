@@ -12,7 +12,10 @@ framework's mocking syntax — this file is the *decision*, not the API.
 **Mock external boundaries only. Never mock your own domain logic or same-module internals.**
 
 - ✅ Mock: network calls, the database when you're not testing persistence, the filesystem, the
-  clock/`now`, `sleep`, third-party SDKs, message queues.
+  clock/`now`, `sleep`, message queues — and a third-party SDK only through a wrapper you own.
+  Faking a vendor object directly asserts a contract that is not yours; wrap it in the narrowest
+  interface your code needs and fake that. No wrapper and a wide vendor surface → record it as a
+  finding and route the seam to `/refactor`, rather than inventing one mid-slice.
 - ❌ Don't mock: the function under test, its same-module collaborators, value objects, pure
   domain logic. Mocking those tests the *mock*, not the behaviour.
 
@@ -31,6 +34,9 @@ test should swap a fake at *that* seam instead.
 - A **mock that asserts call count/args** couples the test to *how* the code works. Use it only
   when the side effect itself (that the email was sent, that the event was published) is the
   behaviour under test — not when you're really checking a return value.
+- When the call itself is the contract, assert it exactly — the expected call with its exact count
+  *and* the absence of any other call on that double. A surprise message across an external
+  boundary breaks a consumer as surely as a missing one; inside the process that is overreach.
 
 ## Smell: too many mocks
 

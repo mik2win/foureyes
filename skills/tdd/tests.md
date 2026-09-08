@@ -28,6 +28,8 @@ If a failing name doesn't tell you what broke without opening the file, rename i
   through the interface*) — not a private field or an internal call you happened to make.
 - A test that needs to reach inside the implementation is a signal the **seam is wrong** — move it
   (`/codebase-design` → DEEPENING.md) rather than mocking deeper.
+- Crossing the persistence boundary: assert on the value re-read through a fresh session or query,
+  not the object arrange handed you; clear shared state at the start of the test, not in teardown.
 
 ## One behaviour per test
 

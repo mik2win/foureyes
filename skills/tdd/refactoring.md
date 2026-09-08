@@ -17,8 +17,12 @@ green. If a change makes a test fail, you altered behaviour — that's not a ref
 - **Deepen the module.** Apply the moves in `/codebase-design` → DEEPENING.md: collapse a leaky
   interface, pull complexity down, own a leaked decision, move a seam. The test you just wrote
   proves you didn't break anything.
-- **Remove duplication.** The third copy of a thing is the rule — extract it to the lowest layer
-  both callers reach (per `PROJECT.md` → Architecture).
+- **Remove duplication.** Look first between the test's data and the code's: a constant in the
+  implementation that the test also spells out is one value written twice, and here the first copy
+  is the one that must go. Rewrite it as the expression the test implies, then replace its
+  constants with variables until it is gone — that removal is what generalises the code, and test
+  data is a real caller, not speculation. Between two pieces of code the third copy is still the
+  rule — extract it to the lowest layer both callers reach (per `PROJECT.md` → Architecture).
 - **Clean to the floor.** Apply `rules/_generic/code-quality.md`: function size, guard clauses,
   intent-revealing names, no dead code or magic values.
 - **Refactor the test too.** If the test couples to internals, fix it now — move it to the right
@@ -33,6 +37,14 @@ green. If a change makes a test fail, you altered behaviour — that's not a ref
 - **Don't gold-plate.** Refactor toward the design the *current* behaviour needs, not toward
   imagined future features. Generality is justified by real callers (`/codebase-design`), not by
   speculation.
+
+## Changing structure safely, one reversible step
+
+When the refactor replaces code that already works, run four steps with the suite between each: new
+code parsed, executed with its result discarded, its result used, old code deleted. A batch you
+cannot undo in one motion is too big. When extracting, **copy rather than move** — change nothing in
+the copy until the original fully delegates, and say when it does: the original's tests are now
+integration tests for the pair, and the extracted unit needs its own.
 
 ## Where the bigger cleanups go
 
