@@ -33,7 +33,7 @@ Framework-neutral. Stack packs name the concrete test runner, fixtures and facto
 
 - Public behaviour and contracts, not private implementation details.
 - Edge cases: empty, boundary, error path, concurrency where relevant.
-- Bug fixes start with a failing test that reproduces the bug.
+- Bug fixes start with a failing test that reproduces the bug; every new test is seen red.
 - Don't test: library/framework internals, exact rendering, thin I/O wrappers — test the pure
   logic they wrap; the exception is a persistence mapping, which gets one real CRUD round-trip.
 
@@ -73,6 +73,7 @@ Severity-ordered — flag these in any test review:
 | Test/case/assertion deleted or weakened without justification | CRITICAL | fix the code or the test's premise; name every removal in the report |
 | Expected value computed — the code's formula, a loop, another method | CRITICAL | hard-code the literal from the spec; duplicated expectations are the point |
 | Production code branches on "am I under test" (env flag, test mode) | CRITICAL | substitute through a seam in test code; per-environment capability config is fine |
+| New test never seen red | CRITICAL | inject a fault, watch it fail, revert, confirm green |
 | Real network / clock / filesystem in a unit test | STRUCTURAL | mock the boundary, or move to the integration lane |
 | Unfrozen current time / unseeded randomness | STRUCTURAL | inject a fixed clock / seed; second-stage race repro with a calibrated timeout is the one exception |
 | Shared mutable state → order dependency | STRUCTURAL | give each test its own state |

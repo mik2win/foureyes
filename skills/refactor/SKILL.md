@@ -154,7 +154,8 @@ the source of truth for stack specifics — reference them generically, never du
    Merge two units by making them textually identical first, one micro-change at a time; replace
    a stored value by running new beside old and asserting they agree at every read before
    deleting the old. Name each move before making it and its mirror after; name its abort
-   condition first (`docs/decision-craft.md` §1).
+   condition first (`docs/decision-craft.md` §1). Replacing working code wholesale runs as the
+   reversible sequence in `skills/tdd/refactoring.md` §Changing structure safely.
 2. **Stay pure**: if a change could alter behavior, is ambiguous, or needs a judgment call
    (e.g. removing code that might be used by reflection, changing a public signature),
    STOP and ask the user instead of guessing. Defer rather than risk semantics.

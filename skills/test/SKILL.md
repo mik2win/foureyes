@@ -268,9 +268,10 @@ touching now.
 - [ ] Floats compared with tolerance; exceptions assert type + message.
 - [ ] Reusable fixtures and object builders live in shared/factory locations, not inline.
 - [ ] Tests that touch IO boundaries are marked/categorized per stack convention.
-- [ ] **Mutation thinking:** for each critical-path test, name one plausible bug that would
-      still pass it (off-by-one, wrong branch, swallowed error). If such a bug survives, the
-      assertion is too weak — assert exact values, resulting state, or the side effect itself.
+- [ ] **Mutation thinking:** for each critical-path test, name one plausible bug that would still
+      pass it (off-by-one, wrong branch, swallowed error) — a survivor means the assertion is too
+      weak; assert exact values, resulting state, or the side effect itself. Once for the whole
+      suite: the dumbest implementation that still passes every test names a missing case (`/tdd`).
 
 ---
 
