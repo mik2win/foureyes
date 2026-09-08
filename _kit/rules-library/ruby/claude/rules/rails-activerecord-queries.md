@@ -28,6 +28,7 @@ Decision tree:
 - **Filtering/ordering by association columns:** `eager_load`, or `includes` with `references`.
 - **Large dataset, no filtering on association:** `preload`.
 - **Need to avoid a JOIN:** `preload`.
+- **Unbounded association: neither.** Eager-loading an association that grows without limit is the worst of the two diffs — it trades N small queries for one that pulls the whole history into memory. Bound the association where it is declared (a `has_many` scope with a limit or a date window, or a separate paginated query), not after the rows are loaded.
 
 - Nest (`includes(comments: :author)`) and list multiple associations in one call.
 - String SQL conditions on an included association need `.references(:comments)` to force the JOIN; hash conditions (`where(comments: { ... })`) auto-detect.

@@ -35,7 +35,7 @@ Service object fundamentals (Pattern 1: single `#call`, Pattern 2: multi-method 
 | **View** | Display only — no data processing, no business logic | templates, partials |
 
 **Key architecture rules:**
-- **Models are not god objects.** When a model grows beyond its own data logic → extract to concern (shared trait) or service (orchestration).
+- **Models are not god objects.** When a model grows beyond its own data logic → extract to concern (shared trait) or service (orchestration). Extract for the second reason too: when the shape the model needs — its own relationships, collections, subtypes — is not in the schema, or the schema is not yours to change → PORO / value object / query object.
 - **Controllers have no business logic.** Only auth, params, coordinating calls, respond. Multiple calls are fine — business *decisions* are not.
 - **Jobs have no business logic.** They delegate to services; jobs handle retries and scheduling.
 - **Concerns are for reusable traits**, not dumping grounds. 2+ models need `archive!`/`archived?` → concern. One model's method is 50+ lines → service.

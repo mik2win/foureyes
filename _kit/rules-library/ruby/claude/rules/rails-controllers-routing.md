@@ -34,6 +34,8 @@ For OOP principles and service object patterns, see `ruby-oop.md`.
 ## 3. Filters (before_action, around_action)
 
 - Use `before_action` for auth, loading records (`set_order`), and authorization guards; `skip_before_action` to opt specific actions out.
+- **Declare the gate with `except:`, never `only:`.** `before_action :require_admin, except: %i[index show]` makes an action added later inherit the guard; `only:` turns the protected set into a hand-kept registry that drifts the first time someone adds an action, and the endpoint ships unauthenticated. `raise_on_missing_callback_actions` (7.1+) does not catch this — it only flags filter names that no longer exist.
+- The polarity inverts for `skip_before_action`: there `only:` is the whitelist that fails closed and `except:` the blacklist that fails open. Reviewing a controller, grep `before_action.*only:` on guard-named filters and `skip_before_action.*except:` — every hit is an access-control finding until shown otherwise.
 - Execution order matters — filters run in declaration order. Halting (`redirect_to`, `render`) stops the chain. Place guards broadest to most specific.
 - `around_action` wraps the action (useful for time zones, transactions).
 

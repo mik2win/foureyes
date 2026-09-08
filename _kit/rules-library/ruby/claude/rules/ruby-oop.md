@@ -66,6 +66,7 @@ These are the object-design principles the team actively follows — apply them 
 
 - Use modules/mixins for shared behavior. Avoid deep inheritance chains.
 - Inheritance only when "is-a" is truly present and types share identical structure (1-2 levels max), e.g. custom error classes under `StandardError`.
+- **The hierarchy is wrong, not merely deep**, when a child uses a fraction of what it inherits and overrides the rest to `raise` or to do nothing — replace with delegation, or lift only the genuinely shared part into a new parent. Framework base classes (`ApplicationRecord`, `ApplicationController`, `ApplicationJob`) are exempt; judge the classes written in this project. A parent declaring `NotImplementedError` is a contract (see section 5), not this smell.
 
 ## 11. SOLID + DRY + YAGNI
 

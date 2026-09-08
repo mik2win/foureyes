@@ -161,6 +161,8 @@ Canonical ordering inside every model — declarations (what the model IS) befor
 - **Business logic in controllers** — computing status/discounts in `create`. The controller coordinates; logic lives in model/service.
 - **Query logic in controllers** — raw `where(...)` chains in actions belong in scopes (`Order.active.recent.includes(:customer)`).
 - More than 3 callbacks signals accumulating responsibilities — extract to service objects (see `ruby-oop.md`).
+- **Schema-shaped model** — the model needs relationships, collections or subtypes the tables do not carry, or the schema belongs to another system and is not yours to change. A thin model with no callbacks can sit past this line: size is the other axis, not this one.
+- The move: extract the diverging part into a PORO or a value object, read a foreign schema through a query object or a gateway, and stop closing the gap by adding one more attribute to the model.
 
 ---
 
