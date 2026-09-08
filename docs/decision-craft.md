@@ -22,6 +22,8 @@ Two systematic misjudgments to correct for, and the tiebreak for when neither se
 
 **The senior move is a third option: change the door, not the decision.** Before accepting one-way-door process costs, ask what would make this decision reversible — a backup taken first, a feature flag around it, an expand-contract sequence instead of in-place mutation, an abstraction seam so the choice is swappable. Buying reversibility is almost always cheaper than buying certainty. This is the principle behind `/rollout`, the kit's bootstrap/teardown backups, and `/prepare` routing irreversible steps to plan mode — one mechanism, many wearings.
 
+**Reversibility bought is not reversibility used.** A backup, a flag, or an expand–contract seam only pays if someone pulls it, so name the trigger before the first step: which signal means roll back, who will see it, and by when. The same holds one level down — every individual move in a refactor, a migration, or a rollout has an abort condition, and a move that meets a complication its recipe does not cover is reverted and reported as not done, with the blocker named. Improvising a workaround mid-move is how a reversible change quietly becomes a one-way one; a refused move is a normal, reportable outcome, not a failure.
+
 ## 2. The cheapest killing probe
 
 When a design, diagnosis, or plan is on the table, the instinct is to start executing it — or to gather evidence *for* it. Both are wrong. The highest-value next action is the **cheapest experiment that could kill it**:

@@ -89,7 +89,8 @@ Language-neutral defaults. Stack packs may tighten these; they never relax safet
 ## Constants & magic values
 
 - No magic numbers/strings in logic — name them (const / enum) near their meaning.
-- Prefer enums/typed dispatch over chains of string/type-check comparisons.
+- Prefer enums/typed dispatch over string/type-check chains — except against a core or
+  long-frozen type: name the unstable dependency removed, or leave it alone.
 
 ## Algorithmic sizing
 

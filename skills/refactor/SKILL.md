@@ -62,7 +62,11 @@ Read every target file in full before judging it. Match each file against the ru
 
 ## Phase 2 — Refactor dimensions
 
-Apply these in order. Each is QUALITY-only; never alter observable behavior.
+Apply these in order. Each is QUALITY-only; never alter observable behavior. Give every
+candidate a verdict before it can become an edit: FIRST — it makes the change you are about to
+make cheaper; AFTER — that change is done and this area is due again soon; LATER — real, no
+payoff attached to today's work; NEVER — this behaviour is not changing again. Only FIRST and
+AFTER are applied; the rest go to Output § Deferred. A first-of-its-kind mess is never LATER.
 
 ### D1 — Language modernization (per installed rules)
 Apply the modern-idiom and anti-pattern checks defined in the matched stack rule packs
@@ -72,24 +76,50 @@ idioms — use only what the installed rules prescribe for this stack.
 ### D2 — Architecture & layer hygiene (per PROJECT.md)
 - **Boundaries**: imports point inward only; no sibling-to-sibling coupling; cross-boundary
   wiring lives in the composition root named in PROJECT.md.
-- **SRP**: each unit has one reason to change. If describing it needs "and" → split.
+- **SRP**: each unit has one reason to change. If describing it needs "and" → split. First
+  answer aloud whether a second use site exists and whether an alternative implementation does;
+  neither → the split buys an interface and no depth, so leave it and say why.
 - **Layer purity**: domain/business logic stays free of I/O, rendering, and framework calls
   per the layering in PROJECT.md; orchestration and presentation stay in their layers.
 - **Boundary conversion**: external/raw responses are mapped to domain types at the adapter
   edge, not passed raw into inner layers.
+- **Irremovable dependencies**: one you cannot remove is exposed in a single place, not buried —
+  construction lifted into the constructor or one lazy accessor, a fragile external call wrapped.
 
 ### D3 — Function quality (per code-quality rule)
-- **Size**: extract when a function exceeds the limits in the code-quality rule, or when
-  it operates at more than one level of abstraction (SLAP).
+- **Size**: a limit passed is a look, not a cut — extract only at a seam where meaning and
+  mechanics part ways and the split test holds (the piece reads without its caller, the caller
+  without opening the piece); otherwise keep the function long and say why. Outputs include side
+  effects: list the mutations before choosing the cut. Extract into the SAME unit first with an
+  awkward name; moving it elsewhere is a separate step, and a branch moves with its condition.
 - **Naming**: names state intent; rename the unclear.
-- **Parameters**: 0–2 ideal; 3 acceptable; 4+ → group into a parameter object. Replace
-  behavior-switching boolean flags by splitting the function.
-- **Guard clauses**: flatten nesting with early returns.
-- **Command/Query separation**: a unit either does something or returns something.
+- **Parameters**: 0–2 ideal; 3 acceptable; 4+ → group into a parameter object, and replacing two
+  or more fields still pays. A flag is any argument every caller passes as a literal and the body
+  branches on — enums and strings too, not a computed value; split the function. For an Extract
+  Class cut, remove one member and note what became nonsense: that list, not the count, is it.
+- **Guard clauses**: flatten nesting with an early return only when one leg is the unusual case
+  AND nothing runs after the block — an audit call or a log after the `if` makes the flattening a
+  behaviour change (Phase 3 rule 2 applies: confirm first).
+- **Command/Query separation**: a unit either does something or returns something. The test is
+  *observable* side effects — caching, memoisation and lazy initialisation pass it and are not
+  violations; do not flag them.
+- **Conditionals**: one that picks which object handles a case is fine; one that inspects a value
+  and supplies behaviour on its behalf means a type is missing (a switch on the receiver's class,
+  a `respond_to?` chain, an attribute named type/kind). Report what is missing, not "simplify".
 
 ### D4 — Duplication extraction (DRY)
-Same logic, computation, or construction in 2+ places → extract to one shared unit placed
-per the architecture in PROJECT.md. Do not over-abstract incidental similarity.
+Same logic, computation, or construction in 2+ places → extract to one shared unit at the lowest
+layer both callers reach, per the architecture in PROJECT.md. Extract only what changes for the
+same reason: identical bodies encoding two rules are coincidence, and two cases do not show the
+axis of variation — name it, or wait for the third. Derive the abstraction, do not invent it: take
+the two most alike cases, remove the single smallest difference, run the suite, repeat. Gates —
+what does the merged version simplify (removing duplication is not itself a reason); which error
+can it no longer raise loudly; does it read harder than the copies, and then stop. Judge by
+result: one place to edit per behaviour, and a wrong abstraction gets dearer with every caller.
+An abstraction already proved wrong is undone by procedure: inline it back into EVERY caller,
+delete in each what its arguments show it never runs, then re-extract with all cases visible.
+Before a stand-in object replaces a repeated null check, say what the absence means — "there is
+none" and "there is one but unknown" differ; a site still asking "is this real?" guards instead.
 
 ### D5 — Dead-code removal
 Delete unused imports/symbols, unreachable branches, commented-out code, and stale
@@ -97,7 +127,10 @@ TODO/FIXME/legacy/back-compat shims (MVP-stage projects keep no re-export stubs)
 magic numbers with named constants. Delete comments that merely narrate the code; keep only
 non-obvious WHY. Confirm before deleting anything that could be a public/exported symbol or
 a back-compat shim callers may rely on — never remove user-visible behaviour silently
-(Phase 3 rule 2 applies).
+(Phase 3 rule 2 applies). Before deleting an override or a field that may shadow a base one,
+text-search the tree for a base definition of the same name: found → the deletion is a behaviour
+change, not cleanup, and a green build proves nothing. When the complaint is "I can't follow
+this", subtract before explaining and comment only what survives removal.
 
 ### D6 — Stack-specific dimensions
 Apply every additional check defined in the installed stack rule packs matched in Phase 0
@@ -113,7 +146,15 @@ the source of truth for stack specifics — reference them generically, never du
    before the first `Edit`. A refactor is a multi-site, judgment-bearing edit whose diff the user
    is expected to review as a whole, so the gate is *"apply these N?"*, not a per-edit prompt.
    Skip it only when the user's own request already named the exact change ("rename X to Y here").
-1. **Apply** the cleanups with Edit, smallest safe steps first.
+1. **Apply** the cleanups with Edit, smallest safe steps first, running the tests after each
+   step, never once at the end and never from a red bar. A step that reddens the suite and is not
+   obvious in seconds is reverted to the last green and redone smaller — never debugged forward;
+   a reverted step is a result, not a failure. The red reads exactly two ways: behaviour changed
+   (revert), or the test asserted an interaction the refactor dissolved (fix the test, say so).
+   Merge two units by making them textually identical first, one micro-change at a time; replace
+   a stored value by running new beside old and asserting they agree at every read before
+   deleting the old. Name each move before making it and its mirror after; name its abort
+   condition first (`docs/decision-craft.md` §1).
 2. **Stay pure**: if a change could alter behavior, is ambiguous, or needs a judgment call
    (e.g. removing code that might be used by reflection, changing a public signature),
    STOP and ask the user instead of guessing. Defer rather than risk semantics.
@@ -124,6 +165,8 @@ the source of truth for stack specifics — reference them generically, never du
    offending edit and report it. If a risky refactor lacks coverage, suggest `/test` first.
    If `test` is `n/a` (no suite at all), say so and lean harder on staying pure —
    recommend `/test` before any non-trivial refactor, since nothing else pins behavior.
+   If the unit will not instantiate in a harness at all, read `skills/refactor/LEGACY.md` and
+   follow it instead of widening this pass.
 
 For large or multi-file targets, fan out reading/analysis with the Agent tool, then apply
 edits yourself so changes stay coordinated.
@@ -137,7 +180,9 @@ Report concisely:
 - **Changes by dimension** — what was cleaned up under each of D1–D6 (one line each).
 - **Files touched** — absolute paths.
 - **Verification** — `format` result and `test` result (pass/fail + summary).
-- **Deferred** — anything skipped as risky/ambiguous, with the reason and what to ask.
+- **Deferred** — anything skipped as risky/ambiguous or verdicted LATER/NEVER, with the reason.
+- **Price** — what the pass cost as well as bought: more indirection, a worse metric, debts left.
+  More complex than the problem it removed → revert; an invisible concept made visible still wins.
 
 ---
 

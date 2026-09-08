@@ -56,7 +56,7 @@ def run_report(cfg):
 
 ## Command/Query separation
 
-- A **command** changes state and returns little; a **query** reads state and causes no
-  side effects. Keep them separate methods/functions — don't return data from a mutator or mutate
-  inside a reader (atomic get-and-set is the deliberate exception).
+- A **command** changes state; a **query** has no *observable* side effect — caching and
+  lazy init pass that test, a write a later read sees does not. Keep them separate: no
+  data from a mutator, no mutation in a reader (get-and-set excepted).
 - Split read and write paths at the service layer so each can be reasoned about and tested alone.

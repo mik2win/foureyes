@@ -62,6 +62,8 @@ Multi-modal, like `/discover` — one search angle always misses:
   Each dynamic site is a judgment site by definition *and* a `rules/_generic/code.md`
   finding — the migration is the moment to make it static.
 - Glob file patterns the migration implies (e.g. every file importing the old library).
+- In a typed stack, break it on purpose: rename or remove the old symbol and let the compiler
+  enumerate the call sites grep missed, then restore. Untyped → say so and stay with search.
 
 Produce the **site inventory** — the sweep's single source of truth. **Write it to a file**
 (scratchpad, or alongside the report at the Plans location) rather than only into the reply:

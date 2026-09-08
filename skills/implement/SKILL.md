@@ -175,7 +175,9 @@ For each step, in order:
 3. **Tighten the feedback loop.** After each step (or small coherent group), run the fastest
    applicable signal — typecheck/lint/`test:targeted` from PROJECT.md → Commands — rather than
    batching all verification to the end. A mistake caught one step later costs one step of
-   rework; caught at the end, it can cost the session.
+   rework; caught at the end, it can cost the session. Never start a step on a red bar, and when
+   one reddens the suite without an obvious cause, revert to the last green and redo it smaller
+   rather than debugging forward — naming the abort condition first (`docs/decision-craft.md` §1).
 4. **Track deviations at the moment of decision — not retrospectively.** The instant your
    actual action differs from the plan (different approach, skipped item, extra action),
    append a row to the **ledger file's** `## Deviations` section — the file named above, on
