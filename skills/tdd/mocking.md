@@ -34,6 +34,14 @@ test should swap a fake at *that* seam instead.
 
 ## Smell: too many mocks
 
-More than ~2 mocks in one test usually means it's really an **integration test** — let it be one
-(test through a wider seam with real collaborators and only the outermost boundary faked), or the
-unit under test is too shallow/leaky and wants deepening first.
+Painful setup is a report about the code, not a problem to write around. Name what it reports before
+you reach for a wider seam, a shared fixture, or the integration label:
+
+- a long arrange before the unit will run → the object expects too much context;
+- objects dragged in that the assertion never mentions → too many dependencies;
+- a stub that must return another stub → the unit reaches through a collaborator for behaviour;
+- an expectation too large to state → a value is hard-coded that should have been injected.
+
+Extract and inject what the test is fighting; out of scope here → report it as a finding instead of
+writing around it, and widen to integration only when the seam is genuinely wide. The implication
+runs one way: cheap tests are not evidence of good design, and a unit's tests are its first reuse.

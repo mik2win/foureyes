@@ -59,6 +59,8 @@ public behaviours are exercised.
 - **Important (SHOULD test)** — core CRUD, service/command methods, business-rule
   queries, form/submit flows, stateful hooks.
 - **Low** — trivial getters, formatting, UI-only without logic, generated code.
+- Every gap names the requirement it defends; one that defends none is a dead-code candidate —
+  propose deleting the branch, never covering it.
 
 ## Phase 4 — Propose test cases
 

@@ -139,9 +139,17 @@ def test_order_workflow_persists_the_order():
     assert repo.get("o-1") is not None
 ```
 
-A fake exercises the real contract; a mock only records that you called it. Reach for the mock
-when the boundary is genuinely external and stateless (a network call), the fake when it has
-state (a store, a queue, a cache).
+A fake exercises the real contract; a mock only records that you called it. Reach for the fake when
+the boundary has state (a store, a queue, a cache) **or** when its failures are not expressible in its
+interface (network, protocol); for the mock when the call with specific arguments is the behaviour.
+
+**A client for an external provider** is where both apply. Test the contract from your side, in two
+halves that never call the provider: (a) assert the serialized outgoing request against the schema
+recorded per `rules/_generic/external-api-integration.md` — the one place a boundary client asserts
+on call arguments; (b) feed it every response the spec allows — each documented error code, an
+unknown enum member, an absent optional, an empty and a maximum-size collection. A double misbehaves
+only as your interface allows, so for failures that violate it run a fake server in a fixture on an
+ephemeral port: accepts and never replies, returns HTML where JSON was promised.
 
 ## Assertion quality
 
@@ -161,6 +169,9 @@ assert flag is True
   never `==`.
 - Exceptions: assert **both** the type and the message, and make the message assertion contain
   the offending value — otherwise a differently-caused exception of the same type passes.
+- Values: pick the simplest that still exercise every branch, and give no constant two meanings —
+  `qty=3, price=4` catches swapped arguments where `qty=2, price=2` cannot. A loud value (`-99998.7`
+  where "any negative" was meant) is noise; generate large stress inputs in code, not as literals.
 
 ```python
 with pytest.raises(ValueError, match="unknown unit: 2h"):

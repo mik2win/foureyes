@@ -59,6 +59,8 @@ idioms in this skill.
 - Source file/feature given → **new tests** (Phase 2, then 4–7).
 - Existing test file/dir given → **refactoring** (Phase 2, then 6).
 - Both → do both, in that order.
+- Source with **no tests and nothing stating what it should do** (no spec, ticket, docstring or sibling
+  test) → **legacy mode**: read [`reference/legacy-mode.md`](reference/legacy-mode.md), characterize first.
 
 **Layer of the code under test** (use the layers named in PROJECT.md → Architecture):
 
@@ -66,7 +68,7 @@ idioms in this skill.
 |-------|----------|---------------|
 | Pure / domain | calculations, transforms, validators, value objects | Pure unit tests — no mocks, deterministic inputs from factories |
 | Service / use-case | commands, queries, orchestration | Mock only the external boundary; test the real domain logic they call |
-| Infra / IO | network, DB, filesystem, queues, clock | Mock the external boundary only; async-aware where the language has async |
+| Infra / IO | network, DB, filesystem, queues, clock | Mock the boundary for its callers; async-aware where the language has async. Every persistence mapping still gets one real create/read/update/delete round-trip in the integration lane — nothing else catches SQL drifting out of step with the code |
 | UI | components, views | Render + behavior via public output; query by role/text, not internals |
 
 The layer decides the strategy: unit (no mocks) vs mock-boundary vs async-aware vs render.
@@ -80,14 +82,19 @@ project's naming convention and grep the test tree for references to the units.
 For **new tests**, list every public unit (function, method, class, exported symbol) and
 mark coverage. For **refactoring**, list the existing tests and the antipatterns they carry.
 
-| Unit | Kind | Covered? | Priority |
-|------|------|----------|----------|
-| `process_order` | pure | partial | high |
+| Unit | Kind | Covered? | Verdict |
+|------|------|----------|---------|
+| `process_order` | pure | partial | unit-test thoroughly |
 | `OrderResult` | value object | yes | — |
-| `fetch_remote` | io | no | high |
+| `fetch_remote` | io | no | one integration test |
 
 Kind: `pure` (deterministic, no side effects) · `stateful` (mutates state) · `async` ·
 `io` (network/file/DB/clock).
+
+**Verdict — two axes, never a coverage percentage per layer.** Complexity/domain significance against
+the number of collaborators (mutable or out-of-process; values do not count, implicit ones through
+statics do). High + few → unit-test thoroughly. Low + few → do not test it at all. Low + many → one
+integration test. High + many → a design defect: report it and route to `/refactor` before any test.
 
 **Evidence before the audit (refactoring mode)** — gather with the stack's own idioms (from the
 installed testing rule / `CONTEXT.md`), never a hardcoded framework token. Grep the target test
@@ -119,14 +126,22 @@ Plan every test as a row before writing code:
 | `fetch_remote` | network error | propagates after retry | integration | network client |
 | `handle_event` | subscriber callback raises | engine does not propagate | async unit | none |
 
-**Mock decision — three rules:**
+**Mock decision — five rules:**
 1. Mock external boundaries only: network, DB, filesystem, clock/`now`, sleep.
 2. Never mock your own domain logic or same-module internals — that tests the mock, not
    behavior.
-3. More than ~2 mocks → it's probably an integration test; reconsider scope.
+3. Several doubles in one test is a report about the design, not a lane to change — name the defect
+   first (`skills/tdd/mocking.md` §Smell: too many mocks), then widen only if the seam is truly wide.
 4. **Prefer a fake over a mock** for a collaborator you own but must stand in for (a repository,
    a queue, a store): a small working in-memory implementation exercises real behavior, where a
    mock only replays a scripted return and asserts on the script.
+5. A client for an external provider → test the contract from your side in two halves that never
+   call it: [`reference/writing-patterns.md`](reference/writing-patterns.md) §Prefer a fake over a mock.
+
+**Which scenario gets the integration test.** Cover a scenario's edge cases with unit tests and give
+it **one** integration test — the longest happy path, crossing the most out-of-process dependencies;
+add another only to reach a dependency that path misses. A failure that crashes on the first run in
+any environment and cannot corrupt data needs no test: declare the skip under `Remaining Gaps`.
 
 **Fixture vs local helper:** reusable across ≥2 files → shared fixture/setup in the nearest
 common location; used once → local helper at the top of the file; complex domain object →
@@ -154,6 +169,8 @@ Refactor-only runs skip it except its §Refactoring conversions (Phase 6).
   inputs — the stack's generator library if PROJECT.md/rules name one (Hypothesis,
   fast-check, StreamData…), else a seeded loop over randomized + boundary inputs. Example
   tests pin points; the property pins the region between them.
+  A second trigger: values that must be present but could be swapped for any others mark a property,
+  not an example — state the invariant, generate them, keep the real boundaries as explicit cases.
 - **Fixture scope:** default to per-test (fresh) scope. Wider scope (module/session) only
   for expensive read-only setup — never for fixtures that mutate state.
 - **Mock discipline:** patch at the call site, not the definition site. Assert call
@@ -164,7 +181,9 @@ Refactor-only runs skip it except its §Refactoring conversions (Phase 6).
   → always seed. Time → freeze/inject, never read the real clock in assertions.
 - **Assertion quality:** assert specific values, not `is not None` / `len > 0`. Compare
   floats with an approx/tolerance helper. For exceptions, assert both type and message
-  (message must contain the offending value).
+  (message must contain the offending value). A unit whose only visible effect is a developer-facing
+  log line has no observable behaviour — record a coverage gap, never assert on log prose; logs read
+  by operators or the business are contract, so assert the named event or level+key.
 
 ---
 
@@ -262,6 +281,8 @@ Run via PROJECT.md → Commands — never hardcode commands:
 - [ ] Run the **targeted** test command on the new/changed tests first; all pass.
 - [ ] Run the **full** test command; no new failures.
 - [ ] Check coverage for the target if the project defines a coverage command.
+- [ ] Write each new test black-box from the requirement it defends, not from the branch coverage pointed at.
+- [ ] A gap no requirement defends is a dead-code candidate: propose deleting the branch, not covering it.
 
 Coverage is a **floor, not a goal** — a passing suite with no real assertions is worthless.
 Prioritize: correctness of existing tests > coverage of new critical paths > style.

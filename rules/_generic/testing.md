@@ -34,8 +34,8 @@ Framework-neutral. Stack packs name the concrete test runner, fixtures and facto
 - Public behaviour and contracts, not private implementation details.
 - Edge cases: empty, boundary, error path, concurrency where relevant.
 - Bug fixes start with a failing test that reproduces the bug.
-- Don't test: library/framework internals, thin I/O wrappers (test the pure logic they
-  wrap), exact rendering character-by-character.
+- Don't test: library/framework internals, exact rendering, thin I/O wrappers — test the pure
+  logic they wrap; the exception is a persistence mapping, which gets one real CRUD round-trip.
 
 ## Mock discipline
 
@@ -104,4 +104,4 @@ correctly; **STYLE** = fix when you're already in the file.
 | Domain / pure core | ~100% | pure functions, no excuse to skip |
 | Service / orchestration | 80%+ | mock external I/O, cover the wiring |
 | Infrastructure / adapters | 60%+ | mostly integration-tested |
-| Entry points (handlers, CLI) | smoke | thin shells — a happy-path smoke test |
+| Entry points (handlers, CLI) | smoke | thin shells — one test on the longest happy path |

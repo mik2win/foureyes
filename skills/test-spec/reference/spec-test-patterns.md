@@ -96,7 +96,9 @@ Architecture, stack rules):
 | One-file helper | a local `_make_*` at the top of the test file |
 
 Always seed randomness and freeze/inject time so cases are **repeatable** — a spec test that varies
-run to run can't be a source of truth.
+run to run can't be a source of truth. Make a value say whether it matters: a string says so in words
+(`"any-name-here"`), everything else by living in a factory default instead of the test — what is
+spelled out in the test reads as load-bearing, and the next reader will preserve it forever.
 
 ```
 def test_transform_is_deterministic():
