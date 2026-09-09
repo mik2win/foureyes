@@ -200,9 +200,11 @@ and back up any pre-existing file into `$BK` before overwriting it (see Phase 0.
      the standing context tax — every session pays for them, so each one has to earn it.
    - **A rule whose spine must hold at a moment its `paths:` cannot see is mis-scoped.** Check
      the trigger against the *moment of application*, not the file where the rule is edited.
-   - **`sql.md` — narrow to this project's real database directories:** where migrations, models,
-     raw `.sql` and seeds live (Django `*/migrations/`, Rails `db/migrate/`, Laravel
-     `database/migrations/`, Alembic `alembic/versions/`); the template globs are a union.
+   - **`sql.md` — re-scope to where this project actually writes SQL:** migrations, models, raw
+     `.sql`, seeds (Django `*/migrations/`, Rails `db/migrate/`, Alembic `alembic/versions/`) —
+     but where SQL lives in ordinary application modules, **replace** the template globs with
+     those directories rather than narrowing them, and accept the scope by measuring: it covers
+     most files that carry SQL, and `**/models/**` is not collecting ML or asset directories.
    - Record the narrowing in `PROJECT.md` → Rules, so `/update-kit` can tell a deliberate
      project scope from a stale template default.
 3. **`.claude/settings.json`** — copy `settings.template.json` verbatim (it is already a
