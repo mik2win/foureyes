@@ -3,7 +3,6 @@
 - **Date:** <YYYY-MM-DD>
 - **Ticket / ref:** <ID or —>
 - **Status:** Draft
-- **Author:** analyst skill (interview with user)
 
 ## 1. Context / Problem
 

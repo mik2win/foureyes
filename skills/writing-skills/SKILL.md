@@ -281,8 +281,8 @@ skills; re-test rather than inherit, but do not start from the losing side):
       gate: consumer phase/mode named + the skip condition (`assets/*` exempt).
 - [ ] The workflow's likely failure modes (per `docs/agent-failure-modes.md`) have a
       *structural* countermeasure, and steps are checkable states (`docs/prompt-patterns.md`).
-- [ ] Behavioural wording you added or reworded was micro-tested against a no-guidance control
-      arm (§Micro-test a wording) — or you can name the observed failure it is written against.
+- [ ] Behavioural wording you added or reworded carries its evidence — **either** a micro-test
+      against a no-guidance control arm (§Micro-test a wording) **or** the failure it fixes.
 - [ ] Editing an `agents/*.md`, not a skill? Its `tools:` list is governed elsewhere —
       `rules/_generic/delegation.md` §Tools an agent will not get. This file covers skills only.
 - [ ] `description` + `when_to_use` under **1 536** characters, and if you dropped
