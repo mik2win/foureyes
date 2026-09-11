@@ -97,7 +97,7 @@ shapes:
 ```python
 # MOCK the external boundary
 def test_place_order_sends_market_order(mocker):
-    gateway = mocker.patch("orders.service.gateway.create_order")
+    gateway = mocker.patch("orders.service.gateway.create_order", autospec=True)
     gateway.return_value = {"id": "123", "status": "filled"}
 
     place_order(symbol="X", qty=0.1)
@@ -112,6 +112,8 @@ def test_checkout(mocker):
 ```
 
 - Patch at the **call site**, not the definition site — the call site is what the unit resolves.
+- Build the double against the real interface (`autospec`, or a spec'd instance) — a bare mock
+  answers a misspelled attribute, so the same typo passes in both the code and its test.
 - Assert `call_count`/`call_args` only when the **side effect** (not the return value) is the
   thing under test.
 - Use the framework's teardown-safe mocking helper, not a hand-rolled decorator that leaks
