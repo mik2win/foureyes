@@ -155,6 +155,10 @@ The sweep is done when **re-discovery returns empty**, not when the checklist do
 - `path:line` — <why deferred> → <route: /prepare | owner>
 ```
 
+## Persist to the artifact
+
+*(Mandatory when `$ARGUMENTS` or the session brief names a plan, card or spec file.)* Follow [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep a ledger on disk from the first phase and record deviations the moment they are decided. Before the final reply, append `## Sweep Log — <date> — <verdict>` to that file; its `### Result` is the Coverage block above, plus the paths of the site-inventory file and of the codemod, if one was written. Anything you could not observe yourself goes under `Re-check later`, with its command and today's baseline: a post-deploy log grep, a soak count, a UI gesture. The chat output is a copy of the log, never the only record. No planning artifact → skip this section.
+
 ## Hard rules
 
 - **Inventory before any edit.** No transform until the site table exists **in a file** with a

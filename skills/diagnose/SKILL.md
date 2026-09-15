@@ -172,10 +172,14 @@ The durable products of a diagnosis are the **fix + the regression test**. If th
 to the **Plans location** from `PROJECT.md` (e.g. `<plans>/<YYYY-MM-DD>-<slug>-diagnosis.md`) — offer
 it; don't write it unasked. Its git policy follows `PROJECT.md` → Artifact git policy.
 
+## Persist to the artifact
+
+*(Mandatory when `$ARGUMENTS` or the session brief names a plan, card or spec file.)* Follow [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep a ledger on disk from the first phase and record deviations the moment they are decided. Before the final reply, append `## Diagnose Log — <date> — <verdict>` to that file; its `### Result` is the Diagnosis Report above; this replaces the offer-only note when the session was handed a planning artifact. Anything you could not observe yourself goes under `Re-check later`, with its command and today's baseline: a post-deploy log grep, a soak count, a UI gesture. The chat output is a copy of the log, never the only record. No planning artifact → skip this section.
+
 ## Commit (suggest-only)
 
 *(Only if the fix changed tracked files.)* Offer a copy-paste `git add <explicit paths>` +
-`git commit` block for exactly the files you changed — follow the **Commit Message** pattern
+`git commit` block for exactly the files you changed, **plus the plan/card file the log was appended to**, — follow the **Commit Message** pattern
 in `/implement`: explicit paths only (never `-A` / `.`), text the user pastes (**never run it**).
 
 ## See also

@@ -168,6 +168,9 @@ keep the suite green between slices.
    logic mocked, names say what broke, no implementation-coupled tests.
 5. If new domain terms or a design decision surfaced during the loop, hand off to `/domain-model`
    to record them in `CONTEXT.md` / an ADR.
+6. **Handed a plan or card file?** Append `## TDD Log — <date> — <verdict>` to it, following
+   [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Its `### Result` is
+   the slices table plus any surviving devil's-advocate cheat. Put the file in the commit suggestion.
 
 ---
 

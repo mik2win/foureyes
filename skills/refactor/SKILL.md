@@ -52,6 +52,7 @@ running without a kit profile. Only if *neither* has those facts, tell the user 
 - **directory** — all source files under it.
 - **`staged`** — `git diff --cached --name-only` files.
 - **range** (e.g. `main..HEAD`) — `git diff --name-only <range>` files.
+- **plan/card file** — the files it scopes; the log goes back into it (see *Persist to the artifact*).
 - **(empty, default)** — changed files: `git diff --name-only` plus
   `git diff --cached --name-only`. If none, ask the user what to refactor.
 
@@ -184,6 +185,10 @@ Report concisely:
 - **Deferred** — anything skipped as risky/ambiguous or verdicted LATER/NEVER, with the reason.
 - **Price** — what the pass cost as well as bought: more indirection, a worse metric, debts left.
   More complex than the problem it removed → revert; an invisible concept made visible still wins.
+
+## Persist to the artifact
+
+*(Mandatory when `$ARGUMENTS` or the session brief names a plan, card or spec file.)* Follow [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep a ledger on disk from the first phase and record deviations the moment they are decided. Before the final reply, append `## Refactor Log — <date> — <verdict>` to that file; its `### Result` is the changes by dimension, each candidate's verdict (FIRST / AFTER / LATER / NEVER) with applied / left, and the price line. Anything you could not observe yourself goes under `Re-check later`, with its command and today's baseline: a post-deploy log grep, a soak count, a UI gesture. The chat output is a copy of the log, never the only record. No planning artifact → skip this section.
 
 ---
 

@@ -127,7 +127,11 @@ a prompt, but only after the Phase-3 table was shown. Never auto-delete anything
 5. Sanity check: the diff should be **net-negative** lines; a sweep that grows the codebase
    went wrong.
 
-Finish with a copy-paste commit suggestion for the touched files — explicit paths only (never
+## Persist to the artifact
+
+*(Mandatory when `$ARGUMENTS` or the session brief names a plan, card or spec file.)* Follow [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep a ledger on disk from the first phase and record deviations the moment they are decided. Before the final reply, append `## Clean-MVP Log — <date> — <verdict>` to that file; its `### Result` is the Phase-3 findings table (each row's action and proof of deadness) and the net line change. Anything you could not observe yourself goes under `Re-check later`, with its command and today's baseline: a post-deploy log grep, a soak count, a UI gesture. The chat output is a copy of the log, never the only record. No planning artifact → skip this section.
+
+Finish with a copy-paste commit suggestion for the touched files, **plus the plan/card file the log was appended to** — explicit paths only (never
 `-A`, `.`, or a directory; a path stages its deletion too). Never run `git add`/`commit`/`push`
 yourself; the user runs it.
 

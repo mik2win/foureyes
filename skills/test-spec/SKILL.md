@@ -183,9 +183,13 @@ untestable at this layer, or the spec contradicts itself.
 - **`/implement`** — executes the plan `/test-spec` derived tests from; mirrors its **Commit
   Message** pattern for the block below.
 
+## Persist to the artifact
+
+*(Mandatory when `$ARGUMENTS` or the session brief names a plan, card or spec file.)* Follow [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep a ledger on disk from the first phase and record deviations the moment they are decided. Before the final reply, append `## Test-Spec Log — <date> — <verdict>` to that file; its `### Result` is the extracted-cases table, the spec deviation report, the results, and the failures with their root-cause direction. Anything you could not observe yourself goes under `Re-check later`, with its command and today's baseline: a post-deploy log grep, a soak count, a UI gesture. The chat output is a copy of the log, never the only record. No planning artifact → skip this section.
+
 ## Commit
 *(Only if test files were written, and only if tracked files changed)*
 
-Offer a copy-paste `git add <explicit test paths>` + `git commit` block — follow the **Commit
+Offer a copy-paste `git add <explicit test paths>` + **plus the plan/card file the log was appended to** + `git commit` block — follow the **Commit
 Message** pattern in `/implement`: explicit paths only (never `-A` / `.` / a bare directory), text
 the user pastes (**never run it**), no `Co-Authored-By` trailer.

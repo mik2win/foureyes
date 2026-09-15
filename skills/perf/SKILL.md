@@ -122,6 +122,11 @@ Regression guard: <perf test / bench command + threshold recorded where>
 Not optimized (over budget met): <ranked list>
 ```
 
+**Handed a plan or card file?** Append this report to it as `## Perf Log — <date> — <verdict>`,
+following [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep the
+ledger and deviations on disk during the run. The re-measure on the production host goes under
+`Re-check later`. List the file in the commit suggestion. No artifact → the report stays in chat.
+
 Offer to add the bench command + threshold as a regression guard (a perf test or a CI
 step) — a perf win without a tripwire erodes silently.
 

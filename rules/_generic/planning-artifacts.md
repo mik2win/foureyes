@@ -21,6 +21,10 @@ it, so context does not leak between pipeline stages or between sessions. This i
   decision that lives only in chat is lost the moment the context resets.
 - Anything the next stage or the next session must know goes **into the plan**, not into a
   reply that scrolls away.
+- **Executing skills write back to the artifact they were handed.** `/implement`, `/diagnose`,
+  `/test`, `/test-spec`, `/refactor`, `/tdd`, `/perf`, `/clean-mvp` and `/sweep` append a dated
+  log to the plan/card: changes, deviations with `Decided by`, verification, **re-check later**
+  rows with baselines, and unfixed findings. Contract: `skills/implement/reference/work-log.md`.
 - Match the length of a written artifact to what the task needs: cover the substance; no
   filler sections, no redundant summaries, no boilerplate. An artifact that must stay current
   is created only once you can name who updates it and on what trigger.

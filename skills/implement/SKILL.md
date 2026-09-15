@@ -394,6 +394,8 @@ drives at the wave boundary — and name the outstanding epic-level rows in the 
 
 ## Persist implementation log + archive (when a plan file exists)
 
+The section list, the `Re-check later` table and the variants other executing skills use (`/diagnose`, `/test`, `/refactor`, …) are in [`reference/work-log.md`](reference/work-log.md).
+
 1. **Append the implementation log** to the plan file at `$ARGUMENTS` (Edit, append-only —
    never overwrite). **Re-read the step ledger first** — `<scratchpad>/implement-ledger-<slug>.md`,
    the path you printed when you built it — and copy from its rows and its `## Deviations`

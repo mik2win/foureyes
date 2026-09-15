@@ -22,6 +22,7 @@ Target: $ARGUMENTS — one of:
 - A **test file/dir** → audit and refactor existing tests.
 - A **description** (`"login error isolation"`) → write targeted scenarios.
 - `staged` → audit/cover the test or source files in staged changes.
+- A **plan/card file** with a scope note → pin the scoped modules, then write the log back into that file (see *Persist to the artifact*).
 
 If `$ARGUMENTS` is empty, ask what to test and stop. Work the phases in order; Phases 1–3
 are investigative (plan before writing), 4–7 implement, 8 verifies.
@@ -309,6 +310,10 @@ Prioritize: correctness of existing tests > coverage of new critical paths > sty
 ## Remaining Gaps
 <units/paths still untested and why, or "none">
 ```
+
+## Persist to the artifact
+
+*(Mandatory when `$ARGUMENTS` or the session brief names a plan, card or spec file.)* Follow [`../implement/reference/work-log.md`](../implement/reference/work-log.md). Keep a ledger on disk from the first phase and record deviations the moment they are decided. Before the final reply, append `## Test Log — <date> — <verdict>` to that file; its `### Result` is the pins written (test → behaviour pinned), defects found while pinning (pinned as current behaviour) with a suggested owner, coverage before → after if measured, and any floors or budgets changed. Anything you could not observe yourself goes under `Re-check later`, with its command and today's baseline: a post-deploy log grep, a soak count, a UI gesture. The chat output is a copy of the log, never the only record. No planning artifact → skip this section.
 
 ## See also
 
