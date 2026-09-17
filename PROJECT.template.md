@@ -127,6 +127,12 @@ schema_version: 1
 - **Forbidden commands:** <anything the agent must never run — e.g. a deploy/publish CLI, `scp`/`rsync` to a remote, a package-publish command; these are denied in settings + blocked in guard-bash; `n/a`>
 - **Egress note:** <e.g. "web search allowed; no proprietary code in external API calls"; defaults n/a>
 
+## Project skills
+
+> Optional. Skills this project ships next to the kit's (not in `.kit-manifest.json`) — `/which-skill` routes to them from here, so the kit-owned router never needs a project edit. One line each: the command, what it does, and which kit skill it deepens or replaces. `/bootstrap` drafts it from skills already present in `.claude/skills/`. Delete the section if there are none.
+
+- **`/<project-skill>`** — <what it does>. <Deeper than / replaces `/<kit-skill>` for …>
+
 ## Conventions notes
 
 > Anything else a skill should respect that isn't in a rules file: e.g. "UI text in Russian, keys from locale files", "no README files", "commit prefix CRM-XX", "comments only for WHY".

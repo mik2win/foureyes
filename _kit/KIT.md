@@ -43,7 +43,9 @@ cleanup step, leaving a clean project `.claude/`.
 `/bootstrap` also writes `.claude/.kit-manifest.json` — a content-hash baseline of the persistent
 kit files (skills, agents, generic hooks/rules, output-styles, docs). It is **local state**, not
 build-time: it persists so `/update-kit` can 3-way merge a future kit version against it without
-clobbering local adaptations (works even when `.claude/` is gitignored).
+clobbering local adaptations (works even when `.claude/` is gitignored). Each hash is the file **as
+the kit shipped it**, never the adapted copy, and an `excluded` array lists kit paths the project
+removed on purpose so no update re-adds them.
 
 ## How to use
 

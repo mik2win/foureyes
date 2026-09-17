@@ -58,7 +58,7 @@ rsync -a --exclude='.git' --exclude='.claude' --exclude='_backlog' --exclude='to
 rm -rf /tmp/foureyes
 ```
 Then open the project in Claude Code and run **`/update-kit`** (or `/update-kit <path-to-new-kit>` and it stages for you). In one pass it:
-- reads `.claude/.kit-manifest.json` (the install baseline) and does a **3-way merge** — BASE (what the kit shipped) vs MINE (your file) vs THEIRS (the new version) — so untouched files update silently and you're asked **only on real conflicts** (take-new / keep-mine / merge);
+- reads `.claude/.kit-manifest.json` (the install baseline) and does a **3-way merge** — BASE (what the kit shipped) vs MINE (your file) vs THEIRS (the new version) — so untouched files update silently and you're asked **only on real conflicts** (take-new / keep-mine / merge); BASE is always the file as the kit shipped it, so an adapted file stays yours until the kit changes it, and a kit file you removed on purpose can be **excluded** for good instead of coming back on every update;
 - **never touches** project-owned files (`PROJECT.md`, `CONTEXT.md`, `docs/adr/`, the backlog, or skills you created) — they aren't in the kit source, so the merge can't reach them;
 - **re-adapts inline** (no separate `/bootstrap`): regenerates `settings.json`, `guard-bash.sh`, the `CLAUDE.md`/`.gitignore` blocks, and re-reconciles rule packs against the new version;
 - backs up first and asks **keep or roll back**, then writes a fresh manifest.

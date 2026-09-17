@@ -30,6 +30,8 @@ taxes every prompt:
 - **One obvious match** → one line (`This is /close-epic — <reason>. Run it?`), then run it if the
   user agrees or the task is clearly the skill's own job. No catalog, no map, no phase list.
 - **Two candidates** → one `AskUserQuestion`, two options.
+- **Project skill** → a skill listed in `PROJECT.md` → `## Project skills` counts as a match too
+  (see *Project layer* below).
 - **No clear match** → say nothing about routing and do the work bare. A silent miss costs
   nothing; a paragraph about skills the user didn't ask for costs a turn.
 
@@ -235,6 +237,10 @@ research    spec        plan        build
   user's opt-in.
 - **`/writing-skills`** — *(kit-internal)* reference for authoring new kit skills.
 
+## Project layer (`PROJECT.md` → Project skills)
+
+A project may carry its own skills next to the kit's — stack-aware deep passes, scaffolds for its recurring shapes. They are listed in `PROJECT.md` → `## Project skills`, never here: this file is kit-owned, and a project section pasted into it turns every `/update-kit` into a conflict on the router. When that section exists, read it before routing and treat its skills as part of the catalog. **Route by depth, not by name:** the kit skill is the general pass, the project skill is the deep pass over that codebase's own conventions — pick the one that fits the question, and never run both for the same one. The section's own notes (which kit skill each project skill deepens or replaces) win over this catalog. No section → there is no project layer; don't `Glob` for one.
+
 ---
 
 ## Matching guide (situation → route)
@@ -336,8 +342,8 @@ Pick the flow that matches, render it with the user's current position marked, a
 
 - **Recommend, don't run silently.** Name the skill (or chain) and the reason; let the user start it.
 - **One disambiguation question max.** If two skills genuinely fit, ask once; otherwise just route.
-- **Don't invent skills.** Only route to skills that exist in the catalog (or a global built-in
-  like `/deep-research`); if unsure the list is current, `Glob` `skills/*/SKILL.md` and reconcile.
+- **Don't invent skills.** Only route to skills that exist in the catalog, in `PROJECT.md` →
+  Project skills, or as a global built-in like `/deep-research`; if unsure the list is current, `Glob` `skills/*/SKILL.md` and reconcile.
   If nothing fits, say so and suggest the closest manual approach rather than inventing a `/skill`.
 - **Stay in sync.** Every user-facing workflow skill appears here and in the kit repo's
   `guide/*/reference.md` — update both when the set changes (the router need not list itself or the pack-reference skills).

@@ -115,7 +115,9 @@ Read `.claude/.kit-manifest.json`. Define a hash helper:
 hashof() { shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1 || sha256sum "$1" | cut -d' ' -f1; }
 ```
 
-- **Manifest present** → full 3-way (the normal, quiet path).
+- **Manifest present** → full 3-way (the normal, quiet path). Also read its optional `excluded`
+  array — kit paths this project removed on purpose (e.g. an agent replaced by a project-owned
+  one). Phase 2 skips them entirely.
 - **Manifest absent** (a legacy project bootstrapped before manifests existed) → **degraded 2-way
   mode**: there is no BASE, so any class-A file that differs from THEIRS becomes a conflict to ask
   about (can't auto-tell adapted from upstream-changed). **Warn the user** it'll be noisier this
@@ -124,7 +126,7 @@ hashof() { shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1 || sha256sum "$1" | cu
 ## Phase 2 — Classify
 
 Enumerate the class-A paths present in `.kit-incoming/` (the list above; **exclude
-`hooks/guard-bash.sh`**). For each, compute BASE (from manifest), MINE (`hashof` the local file if
+`hooks/guard-bash.sh`** and every path in the manifest's `excluded`). For each, compute BASE (from manifest), MINE (`hashof` the local file if
 present), THEIRS (`hashof` the staged file). Bucket by this matrix:
 
 | BASE | MINE | THEIRS | Verdict | Action |
@@ -134,8 +136,12 @@ present), THEIRS (`hashof` the staged file). Bucket by this matrix:
 | present | != BASE | == MINE | converged | **take-new** (quiet) |
 | present | != BASE | != BASE, != MINE | **real conflict** | → Phase 3 |
 | — (absent) | absent | present | new kit file | **add** (quiet) |
-| present | absent | present | you deleted a kit file | re-add? ask |
+| present | absent | present | you deleted a kit file | ask: **re-add**, or **exclude** for good (move the path from `files` to `excluded`) |
 | present | present | absent (gone upstream) | removed upstream | offer **delete** (confirm) |
+
+A path in `excluded` never reaches this matrix: without the list, a removed kit file whose entry
+is dropped from `files` reads as *new kit file* and is silently re-added on the next run, and one
+whose entry is kept is asked about on every run.
 
 In **degraded 2-way mode** collapse to: `MINE == THEIRS` → nothing; `MINE` absent → add;
 `THEIRS` absent → offer delete; otherwise → **conflict** (Phase 3).
@@ -186,23 +192,32 @@ leave `CONTEXT.md`, `docs/adr/`, and the backlog alone (bootstrap already treats
 
 ## Phase 6 — Write the new manifest (new BASE)
 
-Hash the **final** class-A files in `.claude/` and write `.claude/.kit-manifest.json`:
+Record, for every class-A path this run kept in sync, the hash of **THEIRS — the staged kit file
+as the kit shipped it**, not the local copy, and write `.claude/.kit-manifest.json`:
 
 ```json
 {
   "kit_version": "<from .kit-incoming/_kit/KIT.md version or the date>",
   "installed_at": "<ISO-8601>",
-  "files": { "skills/analyst/SKILL.md": "<sha256>", "agents/code-reviewer.md": "<sha256>", "...": "..." }
+  "files": { "skills/analyst/SKILL.md": "<sha256 of .kit-incoming/skills/analyst/SKILL.md>", "...": "..." },
+  "excluded": ["agents/<removed-on-purpose>.md"]
 }
 ```
 
-This becomes the BASE for the next `/update-kit`, so subsequent updates stay quiet.
+BASE means *the kit version this project last merged*. For a pristine file THEIRS and the local
+copy hash the same, so nothing changes; the difference is every **adapted** file — a merge, a
+keep-mine, a narrowed `paths:` block. Hash the local copy there and the next run reads it as
+*MINE == BASE → untouched locally → take-new*, and silently overwrites the adaptation this run just
+preserved. Hashing THEIRS keeps it reading as *MINE != BASE*, so it stays keep-mine until the kit
+changes it, and then it is a conflict you are asked about. Carry `excluded` forward, plus any path
+the user chose to exclude in Phase 2. Check before writing: every adapted file must still differ
+from its recorded hash — if one does not, you hashed the wrong copy.
 
 ## Phase 7 — Report & next step
 
 Output:
 - **File merge:** a table per class-A path — `unchanged · updated · merged · added · deleted ·
-  kept-yours · skipped(project-owned)`.
+  kept-yours · excluded · skipped(project-owned)`.
 - **New paths-scoped rules:** any rule that arrived new with template `paths:` (`sql.md` is the
   first) needs the narrowing `/bootstrap` does — name it and this project's DB directories.
 - **Re-adapt:** what bootstrap regenerated (settings/hooks/CLAUDE.md/.gitignore) and the
@@ -240,6 +255,9 @@ updated `.kit-manifest.json`.
   user run `/bootstrap` separately afterward.
 - **3-way, not 2-way.** Use the manifest BASE; only a genuine BASE≠MINE≠THEIRS divergence is a
   conflict worth a question. Quiet on everything else.
+- **BASE is the kit's file, never yours.** The new manifest records THEIRS hashes (Phase 6) — a
+  local hash there turns every adaptation into a silent overwrite on the next run.
+- **Exclusions are durable.** A path in `excluded` is never added, re-added, merged, or asked about.
 - **Project-owned is sacred.** Anything not in the manifest is the project's — never overwrite
   `PROJECT.md`, `CONTEXT.md`, `docs/adr/`, the backlog, or user-created skills/agents.
 - **Idempotent.** Re-running with the same source yields zero conflicts and zero changes.

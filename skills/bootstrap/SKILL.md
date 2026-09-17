@@ -271,7 +271,9 @@ and back up any pre-existing file into `$BK` before overwriting it (see Phase 0.
 5. **`.claude/commands/`** — install `commit.md` always; install `pr.md` (GitHub) or
    `mr.md` (GitLab) per detected git host. Copy from `_kit/templates/commands/`.
 6. **`.claude/agents/`** — keep the generic agents; remove any that don't fit (e.g. drop
-   `arch-tracer` only if the project is genuinely single-layer). Default: keep all.
+   `arch-tracer` only if the project is genuinely single-layer, or a kit agent the project
+   already covers with its own). Default: keep all. Every kit path you remove goes into the
+   manifest's `excluded` (Phase 6) — otherwise `/update-kit` re-adds it on the next run.
 
 ## Phase 6 — Wire up
 
@@ -296,17 +298,23 @@ and back up any pre-existing file into `$BK` before overwriting it (see Phase 0.
    `docs/adr/` when chosen committed) tracked — never gitignore them.
 3. Sanity-check that the installed skills can resolve everything they reference in
    `PROJECT.md` (Commands, Plans/backlog location, Architecture). Fix gaps in PROJECT.md.
+   If `.claude/skills/` already holds skills the kit does not ship, draft `PROJECT.md` →
+   `## Project skills` from their descriptions so `/which-skill` can route to them.
 4. **Write the kit manifest** `.claude/.kit-manifest.json` — the install baseline `/update-kit`
    needs to 3-way merge a future kit version without clobbering local edits. Hash every
    **persistent, pristine-by-default kit file** (`skills/**` kit skills, `agents/**`, `hooks/**`
    except `guard-bash.sh`, `rules/_generic/**`, `output-styles/**`, `schemas/**`, `docs/**` kit
-   docs) and record it. It's local state (fine in a gitignored `.claude/`); log it to `$BK/created.txt`.
+   docs) **as the kit shipped it** — not after Phase 5 narrowed a rule's `paths:` or filled a
+   hook. Take the hash from the kit source (or before the edit); a hash of the adapted copy makes
+   `/update-kit` read the file as untouched and overwrite the adaptation. Record the kit paths
+   removed in Phase 5.6 under `excluded`. It's local state (fine in a gitignored `.claude/`);
+   log it to `$BK/created.txt`.
 
    ```bash
    hashof() { shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1 || sha256sum "$1" | cut -d' ' -f1; }
    ```
    Shape: `{ "kit_version": "<KIT.md version or date>", "installed_at": "<ISO>",
-   "files": { "<relpath under .claude/>": "<sha256>", … } }`.
+   "files": { "<relpath under .claude/>": "<sha256 as shipped>", … }, "excluded": [ … ] }`.
 
 ## Phase 7 — Report & verify
 
