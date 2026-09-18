@@ -30,8 +30,10 @@ paths:
   returns an empty/optional value, it doesn't raise. Reserve errors for contract
   violations and failures.
 - That optional is safe only when the caller must read it: a method called for its
-  side effect discards it, so the failure goes silent — raise instead. "Nothing
-  found" is safe only when no legitimate result is falsey (0, "", [] are).
+  side effect discards it, so the failure goes silent — raise instead. A project that
+  returns result objects by convention keeps them, and every caller branches on the
+  outcome or says why it drops it. "Nothing found" is safe only when no legitimate
+  result is falsey (0, "", [] are).
 - Inside a framework callback that cannot propagate exceptions, honor the framework's
   error contract (its sentinel / error return) instead of raising through it.
 
@@ -48,11 +50,9 @@ paths:
 ## Warnings & deprecations
 
 - Investigate before suppressing: a warning signals deprecation, future removal, or a
-  real issue. Test whether the feature actually works; if broken, replace it; if an
-  alternative exists, evaluate it; suppress only what works and has no alternative —
-  with a comment saying why.
-- Never blanket-ignore all warnings, and never suppress a warning on a feature that is
-  actually broken. Scope any suppression to the narrowest block the language allows.
+  real issue. If the feature is broken, replace it; if an alternative exists, weigh it;
+  suppress only what works and has none, saying why, scoped to the narrowest block —
+  never a blanket ignore.
 
 ## Boundaries vs core
 

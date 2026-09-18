@@ -40,12 +40,9 @@ OrderPlaced(order_id, customer_id,           OrderPlaced(order_id, ..., invoice_
   notifying subscribers about a change a crash then loses.
 - `save(x)` then `publish(E)` is a **dual write**: a crash between them loses E with no trace.
   In-process subscribers are fine; once the event leaves the process (broker, queue, webhook),
-  write it to an outbox row **inside** the transaction and let a relay deliver it.
-
-```
-save(order); publish(E)        # DON'T — dual write; a rollback would undo only the save
-tx { save(order); outbox(E) }  # DO — one transaction, a relay delivers from the outbox
-```
+  write it to an outbox row **inside** the transaction and let a relay deliver it. The outbox
+  must share the state's store; when the queue lives in another store, enqueue after commit and
+  name the window in which a crash loses the event.
 
 ## Subscriber isolation
 

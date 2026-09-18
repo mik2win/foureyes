@@ -1,5 +1,5 @@
 ---
-description: Code-work baseline — greppability, comments, boundary validation, security. Loaded on src file work (merged from greppability, comments, boundary-validation, security — 2026-08-01 tier cut).
+description: Code-work baseline — greppability, comments, boundary validation, security. Loaded on any file work (merged from greppability, comments, boundary-validation, security — 2026-08-01 tier cut).
 paths:
   - "**/*"
 ---
@@ -28,15 +28,15 @@ paths:
 - **A number owned by a config is cited, not copied.** Limits, versions, sizes, budgets and
   thresholds live in their config/lockfile/manifest; prose that restates the value drifts from
   it, and the drift is invisible because both sides look authoritative. Point at the file that
-  owns it. (Observed: three separate docs carried a container memory limit the deployment file
-  had already changed.)
+  owns it.
 
 ## Comments
 
+- A project comment rule overrides this section, the mandatory clause included.
 - Default: none. A comment earns its place only for a non-obvious **why** — decision, trade-off,
   invariant, external quirk — or as one line over an expression the language hides (a regex, bit
   arithmetic, slice math). Never restate what code does, never commented-out code or journal
-  entries (git remembers), no TODOs without an owner.
+  entries (git remembers), no TODO without the condition that retires it.
 - A comment that explains or excuses a name you own in this diff is a rename. A public function
   that does I/O, blocks, locks or is superlinear says so at the signature (`# external, 30 s`).
 - **Mandatory, the exception to none:** a deviation you made (an overridden default, a pinned
@@ -46,7 +46,7 @@ paths:
   terse coworker's note, not documentation prose.
 - **No internal planning labels** — spec/session/wave/finding IDs (`US-2`, `B-2`, `BUG-17`) and
   plan-file paths mean nothing to a future reader: say the *why* in domain terms. Holds for
-  identifiers, string literals, test names, and anything generated for a user (reports, logs).
+  identifiers, literals, test names, user output, and rules or docs a later session reads.
 - **Ride-along on the small-debt register.** When `PROJECT.md` § *Plans / backlog* names one, grep
   it for the file you are about to edit and take the rows you find in the same diff, striking each
   one there. They are verified, zero-consequence fixes (stale comments, drifted tallies, dead

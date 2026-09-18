@@ -120,7 +120,7 @@ they change, whether a hierarchy already exists — and below it the plain const
 | Factory | construction varies by type/config | a plain constructor call would do |
 | Observer / events | many decoupled reactions to one fact | one known caller — call it directly |
 | Singleton | genuinely global state | you just want easy access |
-| Repository | a mapping layer already exists below it, plus many domain types × heavy querying or a second object source (in-memory for tests, a feed) | three `find_by` over one ORM — that is the mapper twice; one primary mechanism per table |
+| Repository | a mapping layer already exists below it, plus many domain types × heavy querying or a second object source (a test fake, a feed) | three lookups over one ORM — the mapper twice; one primary mechanism per table |
 
 ## Duplication
 
@@ -141,9 +141,9 @@ they change, whether a hierarchy already exists — and below it the plain const
 
 How a change should read, not just what the code should be:
 
-- **Read the neighborhood before writing.** Match the file's idiom, naming, comment density,
-  and error style — the diff should read as if the file's author wrote it. Where local style
-  contradicts these rules, flag the conflict; don't silently freelance a third style.
+- **Read the neighborhood before writing.** Match the file's idiom, naming, error style and
+  comment density (a project comment rule wins) — the diff should read as if the file's author
+  wrote it. Where local style contradicts these rules, flag it; never freelance a third style.
 - **Smallest diff that fully solves, judged by the state it leaves.** No drive-by refactors,
   renames or reformatting of untouched lines — cleanup is its own pass (`/refactor`) — and,
   symmetrically, a move-or-rename diff carries no behaviour change; where they meet, the second

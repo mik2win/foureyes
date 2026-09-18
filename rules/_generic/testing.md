@@ -10,7 +10,6 @@ Framework-neutral. Stack packs name the concrete test runner, fixtures and facto
 
 ## Principles
 
-- **FIRST:** Fast, Independent, Repeatable, Self-validating, Timely.
 - **AAA:** Arrange → Act → Assert. One logical assertion target per test.
 - Tests are isolated: no shared mutable state, no order dependency, no real network/
   clock/filesystem unless that's the thing under test.
@@ -22,12 +21,13 @@ Framework-neutral. Stack packs name the concrete test runner, fixtures and facto
 - Prefer mocking the boundary to make a test fast over tagging it slow.
 - Two lanes: an inner-loop suite under ten seconds — past that it stops being run and the refactor
   net is gone — and an on-demand pre-merge stage for DB, network and real concurrency. A flaky
-  test is a broken signal: quarantine it into the second stage or delete it; a rerun verifies nothing.
+  test is a broken signal: quarantine or delete it; a rerun verifies nothing, and a runner's
+  auto-retry only captures a trace — a pass on retry is flaky.
 
 ## Naming
 
-- Name a test as a fact about behaviour in domain words — `delivery_with_a_past_date_is_invalid`;
-  never "should". Method-name templates only for utility code; an enforced stack shape wins.
+- Name a test as a fact about behaviour in domain words, never "should": `rejects a delivery
+  dated in the past`, or an identifier where the runner needs one. The stack's shape wins.
 
 ## What to test
 
@@ -81,7 +81,7 @@ Severity-ordered — flag these in any test review:
 | `sleep` to wait for timing | STRUCTURAL | control the clock, or remove |
 | Hardcoded temp path | STRUCTURAL | use the framework's temp-dir fixture |
 | `assert_called` on a query double (returns a value, no side effect) | STRUCTURAL | CQS: stubs are configured, not verified; verify command doubles only |
-| The assertion act extracted into a shared helper | STRUCTURAL | abstract setup, never the check; dedup cases via the table mechanism |
+| The assertion act extracted into a shared helper | STRUCTURAL | abstract setup, never the check (a UI wait helper is setup); dedup via the table |
 | Same setup data inlined across many tests (setup only — never the expectation) | STRUCTURAL | extract to a factory / shared fixture |
 | Asserting on private internals or exact rendering | STYLE | test via the public API; a private method demanding its own test is dead code or a missing class — extract it, never widen access |
 
