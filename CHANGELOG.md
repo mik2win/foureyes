@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-09-24
+
 ### Added
 
 - **A board linter, so a parallel launch never rests on someone noticing that two rows claim the same file.** New `tools/lint-board.py` (stdlib-only, report-only) reads a wave board in the RUN-ORDER format and checks what a reader reliably misses: two unfinished rows whose `Owns` sets intersect with no dependency ordering them (transitively; glob against glob, segment by segment; a prose `except those N.M owns` clause honoured), dangling `Depends on` ids, cycles, a done row whose dependency is not, row↔plan status drift in both directions, a session row with no prompt and a prompt with no row, cards and plans that resolve to no file, a `Status` cell outside the vocabulary — and a board that parses to zero rows is reported as such, never as clean. `/epic-status` and `/close-epic` each gained one line: run the project's `epic:status` command first and quote it as the mechanical half of the answer. Wired per-edit by the new `hooks/lint-board.sh` (PostToolUse, path-filtered in shell so ordinary edits never start an interpreter) and per-session by the `__BOOTSTRAP_EPIC_STATUS__` region that was already waiting in `sessionstart.sh`. The check that motivated it found a real collision on a live 22-row board that neither `/prepare` nor an operational pass had seen.
@@ -156,5 +158,6 @@ First public release. Everything below is the initial contents rather than a dif
 - **The always-on tier is deliberately one file.** Three A/B rounds measured no quality gain from a larger always-on rule tier and a ~13% cost increase, so it was cut to `core.md` alone. The honest claim is *the same result for less money*, not *it works better* — the kit publishes the results that argue against it alongside the ones that don't ([guide/en/evidence.md](guide/en/evidence.md)).
 - **Copy-in is the only install path.** The Claude Code plugin model carries no `rules/` component and mandatorily namespaces commands, so a plugin cannot deliver either the always-on rules or an unprefixed `/discover`. An installer plugin is the likely future addition and ships only after an end-to-end smoke test. See [Distribution model](guide/en/why.md#distribution-model).
 
-[Unreleased]: https://github.com/mik2win/foureyes/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mik2win/foureyes/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mik2win/foureyes/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mik2win/foureyes/releases/tag/v0.1.0
