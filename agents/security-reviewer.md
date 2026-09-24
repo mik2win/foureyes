@@ -79,6 +79,8 @@ You have persistent project memory (`memory: project`) — follow the contract i
 reappearing, an auth check teams forget) and accepted/rejected security conventions, so
 later reviews stay fast and consistent. Do not record one-off details of a single change.
 
+**File it to the shape, not just to the contract.** Put the entry under one of the three index sections (`Recurring — check first` / `Sanctioned — do not re-flag` / `Method lessons`); on a repeat, **bump the `(N×)` counter on its index line and append one dated occurrence** rather than opening a second file; keep the entry inside the size cap (`rules/_generic/memory.md` § *Shape of a store*). An entry that reaches `(3×)` with no rule, agent line or skill step behind it has outgrown memory — name it in your report as a `/retro` promotion candidate.
+
 ## Plan/epic target (fold-back)
 
 When the target under review is a **plan or epic doc** (not app code), the Artifact-Continuity

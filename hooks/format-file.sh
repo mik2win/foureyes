@@ -20,7 +20,9 @@ case "$file" in
     elif has rubocop; then rubocop -a --no-color "$file" >/dev/null 2>&1 || true; fi
     ;;
   *.py)
-    if has ruff; then ruff format "$file" >/dev/null 2>&1 && ruff check --fix "$file" >/dev/null 2>&1 || true
+    # --unfixable F401: an import written before its first use looks unused to ruff, and the
+    # autofix deletes it — the code then ships a call with no import that only fails at runtime.
+    if has ruff; then ruff format "$file" >/dev/null 2>&1 && ruff check --fix --unfixable F401 "$file" >/dev/null 2>&1 || true
     elif has black; then black "$file" >/dev/null 2>&1 || true; fi
     ;;
   *.ts|*.tsx|*.js|*.jsx|*.css|*.scss|*.json|*.md)

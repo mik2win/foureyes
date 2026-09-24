@@ -97,6 +97,8 @@ costs nothing to include; a schema discovered missing mid-run costs a turn.
 
 ## Phase 1 — All plans terminal?
 
+**If `PROJECT.md` → Commands carries an `epic:status` entry, run it first and quote it as the mechanical half of this phase.** A script reads row-vs-plan status drift, dangling dependencies and un-run rows deterministically, and closing an epic is exactly where a drifted status is most expensive. The kit ships one for wave-structured boards (`tools/lint-board.py lint --epic <name>`). No entry, or it fails → say so and read it all by hand; a skipped tool is never reported as a clean board.
+
 Read every `NN-<subtask>.md` and `00-overview.md` in the epic (same evidence `/epic-status` reads:
 `status` frontmatter, Implementation Log sections, archived files). A subtask is **terminal** when
 its status is `DONE` or `PARTIAL` (or the file has been moved to the archive location). It is
@@ -353,9 +355,12 @@ Zero hits is a **candidate**, not proof; the thing may be documented under anoth
 | a new dependency, datastore or external integration | `PROJECT.md` → Stack / Integrations |
 | a new deploy target, environment or secret | `PROJECT.md` → Deploy mapping, Security / VCS policy |
 | a new invariant or threshold other code must respect | the owning project rule |
+| **≥2 findings of one *silent* class** in this epic — money, time, access | a **path-scoped invariants rule**, proposed from [`assets/invariants-rule.md`](assets/invariants-rule.md) |
 | a term the epic coined | the domain glossary (`/domain-model`'s `CONTEXT.md`) |
 | a pattern this epic used **≥3 times** | a **candidate** rule — a card routed to `/distill`, never written here |
 | a settled verdict or a dead end | the ledger row (Phase 6). A verdict is not a rule |
+
+**The silent-class row is the one that needs a trigger, because nothing else fires for it.** A single money or timezone bug is a fixed bug; two in one epic mean the class is *shaped* by this codebase — the code has a place where wrongness does not announce itself, and the next person will land in it too. That is a rule, not a card. It is **proposed, never written here** (it is a rule, and the bucket below is explicit): hand back the filled template with the invariants the epic actually violated, each pointing at the symbol that owns it. A rule whose every line is a bug that really happened is the one kind of rule that earns its context from day one.
 
 **Disposition — three buckets, and nothing lands in "later" by default:**
 

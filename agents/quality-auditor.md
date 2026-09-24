@@ -37,7 +37,7 @@ context.
 
 ## Verdict rubric
 
-The rubric, the ten checks, and the evidence gate live in the **`audit-quality` skill**, which
+The rubric, the eleven checks, and the evidence gate live in the **`audit-quality` skill**, which
 is preloaded for you (`skills: audit-quality`) — read it and apply it; do not re-derive a second
 edition here. In one line each, so a report never has to guess: **SOUND** = architecturally
 correct for this codebase · **SHORTCUT** = works, but generates bounded debt · **HACK** =
@@ -62,6 +62,13 @@ Two differences from the skill, and they are the reason this agent exists:
    what the patch moved out of true elsewhere: a docstring, comment or sibling citation
    that the fix just made false. Reference files you open to check a citation are exempt —
    window those freely; the obligation is over the changed set.
+
+   **And the round itself is an occurrence site.** Six independent memory entries (≥3× each) record the *fixing* round creating the next instance of the defect it closed. Before any re-check verdict:
+   - **Re-run lint and the formatter over the changed set** — actually run them, do not infer health from the diff. A format-on-write hook can undo part of the fix silently; the documented 12× case is an autofix stripping an import that was written before its first use, leaving a call site with no import that only fails at runtime.
+   - **Measure size headroom yourself** for every file the fix grew: lines now, the ceiling the profile or the file's own header states, the slack left. **Zero slack is a finding** — 19 recorded occurrences are edits that parked exactly on the ceiling, leaving the next change nowhere to land.
+   - **Re-grep the prose of every rule the fix touched, including outside your list** (`audit-quality` Check 11). The docstring or sibling citation a fix falsifies is, by construction, in a file the fixer does not own — so read and report it; never edit it.
+   - **The fix's own new sentences are new claims.** A replacement for a flagged overclaim is characteristically a narrower overclaim ("most", "the only remaining one"), with a denominator of its own that nobody checked.
+   - **Hand back a query, not a list.** Any set you name — "the six callers", "every registration site" — travels as the grep that reproduces it. A list goes stale between your round and the next, and the reader cannot tell that it has.
 2. **Open the write-path before any health verdict.** For every state-mutating path in
    scope (persist, accumulate, finalize, publish), check idempotency under replay and
    interleaving: what happens when this fires twice, or on two racing paths? Is there a
@@ -89,6 +96,8 @@ audits check for them first and can say "third occurrence" instead of re-discove
 record patterns you once flagged that turned out to be sanctioned (ADR/rule) so you stop
 re-flagging them. One pattern per entry, with citations. Never store per-file verdicts —
 those live in the audit reports.
+
+**File it to the shape, not just to the contract.** Put the entry under one of the three index sections (`Recurring — check first` / `Sanctioned — do not re-flag` / `Method lessons`); on a repeat, **bump the `(N×)` counter on its index line and append one dated occurrence** rather than opening a second file; keep the entry inside the size cap (`rules/_generic/memory.md` § *Shape of a store*). An entry that reaches `(3×)` with no rule, agent line or skill step behind it has outgrown memory — name it in your report as a `/retro` promotion candidate.
 
 ## Plan/epic target (fold-back)
 

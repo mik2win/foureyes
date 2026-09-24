@@ -28,7 +28,8 @@ theme like "testing"); empty = everything since the previous retro report (or al
 the first run).
 
 This skill edits **kit-config artifacts only** (rules, PROJECT.md, CONTEXT.md pointers, retro
-reports) — never application code, and never a skill file without explicit confirmation.
+reports, and agent-memory entries — compression after promotion only, never new facts) — never
+application code, and never a skill file without explicit confirmation.
 
 ---
 
@@ -57,6 +58,7 @@ Collect from the window, citing every source file:
   confirmed findings.
 - **`git log`** over the window (Bash, read-only) — revert commits and fix-of-a-fix chains
   (`fix`, `revert`, repeated touches of one file in short succession).
+- **Agent memory** — `.claude/agent-memory/**/MEMORY.md` and the entry files behind it, **plus every other tree**: agent stores are written relative to the session's cwd, so a monorepo or a nested package usually has several (`**/.claude/agent-memory/`). Find them before reading them; a retro that reads one tree silently retros one corner of the project. This source is different in kind from the others — the agents have already done the mining, and the `(N×)` counters are recurrence **already counted**, which is the evidence Phase 2 otherwise has to assemble by hand.
 
 For a large window, delegate the sweep to a read-only **Explore** agent per source category
 and collect its citations. Do not paraphrase from memory — every harvested item carries its
@@ -86,9 +88,11 @@ default proposal; cite the mode number in the lesson. A recurring pattern that m
 mode and no kit countermeasure is doubly valuable — flag it as a candidate addition to the
 catalog itself.
 
+**A memory entry at `(≥3×)` is a promotion candidate by definition** — three sessions hit it and the store is still the only thing defending against it. Route it like any other lesson in Phase 3 (a rule line, an agent stance, a skill step), and on the user's confirmation **compress the entry to a pointer**: one line naming the rule that now owns it, with the counter kept as provenance. Memory is the waiting room; a lesson that lives there forever is one the project keeps re-learning. Leave `(1×)` and `(2×)` entries alone — they are still accruing evidence.
+
 Then run each candidate through the **`finding-verifier`** agent (batches of 3–4; default
 REFUTED on ambiguity) — a "recurring pattern" built on coincidence wastes a rule slot forever.
-Only CONFIRMED patterns proceed.
+Only CONFIRMED patterns proceed. A memory entry's counter is evidence *that* it recurred, not evidence that the lesson is right: verify it like the rest.
 
 ---
 
@@ -105,6 +109,7 @@ The fix goes where the *next* session will actually meet it:
 | Pipeline-stage weakness (plans keep missing X) | the producing skill's checklist — propose via `/writing-skills` conventions |
 | Hot-file / blast-radius knowledge | the plan-decomposition guidance in PROJECT.md notes or the epic overview template |
 | Decision that keeps being re-litigated | an ADR via `/domain-model` |
+| Agent memory entry at `(≥3×)` | whichever of the above owns it — then the entry is compressed to a pointer |
 
 One lesson → one target. A lesson that "belongs everywhere" belongs in the most specific
 place it will be read.
@@ -121,6 +126,7 @@ skill-file edit with rule/profile edits in one question. Apply **only** confirme
   existing voice; a rule line the next session must obey, not an essay).
 - Skill files — apply only on explicit confirmation, following `/writing-skills` conventions.
 - CONTEXT.md / ADRs — route to `/domain-model`; don't write them here.
+- Agent-memory entries — only the compression the promotion earned: replace the body with a pointer to the artifact that now owns the lesson, keep the counter and the index line. Never add a fact to an agent's store from here; that store is the agent's, and a fact you inject has no occurrence behind it.
 
 Rejected lessons are recorded in the report with the user's reason — a rejection is itself
 knowledge (don't re-propose it next retro).

@@ -71,14 +71,18 @@ Severity-ordered — flag these in any test review:
 | Test with no assertion (or `raises`) | CRITICAL | add an assertion or delete — it proves nothing |
 | Mocking your own domain logic | CRITICAL | test the real implementation; you're testing the mock |
 | Test/case/assertion deleted or weakened without justification | CRITICAL | fix the code or the test's premise; name every removal in the report |
-| Expected value computed — the code's formula, a loop, another method | CRITICAL | hard-code the literal from the spec; duplicated expectations are the point |
+| Expected value computed — the code's formula, a loop, another method, or read from the same table the code reads | CRITICAL | hard-code the literal from the spec; duplicated expectations are the point |
 | Production code branches on "am I under test" (env flag, test mode) | CRITICAL | substitute through a seam in test code; per-environment capability config is fine |
 | New test never seen red | CRITICAL | inject a fault, watch it fail, revert, confirm green |
+| Assertion over a degenerate fixture — empty, one key, an offset below the bucket quantum, or a guard whose underlying lookup fails too | CRITICAL | name the mutation that turns it red; an empty fixture reads identically in the passing and failing worlds, and one key cannot tell a per-key bound from a global one |
+| A check that walks a set without a floor on the set | CRITICAL | assert the set is non-empty first — "every element passes" is true of `[]`, and a glob of a mistyped path *is* `[]` |
 | Real network / clock / filesystem in a unit test | STRUCTURAL | mock the boundary, or move to the integration lane |
 | Unfrozen current time / unseeded randomness | STRUCTURAL | inject a fixed clock / seed; second-stage race repro with a calibrated timeout is the one exception |
 | Shared mutable state → order dependency | STRUCTURAL | give each test its own state |
 | Loop over cases inside one test | STRUCTURAL | use the table-driven/parameterized mechanism |
 | `sleep` to wait for timing | STRUCTURAL | control the clock, or remove |
+| Thread-through test entered at the outermost function | STRUCTURAL | pin both ends — the value going in and the call shape at the far side; entering at the top lets a default supply the value the test believes it threaded |
+| Fixture placed far from the threshold it exercises | STRUCTURAL | put it at the boundary, so mutating the constant goes red; a fixture in the middle of the range pins nothing |
 | Hardcoded temp path | STRUCTURAL | use the framework's temp-dir fixture |
 | `assert_called` on a query double (returns a value, no side effect) | STRUCTURAL | CQS: stubs are configured, not verified; verify command doubles only |
 | The assertion act extracted into a shared helper | STRUCTURAL | abstract setup, never the check (a UI wait helper is setup); dedup via the table |

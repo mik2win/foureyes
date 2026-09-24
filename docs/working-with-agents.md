@@ -30,6 +30,16 @@ The kit disciplines the agent. This page disciplines the *collaboration* — wha
 - **Feed the loop.** The kit learns through artifacts: deviations land in plans, plans land in archives, `/retro` turns archives into rules. The single highest-leverage habit is running `/retro` after each epic — five minutes of confirmation that make the next epic measurably smoother.
 - **Keep the profile honest.** Half of "the agent is being dumb" is a stale `PROJECT.md` asserting a world that no longer exists. `/arch-health`'s drift check helps; so does fixing the profile the moment you notice the lie.
 
+## Agent memory fragments by working directory
+
+An agent's store lives under the **session's** `.claude/agent-memory/`, which means the directory you started Claude in. Start one session at the repo root and another inside `src/` or a package, and you now have two stores that cannot see each other: two `MEMORY.md` indexes, two sets of entry files, and `[[links]]` from one tree that silently resolve to nothing in the other. Measured on one project: **four** agent-memory trees at different depths, and the root index knew about roughly 90 of 287 entries. Nothing warns you — each session's memory looks complete from inside it.
+
+What to do about it:
+
+- **Pick one cwd per project and stay there.** This is the whole fix, and it is free if you decide it before the second session rather than after the fortieth.
+- **Before trusting "the agents have seen this before", find the trees:** `find . -type d -name agent-memory`. Several trees is not a bug to repair in place — merging them by hand re-dates every entry and breaks the counters — it is a fact to know while reading.
+- **`/retro` reads all of them** (Phase 1), which is the one mechanism that reliably crosses the fragmentation, and it is also where a `(≥3×)` lesson finally leaves memory for a rule. That is the argument for running it: a lesson stuck in a side tree is a lesson the main sessions never learn.
+
 ## Worktree isolation — a known limitation (keep the waves)
 
 `isolation: worktree` gives an agent its own git worktree — real protection against parallel *file* collisions. The catch: the project's `.claude/` rules and config are **not reliably inherited** inside an agent worktree, so a worktree'd subagent can run without the kit's always-on rules (working discipline, reporting, guard hooks). That's why the kit's answer to parallel writes is the **wave model** (`/prepare` — disjoint file ownership, one shared working tree, separate commits), not worktrees; the only shipped use is `test-writer`, which mostly needs *test-runner* isolation, where missing rules cost little.

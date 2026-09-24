@@ -43,7 +43,10 @@ store is written by an executor the user never watches deliberate.
 
 - **The write bar.** Record only a pattern seen **at least twice, in different sessions**, that
   would not be re-derived from the code in a minute. A one-off observation about the file you
-  just audited belongs in the audit report, not in memory.
+  just audited belongs in the audit report, not in memory. A first sighting that you expect to
+  recur may be filed as an explicit `(1×)` candidate — and is **deleted at the next prune if it
+  never did**. The counter below is what makes that promise enforceable; without it the bar is
+  unmeasurable and every entry looks equally earned.
 - **Announce writes.** An agent that wrote to memory says so in its report — the filename and
   one line of why — so the user can object *before* the entry is committed rather than after.
 - **Prune on read.** When loading `MEMORY.md`, treat an entry whose cited referent no longer
@@ -53,6 +56,15 @@ store is written by an executor the user never watches deliberate.
   memory is durable text, and a line number gives a **false** staleness signal every time an edit
   above it shifts the file, while a vanished *symbol* is a true one. Prune on the symbol; a moved
   line proves nothing either way.
+
+## Shape of a store that stays useful past a hundred entries
+
+The contract above keeps each entry honest; these four keep the *store* readable. They come from one project's agent memory measured at 287 entries, where the practice existed and was never written down — so it never travelled, and three lessons at ≥12× occurrences had still not become a rule.
+
+- **Three fixed sections in `MEMORY.md`, in this order:** `## Recurring — check first` · `## Sanctioned — do not re-flag` · `## Method lessons`. The first is what a new run reads before starting; the second is what stops it re-reporting a blessed pattern for the fourth time; the third is about how the *work* goes wrong, not the code. A flat index of 200 lines gets skimmed, and skimming defeats the purpose of having it.
+- **An occurrence counter in the index line, and one dated line per occurrence in the file:** `- [rule rewrite leaves a twin docstring](rule-rewrite-twin-docstring.md) (43×) — grep the rule as prose, not the symbol`. The count is the only thing that turns a pile of equally-worded entries into a priority order, and it is what `/retro` promotes on.
+- **A size cap per entry:** the rule, **Why**, **How to apply**, and the **last ~3 occurrences** with dates and citations. Older occurrences fold into the counter — they have already made their point, and an entry that grows without bound is one nobody finishes reading.
+- **Prune against the counter, not only against the referent.** At prune time a `(1×)` candidate older than a couple of months is deleted; a `(≥3×)` entry that has not been promoted to a rule, agent line or skill step is a **`/retro` input**, not a memory to keep re-reading. Memory is the waiting room, not the destination.
 
 ## Agents that carry `memory: project`
 

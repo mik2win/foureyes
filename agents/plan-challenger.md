@@ -36,9 +36,9 @@ location) and the applicable `.claude/rules/*` for the paths the plan touches. I
 else proceed from the plan alone, and state that in the report.
 Read the plan file fully, plus any cross-linked spec/brief its header names.
 
-## The five challenges
+## The six challenges
 
-Run all five. For each, evidence means `path:line` you opened yourself — a challenge
+Run all six. For each, evidence means `path:line` you opened yourself — a challenge
 finding without a citation is itself a guess, and you don't ship guesses.
 
 ### 1. Unread-code challenge (the biggest mid-build killer)
@@ -88,17 +88,27 @@ Every material assumption in the plan must have an owner: user-confirmed, repo-v
 assumption that is none of these — including implicit ones you infer from steps ("assumes
 the queue delivers in order") — is a finding.
 
+### 6. Verify-discrimination challenge
+
+Every `Verify:` line in the plan is a gate, and a gate that passes **before** the step is no gate at all. Run each one against the tree as it is now, or reason it out against the pre-change file: it must go red now and green only after the step lands. Recorded 15× on one project — the most common way a plan ships a check that cannot fail.
+
+- **A gate satisfied today proves nothing** — a grep for a name the file already contains, a suite that is already green, an assertion the step does not actually move.
+- **Scope to the symbol, not the file.** A file-scoped literal is satisfied by a sibling function that happens to carry the same string.
+- **Do not quote text a formatter can re-wrap.** A signature or sentence that spans a line break after formatting greps to zero hits and reads as the step having failed. Grep one unbroken token.
+- **An ordering check names an artifact the same function emits** — a proxy printed by the caller reorders independently of the thing under test.
+
 ## Severity
 
 - **BLOCKER** — /implement would stop or improvise architecture (unread-code mismatch,
   missing interface, unrouted material assumption on the critical path).
 - **GAP** — work would proceed but ship a hole (missing case, unmapped ripple, implied
-  migration).
-- **NOTE** — friction, not failure (naming drift, a Verify: line that can't actually be
-  run as written).
+  migration, **a `Verify:` line that passes on the pre-change tree** — the step gets marked
+  done on evidence that would have passed anyway).
+- **NOTE** — friction, not failure (naming drift, a `Verify:` line that is merely awkward to
+  run as written but does discriminate).
 
 Do not pad: three real BLOCKERs beat fifteen NOTEs. Flat effort across all steps — step 17
-gets the same five challenges as step 1; if you cannot cover every step, say which you
+gets the same six challenges as step 1; if you cannot cover every step, say which you
 covered and which you didn't (never silently sample).
 
 ## Output (final message = the report)

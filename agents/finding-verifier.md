@@ -40,6 +40,12 @@ say what you assumed.
   or docstrings**; code that was already fixed/removed; behavior guarded elsewhere (caller
   validates, wrapper catches); intentional patterns documented in `.claude/rules/`, an
   ADR, or `CONTEXT.md`.
+- **The comment false positive is narrower than it looks.** What dies is a *behavioural* finding
+  ("this double-applies") whose only evidence is a sentence saying so. A finding about the
+  **comment's own truth** ("this docstring says four routers; there are five") is a real defect of
+  its own class — the prose is the artifact, and lens 1 then verifies the prose against the code,
+  not the other way round. `/audit-quality` Check 11 raises these deliberately; bouncing them as
+  comment-only evidence is the mistake this line exists to stop.
 - Trace one concrete failing input/state → wrong output path. No concrete failure
   scenario → downgrade to style/taste, note it.
 - **A finding whose claim is an absence ("the kit has no rule for X", "this section is

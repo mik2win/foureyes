@@ -57,6 +57,9 @@ in the report.
 5. **Check the plan's own verification section**: were the named tests/assertions run per
    the log? If runnable read-only and cheap (the profile's `test:targeted` command on the
    owned paths), run them; otherwise report "not re-run".
+6. **Read the plan's own diff, and read its direction.** `git log -p -- <plan file>` — a plan edited during the window may be a *record of what was built* or an *extension of the planning* (`/prepare` adding steps, widening `Owns`, re-scoping). Only the first kind can be evidence of implementation. A step that appeared in the same session it was "verified" in is `step-missing-from-code` until the code says otherwise, not `as-planned`.
+7. **Diff the plan against the working tree, both directions.** `git status` / `git diff --stat` against the `Owns` list: every declared file that is **unmodified** is named in the report (a doc-only owned file whose single edit was a docstring sweep is the recorded way one drops out of the changed set silently), and every modified owned file with no step is `code-outside-plan`. If the plan carries a suggested commit block, check its file list against the same output — a commit block that names files the tree does not show, or omits ones it does, is a finding in itself.
+8. **Resolve findings addressed to this plan from its siblings by symbol, not by number.** A neighbouring plan or review that says "fixed under item 4 of the storage plan" is pointing at an ordinal that gets renumbered between revisions — recorded 7×. Match on the symbol, path or verbatim phrase the sibling names; when only an ordinal is given, say which step you resolved it to and how.
 
 ## Plan/epic target (fold-back)
 
@@ -82,6 +85,8 @@ Otherwise use:
 |---|--------------|---------|------------------------------|
 
 Code outside plan: <none | list>
+Owns declared but unmodified: <none | list>
+Plan-file diff direction: <record of the build | planning extension | untouched>
 Verification section: <run/not-run + result>
 Notes: <1-3 lines>
 ```

@@ -75,8 +75,8 @@ Only after those four does a finding get a HACK or SHORTCUT verdict.
 
 ## The checks
 
-Run all ten over the scope. A check that does not apply to this stack (9, for a project with no
-database) is stated as not-applicable, not silently dropped.
+Run all eleven over the scope. A check that does not apply to this stack (9, for a project with
+no database) is stated as not-applicable, not silently dropped.
 
 ### Check 1 — Abstraction quality
 
@@ -211,6 +211,19 @@ For every state-mutating path in scope (persist, accumulate, finalize, publish, 
 unread"). A structural audit that never opens the write-path can say "the structure is sound",
 never "sound". A double-apply found here is a **correctness bug** → Phase 0 of the refactor plan,
 not structural debt.
+
+### Check 11 — Prose as a claim about the code
+
+Docstrings, comments, help strings and plan sentences that were true when written and are false now. Checks 1–10 read the code; this one re-derives the sentences *about* it as claims. (Mined from a 287-entry agent-memory corpus: ~60 of 109 stack-neutral lessons are this shape, the single most repeated one 43×.)
+
+- **Grep the rule as prose, not as the symbol** — the symbol finds the code, never its twin sentence. Search the old condition's wording, the cardinal ("four routers"), every enumerated member, the old text as a quoted literal, the flag token, header "limits" lists, the comment above a changed constant, help strings, operator docs.
+- **A completed enumeration must not carry a quantifier** — "both", "all", "the only" over a list someone will extend: enumerate the members or drop the count. One added member falsifies every universally quantified header above it.
+- **A constant changed by more than ~2× invalidates its numberless premise** — the sentence with no number in it (the cost, the reason, the headroom) is the one nobody re-derived.
+- **Comparatives name both populations** — "stricter"/"looser" than what, over which inputs; a delta labelled as one job's cost names the other writers of the measured store.
+- **An absolute guarantee is read against the producer's non-happy branches** (absent, default, inferred, empty-is-truthy). Where prose claims a guarantee and also lists a residual, the residual wins.
+- **"Now redundant" / "0 live today" / a past-tense migration note is a licence to delete** that a later session will act on. Re-run the census, or the change ships the permission ahead of the fact.
+
+A finding is `path:line` + the sentence + the single grep or input that falsifies it — not "this comment looks stale". Rarer shapes and worked cases: [`docs/claims-audit-patterns.md`](../../docs/claims-audit-patterns.md).
 
 ## Verdict rubric
 

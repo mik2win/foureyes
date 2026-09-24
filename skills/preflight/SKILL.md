@@ -66,6 +66,11 @@ say so.
 5. **Docs drift** — same mechanic as `/close-epic`: does the release change a user-facing
    surface (commands, routes, config, API) that README/usage docs still describe the old way?
    Grep the docs for the changed surface names. WARN with the stale `path:line`s.
+   **Run the dead-reference gate too** — `python3 tools/lint-refs.py` (or the project's own
+   equivalent from `PROJECT.md` → Commands) checks that every repo path `CLAUDE.md` and the
+   files under `.claude/` cite still exists. It is the half a grep cannot do: a rename breaks
+   an instruction that names a file, and nothing else in the build fails. WARN on its findings
+   and quote them; `--baseline-mode` is the user's call, never this skill's.
 6. **Config & migrations** — grep the release diff for: new env keys / settings (are they
    documented and present in deploy config?), pending schema migrations (is the migration
    step in the deploy plan?), feature flags introduced (correct default?). FAIL on a

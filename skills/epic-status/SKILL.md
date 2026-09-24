@@ -35,6 +35,8 @@ This skill carries only invariant logic. The backlog location and commands come 
 `.claude/PROJECT.md`. `Bash` is for read-only inspection (`git log`, `git status`, `ls`) — never
 mutation.
 
+**If `PROJECT.md` → Commands carries an `epic:status` entry, run it first and quote its output as the mechanical half of this answer.** A script decides Owns overlap, dangling dependencies and status drift deterministically; this skill's judgement is the other half, and it is worth more when it is not also being the parser. The kit ships one such tool (`tools/lint-board.py status` / `lint`) for wave-structured boards. No entry, or the command fails → say so in one clause and do the whole reading yourself; never present a skipped tool as a clean run.
+
 ## Phase 0 — Load profile & resolve the epic
 
 1. Read `.claude/PROJECT.md`. If missing or `profile_status: TEMPLATE`, fall back to the root

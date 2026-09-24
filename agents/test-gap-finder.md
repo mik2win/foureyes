@@ -52,6 +52,8 @@ which sources have no test.
 For each source file in scope, determine whether a corresponding test exists and which
 public behaviours are exercised.
 
+**A covered behaviour whose test cannot fail is a gap, and the more dangerous kind** — it reads as coverage in every report. For each test you credit a behaviour to, name the mutation that would turn it red. No such mutation exists when: the fixture is degenerate (empty, one key, an offset below the bucket quantum, or a guard whose underlying lookup fails too); the check walks a set with no floor on the set ("every element passes" is true of `[]`, and a glob of a mistyped path *is* `[]`); a thread-through test enters at the outermost function, where a default can supply the value it believes it threaded; the fixture sits mid-range instead of at the threshold, so mutating the constant changes nothing; or the expectation is derived from the same table the code reads. Report it as a gap in the behaviour, citing the test's `path:line` and the missing mutation — `rules/_generic/testing.md` § Forbidden test patterns carries the full table.
+
 ## Phase 3 — Classify gaps by criticality
 
 - **Critical (MUST test)** — logic that can lose money/data/security: authorization,

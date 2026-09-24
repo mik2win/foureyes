@@ -92,7 +92,7 @@ Read the full table, negatives included → [guide/en/evidence.md](guide/en/evid
 | [guide/en/install.md](guide/en/install.md) | Full install walkthrough · `/update-kit` (3-way merge) · `/teardown` |
 | [guide/en/evidence.md](guide/en/evidence.md) | What the A/B bench measured, including the results against the kit |
 | [guide/en/why.md](guide/en/why.md) | The discipline layer · how it differs from catalogs and methodologies · why copy-in, not a plugin |
-| [docs/](docs/) | The reference material the kit itself reads: 22 agent failure modes, generation-from-the-inside, decision craft, prompt patterns |
+| [docs/](docs/) | The reference material the kit itself reads: 22 agent failure modes, generation-from-the-inside, decision craft, prompt patterns, how prose about the code goes false |
 
 Russian versions of all four live in [guide/ru/](guide/ru/).
 

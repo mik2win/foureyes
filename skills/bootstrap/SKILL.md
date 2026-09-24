@@ -270,6 +270,15 @@ and back up any pre-existing file into `$BK` before overwriting it (see Phase 0.
      block library commented in that region, and step 4 below.
 5. **`.claude/commands/`** — install `commit.md` always; install `pr.md` (GitHub) or
    `mr.md` (GitLab) per detected git host. Copy from `_kit/templates/commands/`.
+5a. **`tools/`** — two project-side scripts, installed **only when they have work to do**; each is
+   stdlib-Python and report-only. `lint-refs.py` (dead paths cited by `CLAUDE.md` and `.claude/`)
+   installs whenever the project keeps committed instructions — that is always, after this run —
+   and gets its command row (`refs:lint`) in `PROJECT.md` → Commands plus a step in `/preflight`.
+   `lint-board.py` installs **only if the backlog is wave-structured** (an `<epic>/RUN-ORDER.md`
+   exists, or the user says boards are coming); then record it as the `epic:status` command, and
+   it becomes the `__EPIC_STATUS_CMD__` of step 4. Its per-edit half, `hooks/lint-board.sh`, is
+   copied with it and registered under `PostToolUse` / `Write|Edit` — widen its path filter to
+   the project's own backlog and plans locations. No boards → install neither, and say so.
 6. **`.claude/agents/`** — keep the generic agents; remove any that don't fit (e.g. drop
    `arch-tracer` only if the project is genuinely single-layer, or a kit agent the project
    already covers with its own). Default: keep all. Every kit path you remove goes into the

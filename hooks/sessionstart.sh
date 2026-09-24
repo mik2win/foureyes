@@ -39,6 +39,11 @@ msg="Branch: \`${branch}\`."
 #   __EPIC_STATUS_CMD__   = the one-line status command, with its own fallback if the primary
 #                           runner may be missing, e.g. `<runner> <tool> status --oneline
 #                           || <plain-interpreter> <tool> status --oneline`.
+#
+# The kit ships one such tool: `tools/lint-board.py`, for projects whose backlog is
+# wave-structured (`<epic>/RUN-ORDER.md`). For those, the two placeholders are
+# `tools/lint-board.py` and `python3 tools/lint-board.py status --oneline`. Its per-edit half
+# is `hooks/lint-board.sh` (PostToolUse, also default OFF).
 
 jq -n --arg m "$msg" '{"systemMessage": $m}'
 exit 0

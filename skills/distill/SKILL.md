@@ -104,6 +104,12 @@ Nothing lands without the user confirming the batch. Placement follows
   (`path` cited). Must-apply-on-every-matching-edit things only.
 - **Reference skill** (`.claude/skills/<name>-conventions/SKILL.md`, on-demand): the heavy
   version — many worked examples, edge cases — when the rule would otherwise bloat.
+  **Measure before splitting an existing rule this way.** Fenced examples are usually a
+  smaller share of a rule's weight than they look: measured across one project's heavy
+  rules they were **5–16 %**, so moving every one of them out bought ~10 KB off a 116 KB
+  autoload — a split that costs two files, a link to keep true and a second place for the
+  rule to drift from. Run the numbers on the actual files (bytes inside ``` fences ÷ total)
+  and split only where the share is large. Prose, not examples, is what makes a rule heavy.
 - **`CONTEXT.md`** via `/domain-model`: when the pattern names a domain concept.
 - **Scaffold / codemod**: a BLESSed *structural* pattern may install as a committed
   generator template (greppable codegen, per `rules/_generic/code.md` — never
